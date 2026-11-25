@@ -1,85 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0B0E1A"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#090D16">
 
-    <TextView
-        android:id="@+id/tvTitle"
+    <LinearLayout
+        android:id="@+id/loginLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="ورود به پنل"
-        android:textColor="#FFFFFF"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="18dp">
 
-    <TextView
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="FONEX"
+            android:textColor="#C4B5FD"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="ورود به پنل مدیریت و فوروارد سروش پلاس"
+            android:textColor="#94A3B8"
+            android:textSize="13sp" />
+
+        <EditText
+            android:id="@+id/etServerUrl"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="22dp"
+            android:background="#111827"
+            android:hint="آدرس سرور (https://...onrender.com)"
+            android:inputType="textUri"
+            android:paddingHorizontal="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#64748B" />
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:background="#111827"
+            android:hint="نام کاربری"
+            android:inputType="text"
+            android:paddingHorizontal="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#64748B" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:background="#111827"
+            android:hint="رمز عبور"
+            android:inputType="textPassword"
+            android:paddingHorizontal="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#64748B" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="18dp"
+            android:background="#7C3AED"
+            android:text="ورود"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="آماده ورود"
+            android:textColor="#CBD5E1"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/panelWebView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="center"
-        android:text="سیستم فوروارد هوشمند سروش پلاس"
-        android:textColor="#9AA4C7"
-        android:textSize="13sp" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
-    <EditText
-        android:id="@+id/etServerUrl"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="20dp"
-        android:background="#151A2E"
-        android:hint="آدرس سرور (https://...onrender.com)"
-        android:inputType="textUri"
-        android:paddingHorizontal="12dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#6E789B" />
-
-    <EditText
-        android:id="@+id/etUsername"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="12dp"
-        android:background="#151A2E"
-        android:hint="نام کاربری"
-        android:inputType="text"
-        android:paddingHorizontal="12dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#6E789B" />
-
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="12dp"
-        android:background="#151A2E"
-        android:hint="رمز عبور"
-        android:inputType="textPassword"
-        android:paddingHorizontal="12dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#6E789B" />
-
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="18dp"
-        android:background="#7B3FE4"
-        android:text="ورود"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
-        android:text="آماده ورود"
-        android:textColor="#B8C2E6"
-        android:textSize="13sp" />
-
-</LinearLayout>
+</FrameLayout>

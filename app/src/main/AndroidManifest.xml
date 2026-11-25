@@ -5,7 +5,9 @@
 
     <application
         android:allowBackup="true"
-        android:label="پنل فورواردر"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.PanelLayken">
 

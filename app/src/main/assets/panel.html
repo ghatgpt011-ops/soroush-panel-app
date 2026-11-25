@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FONEX Panel</title>
+<style>
+  :root { --bg:#090d16; --card:#111827; --card2:#161f33; --bd:#243049; --tx:#f8fafc; --mu:#94a3b8; --p:#7c3aed; --p2:#4f46e5; --ok:#10b981; --wa:#f59e0b; --er:#ef4444; }
+  *{box-sizing:border-box;font-family:Tahoma,sans-serif}
+  body{margin:0;background:radial-gradient(circle at top right,#2e1065 0%,var(--bg) 45%);color:var(--tx);padding:10px}
+  .top{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+  .brand{font-weight:bold;font-size:16px;color:#c4b5fd}
+  .sys{font-size:11px;color:var(--mu)}
+  .btn{border:0;border-radius:8px;padding:8px 10px;color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
+  .bp{background:linear-gradient(135deg,var(--p),var(--p2))}
+  .bg{background:var(--ok)} .bw{background:var(--wa);color:#111} .br{background:var(--er)} .bd{background:#334155}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+  .st{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px;text-align:center}
+  .st b{display:block;font-size:15px;color:#e9d5ff} .st span{font-size:11px;color:var(--mu)}
+  .box{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+  h3{margin:0 0 8px;font-size:14px;color:#e2e8f0;border-bottom:1px solid var(--bd);padding-bottom:6px}
+  label{display:block;font-size:11px;color:var(--mu);margin:7px 0 3px}
+  input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:12px}
+  textarea{min-height:54px;resize:vertical}
+  .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .chip{background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+  .task{background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:9px;margin-top:8px;font-size:12px;line-height:1.7}
+  .log{background:#05080f;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#a5f3fc;max-height:70px;overflow-y:auto;direction:ltr;text-align:left}
+  .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <div class="brand">FONEX PANEL</div>
+    <div class="sys" id="sysInfo">سرور: - | CPU: --% | RAM: --%</div>
+  </div>
+  <button class="btn br" onclick="logoutApp()">خروج</button>
+</div>
+
+<div class="stats">
+  <div class="st"><b id="sAcc">0</b><span>اکانت</span></div>
+  <div class="st"><b id="sFwd">0</b><span>فوروارد</span></div>
+  <div class="st"><b id="sGrp">0</b><span>گروه</span></div>
+  <div class="st"><b id="sOk">0</b><span>موفق</span></div>
+  <div class="st"><b id="sRun">0</b><span>ران</span></div>
+  <div class="st"><b id="sFail">0</b><span>ناموفق</span></div>
+</div>
+
+<div class="box">
+  <h3>+ اکانت و حساب‌های متصل</h3>
+  <div class="row">
+    <input id="phone" type="text" placeholder="+98912..." dir="ltr" style="flex:1">
+    <button class="btn bp" onclick="sendPhone()">ارسال کد</button>
+  </div>
+  <div id="codeBox" style="display:none;margin-top:6px;">
+    <div class="row">
+      <input id="code" type="text" placeholder="کد ورود" dir="ltr" style="flex:1">
+      <button class="btn bg" onclick="verifyCode()">تأیید کد</button>
+    </div>
+  </div>
+  <div class="msg" id="authMsg">آماده افزودن اکانت</div>
+  <div id="accList"></div>
+</div>
+
+<div class="box">
+  <h3>گفتگوها و جستجو</h3>
+  <div class="row">
+    <input id="chatSearch" type="text" placeholder="جستجوی گروه/کانال/نام..." oninput="renderChats()" style="flex:1">
+    <button class="btn bw" onclick="loadChats()">بروزرسانی</button>
+  </div>
+  <div id="chatList"></div>
+</div>
+
+<div class="box">
+  <h3>ساخت تسک ارسال / فوروارد</h3>
+  <div class="row">
+    <button class="btn bp" style="flex:1" onclick="setMode('link')">+ لینک</button>
+    <button class="btn bp" style="flex:1" onclick="setMode('text')">+ تکست</button>
+  </div>
+  <label id="payloadLbl">لینک پیام (مثال: https://splus.ir/c/123456/10):</label>
+  <textarea id="payload" placeholder="لینک پیام را وارد کنید..."></textarea>
+  <button class="btn bd" style="width:100%;margin-top:6px" onclick="checkLink()">بررسی لینک / متن</button>
+
+  <label>مقصدها (آیدی یا @یوزرنیم، جدا با کاما):</label>
+  <input id="targets" type="text" placeholder="مثال: -10012345, @channel">
+
+  <div class="g2">
+    <div>
+      <label>سرعت (ms):</label>
+      <input id="speedMs" type="number" value="1000" min="50">
+    </div>
+    <div>
+      <label>تعداد (0 = نامحدود):</label>
+      <input id="maxCount" type="number" value="0" min="0">
+    </div>
+  </div>
+
+  <div class="g2">
+    <div>
+      <label>حالت سرعت:</label>
+      <select id="speedMode">
+        <option value="fixed">ثابت</option>
+        <option value="smart">هوشمند</option>
+      </select>
+    </div>
+    <div>
+      <label>استراحت هر (تا) ارسال:</label>
+      <input id="restEvery" type="number" value="0" min="0">
+    </div>
+  </div>
+
+  <label>مدت استراحت (ms):</label>
+  <input id="restMs" type="number" value="3000" min="0">
+
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startTask()">استارت</button>
+  <div class="msg" id="taskMsg"></div>
+</div>
+
+<div class="box">
+  <h3>تسک‌های در حال اجرا و لاگ</h3>
+  <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const baseUrl = (params.get('server') || '').replace(/\/+$/, '');
+let mode = 'link';
+let chats = [];
+let tasks = [];
+let accounts = [];
+
+function setMode(m){
+  mode = m;
+  document.getElementById('payloadLbl').innerText = m === 'link' ? 'لینک پیام (مثال: https://splus.ir/c/...):' : 'متن پیام:';
+  document.getElementById('payload').placeholder = m === 'link' ? 'https://splus.ir/c/...' : 'متن پیام را بنویسید...';
+}
+function checkLink(){
+  const v = document.getElementById('payload').value.trim();
+  document.getElementById('taskMsg').innerText = v ? ('آماده برای حالت ' + (mode==='link'?'لینک/فوروارد':'تکست') + ': ' + v.slice(0,40)) : 'مقداری وارد نشده است.';
+}
+function pickTarget(id){
+  const el = document.getElementById('targets');
+  const cur = el.value.split(',').map(x=>x.trim()).filter(Boolean);
+  if(!cur.includes(String(id))) cur.push(String(id));
+  el.value = cur.join(', ');
+}
+function renderChats(){
+  const q = (document.getElementById('chatSearch').value || '').toLowerCase();
+  const list = chats.filter(c => String(c.name||'').toLowerCase().includes(q) || String(c.id||'').includes(q));
+  document.getElementById('chatList').innerHTML = list.length ? list.map(c =>
+    `<div class="chip"><span>${c.name || c.id} <small style="color:#94a3b8">(ID: ${c.id})</small></span><button class="btn bg" onclick="pickTarget('${c.id}')">+</button></div>`
+  ).join('') : '<div class="msg">گفتگویی یافت نشد.</div>';
+}
+function renderAccounts(){
+  document.getElementById('sAcc').innerText = accounts.length;
+  document.getElementById('accList').innerHTML = accounts.length ? accounts.map((a,i) =>
+    `<div class="chip"><span>${a.name || a.phone} <small style="color:#10b981">(فعال)</small></span><button class="btn br" onclick="delAcc(${i})">حذف</button></div>`
+  ).join('') : '<div class="msg">اکانتی ثبت نشده است.</div>';
+}
+function renderTasks(){
+  let ok=0, run=0, fail=0;
+  tasks.forEach(t=>{ ok+=(t.ok||0); fail+=(t.fail||0); if(t.running) run++; });
+  document.getElementById('sOk').innerText = ok;
+  document.getElementById('sRun').innerText = run;
+  document.getElementById('sFail').innerText = fail;
+  document.getElementById('sFwd').innerText = tasks.length;
+
+  document.getElementById('taskList').innerHTML = tasks.length ? tasks.map(t =>
+    `<div class="task">
+      <b>#${t.id}</b> | وضعیت: <b>${t.running?'ران':'متوقف'}</b> | موفق: ${t.ok||0} | ناموفق: ${t.fail||0}<br>
+      سرعت: ${t.speed_ms||1000}ms | آخرین: ${t.last||'-'} | مدت: ${t.elapsed||'-'}
+      <div class="row">
+        <button class="btn bw" onclick="ctrlTask('${t.id}','toggle')">${t.running?'توقف':'ری‌استارت'}</button>
+        <button class="btn br" onclick="ctrlTask('${t.id}','delete')">حذف</button>
+      </div>
+      <div class="log">${(t.logs||[]).slice(-8).join('\n') || 'waiting...'}</div>
+    </div>`
+  ).join('') : '<div class="msg">تسکی ثبت نشده است.</div>';
+}
+
+async function api(path, q=''){
+  if(!baseUrl) return null;
+  const r = await fetch(baseUrl + path + q);
+  return await r.json();
+}
+async function sendPhone(){
+  const p = document.getElementById('phone').value.trim();
+  if(!p) return;
+  document.getElementById('codeBox').style.display = 'block';
+  document.getElementById('authMsg').innerText = 'در حال ارسال کد...';
+  const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p));
+  if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+}
+async function verifyCode(){
+  const c = document.getElementById('code').value.trim();
+  if(!c) return;
+  document.getElementById('authMsg').innerText = 'در حال تأیید کد...';
+  const d = await api('/api/verify_code', '?code='+encodeURIComponent(c));
+  if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+  poll();
+}
+async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
+async function loadChats(){
+  const d = await api('/api/groups');
+  if(Array.isArray(d)){ chats = d; document.getElementById('sGrp').innerText = chats.length; renderChats(); }
+}
+async function startTask(){
+  const payload = document.getElementById('payload').value.trim();
+  const targets = document.getElementById('targets').value.trim();
+  const speed_ms = document.getElementById('speedMs').value || 1000;
+  const max_count = document.getElementById('maxCount').value || 0;
+  const speed_mode = document.getElementById('speedMode').value;
+  const rest_every = document.getElementById('restEvery').value || 0;
+  const rest_ms = document.getElementById('restMs').value || 0;
+  if(!payload || !targets){ document.getElementById('taskMsg').innerText = 'لینک/متن و مقصد را وارد کنید.'; return; }
+  const q = `?mode=${encodeURIComponent(mode)}&payload=${encodeURIComponent(payload)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed_ms}&max_count=${max_count}&speed_mode=${speed_mode}&rest_every=${rest_every}&rest_ms=${rest_ms}`;
+  const d = await api('/api/add_job', q);
+  document.getElementById('taskMsg').innerText = (d && d.msg) || 'ارسال شد.';
+  poll();
+}
+async function ctrlTask(id, act){ await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`); poll(); }
+function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
+
+async function poll(){
+  if(!baseUrl){
+    document.getElementById('sysInfo').innerText = 'سرور تنظیم نشده (حالت پیش‌نمایش)';
+    renderAccounts(); renderTasks(); return;
+  }
+  try{
+    const d = await api('/api/state');
+    if(!d) return;
+    document.getElementById('sysInfo').innerText = `متصل | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
+    document.getElementById('authMsg').innerText = d.auth_msg || '';
+    if(Array.isArray(d.accounts)) accounts = d.accounts;
+    if(Array.isArray(d.groups)){ chats = d.groups; document.getElementById('sGrp').innerText = chats.length; renderChats(); }
+    if(Array.isArray(d.jobs)){ tasks = d.jobs; }
+    renderAccounts(); renderTasks();
+  }catch(e){}
+}
+setInterval(poll, 2000);
+poll();
+</script>
+</body>
+</html>

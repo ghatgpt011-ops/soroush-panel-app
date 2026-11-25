@@ -1,19 +1,33 @@
 package com.soroush.panelapp;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String PREFS = "panel_layken_prefs";
+    private static final String PREFS = "fonex_prefs";
+    private LinearLayout loginLayout;
+    private WebView panelWebView;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        loginLayout = findViewById(R.id.loginLayout);
+        panelWebView = findViewById(R.id.panelWebView);
 
         EditText etUrl = findViewById(R.id.etServerUrl);
         EditText etUser = findViewById(R.id.etUsername);
@@ -21,9 +35,14 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogin = findViewById(R.id.btnLogin);
         TextView tvStatus = findViewById(R.id.tvStatus);
 
-        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         etUrl.setText(prefs.getString("server_url", ""));
         etUser.setText(prefs.getString("username", ""));
+
+        WebSettings ws = panelWebView.getSettings();
+        ws.setJavaScriptEnabled(true);
+        ws.setDomStorageEnabled(true);
+        panelWebView.setWebViewClient(new WebViewClient());
+        panelWebView.addJavascriptInterface(new AndroidBridge(), "AndroidBridge");
 
         btnLogin.setOnClickListener(v -> {
             String url = etUrl.getText().toString().trim();
@@ -46,7 +65,34 @@ public class MainActivity extends AppCompatActivity {
                 .putString("username", user)
                 .apply();
 
-            tvStatus.setText("تنظیمات ذخیره شد: " + url);
+            openPanel(url, user);
         });
+    }
+
+    private void openPanel(String url, String user) {
+        loginLayout.setVisibility(View.GONE);
+        panelWebView.setVisibility(View.VISIBLE);
+        String target = "file:///android_asset/panel.html?server=" + Uri.encode(url) + "&user=" + Uri.encode(user);
+        panelWebView.loadUrl(target);
+    }
+
+    public class AndroidBridge {
+        @JavascriptInterface
+        public void logout() {
+            runOnUiThread(() -> {
+                panelWebView.setVisibility(View.GONE);
+                loginLayout.setVisibility(View.VISIBLE);
+            });
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (panelWebView.getVisibility() == View.VISIBLE) {
+            panelWebView.setVisibility(View.GONE);
+            loginLayout.setVisibility(View.VISIBLE);
+        } else {
+            super.onBackPressed();
+        }
     }
 }
