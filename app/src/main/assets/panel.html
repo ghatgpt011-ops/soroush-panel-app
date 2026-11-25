@@ -23,8 +23,8 @@
   textarea{min-height:54px;resize:vertical}
   .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
   .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
-  .tab{padding:9px 4px;border-radius:9px;border:1px solid #273556;background:#101628;color:#cbd5e1;font-weight:bold;font-size:12px;cursor:pointer;text-align:center}
+  .tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+  .tab{padding:9px 6px;border-radius:9px;border:1px solid #273556;background:#101628;color:#cbd5e1;font-weight:bold;font-size:12px;cursor:pointer;text-align:center}
   .tab.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
   .item{background:#16203a;border:1px solid #273556;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;line-height:1.6}
   .chip{background:#16203a;border:1px solid #273556;border-radius:8px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px}
@@ -74,7 +74,6 @@
 <div class="tabs">
   <div id="tabFwd" class="tab active" onclick="switchSec('fwd')">فوروارد</div>
   <div id="tabSpam" class="tab" onclick="switchSec('spam')">اسپم</div>
-  <div id="tabReply" class="tab" onclick="switchSec('reply')">ریپلای متوالی</div>
 </div>
 
 <div id="secFwd" class="box">
@@ -83,7 +82,7 @@
   <div class="row">
     <button class="btn bc" onclick="fetchGroups(true, 'fwdSrc')">دریافت لیست گروه‌ها</button>
     <button class="btn bd" onclick="toggleList('fwdSrc')">انتخاب مبدا از لیست</button>
-    <button class="btn bp" onclick="loadRecentMessages('fwd', 'fwdSrc')">۱۰ پیام اخیر</button>
+    <button class="btn bp" onclick="loadRecentMessages('fwdSrc')">۱۰ پیام اخیر</button>
   </div>
   <div id="fwdSrcBox" style="display:none;margin-top:6px;">
     <input id="fwdSrcSearch" type="text" placeholder="جستجوی مبدا..." oninput="renderGroupList('fwdSrc')">
@@ -142,34 +141,6 @@
   <div class="msg" id="spamMsg"></div>
 </div>
 
-<div id="secReply" class="box" style="display:none;">
-  <h3>بخش ریپلای متوالی</h3>
-  <label>متن ریپلای متوالی:</label>
-  <textarea id="replyText" placeholder="متن ریپلای را بنویسید..."></textarea>
-
-  <label>چت (مقصد ریپلای) و انتخاب پیام طرف از ۱۰ پیام اخیر:</label>
-  <div class="row">
-    <button class="btn bc" onclick="fetchGroups(true, 'replyDst')">دریافت لیست گروه‌ها</button>
-    <button class="btn bd" onclick="toggleList('replyDst')">انتخاب چت از لیست</button>
-    <button class="btn bp" onclick="loadRecentMessages('reply', 'replyTargets')">۱۰ پیام اخیر</button>
-  </div>
-  <div id="replyDstBox" style="display:none;margin-top:6px;">
-    <input id="replyDstSearch" type="text" placeholder="جستجوی چت..." oninput="renderGroupList('replyDst')">
-    <div id="replyDstList"></div>
-  </div>
-  <input id="replyTargets" type="text" placeholder="-10012345, @group" oninput="renderTags('replyTargets','replyTags')" style="margin-top:6px">
-  <div id="replyTags"></div>
-  <div id="replyRecentList"></div>
-  <div class="msg" id="replyPickedLabel">پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.</div>
-
-  <div class="g2">
-    <div><label>سرعت ریپلای (ms):</label><input id="replySpeed" type="number" value="1000" min="50"></div>
-    <div><label>تعداد (0 = نامحدود):</label><input id="replyCount" type="number" value="0" min="0"></div>
-  </div>
-  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startJob('reply_loop')">استارت ریپلای متوالی</button>
-  <div class="msg" id="replyMsg"></div>
-</div>
-
 <div class="box">
   <h3>تسک‌های در حال اجرا و لاگ (حداکثر ۳ تسک هم‌زمان)</h3>
   <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
@@ -179,11 +150,11 @@
 const params = new URLSearchParams(location.search);
 const baseUrl = (params.get('server') || '').replace(/\/+$/, '');
 let chats = [], tasks = [], accounts = [];
-let recentMsgs = { fwd: [], reply: [] };
-let pickedMsg = { fwd: null, reply: null };
+let recentMsgs = [];
+let pickedMsg = null;
 
 function switchSec(sec){
-  ['fwd','spam','reply'].forEach(k => {
+  ['fwd','spam'].forEach(k => {
     const cap = k.charAt(0).toUpperCase() + k.slice(1);
     document.getElementById('sec'+cap).style.display = (k===sec)?'block':'none';
     document.getElementById('tab'+cap).className = 'tab' + (k===sec?' active':'');
@@ -208,26 +179,21 @@ function onPickGroup(key, id){
   document.getElementById(key+'Box').style.display = 'none';
   if(key === 'fwdSrc'){
     document.getElementById('fwdSrc').value = id;
-    loadRecentMessages('fwd', 'fwdSrc');
+    loadRecentMessages('fwdSrc');
   } else if(key === 'fwdDst') addTag('fwdTargets', 'fwdTags', id);
   else if(key === 'spamDst') addTag('spamTargets', 'spamTags', id);
-  else if(key === 'replyDst'){
-    addTag('replyTargets', 'replyTags', id);
-    loadRecentMessages('reply', 'replyTargets');
-  }
 }
 
-async function loadRecentMessages(kind, inputId){
-  const raw = document.getElementById(inputId).value.trim();
-  const chatVal = (raw.split(',')[0] || '').trim();
-  const msgBox = document.getElementById(kind+'Msg');
-  const listEl = document.getElementById(kind+'RecentList');
+async function loadRecentMessages(inputId){
+  const chatVal = document.getElementById(inputId).value.trim();
+  const msgBox = document.getElementById('fwdMsg');
+  const listEl = document.getElementById('fwdRecentList');
   if(!chatVal){
-    msgBox.innerText = 'ابتدا چت را وارد یا از لیست انتخاب کنید.';
+    msgBox.innerText = 'ابتدا مبدا را وارد یا از لیست انتخاب کنید.';
     return;
   }
-  pickedMsg[kind] = null;
-  document.getElementById(kind+'PickedLabel').innerText = 'پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.';
+  pickedMsg = null;
+  document.getElementById('fwdPickedLabel').innerText = 'پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.';
   msgBox.innerText = 'در حال دریافت ۱۰ پیام اخیر...';
   listEl.innerHTML = '<div class="msg">در حال بارگذاری...</div>';
 
@@ -237,34 +203,33 @@ async function loadRecentMessages(kind, inputId){
     listEl.innerHTML = '';
     return;
   }
-  recentMsgs[kind] = d.messages.slice(0, 10);
-  msgBox.innerText = `${recentMsgs[kind].length} پیام اخیر دریافت شد؛ روی پیام دلخواه بزنید تا انتخاب شود.`;
-  renderRecentMessages(kind);
+  recentMsgs = d.messages.slice(0, 10);
+  msgBox.innerText = `${recentMsgs.length} پیام اخیر دریافت شد؛ روی پیام دلخواه بزنید تا انتخاب شود.`;
+  renderRecentMessages();
 }
 
-function renderRecentMessages(kind){
-  const listEl = document.getElementById(kind+'RecentList');
-  const arr = recentMsgs[kind] || [];
-  const chosenId = pickedMsg[kind] ? String(pickedMsg[kind].id) : '';
-  listEl.innerHTML = arr.map((m, idx) => {
+function renderRecentMessages(){
+  const listEl = document.getElementById('fwdRecentList');
+  const chosenId = pickedMsg ? String(pickedMsg.id) : '';
+  listEl.innerHTML = recentMsgs.map((m, idx) => {
     const isPicked = chosenId && chosenId === String(m.id);
     return `<div class="mcard ${isPicked?'picked':''}">
       <div><b>#${m.id}</b> | از: <b>${m.sender_name || '-'}</b></div>
       <div class="mtxt">${m.text || ''}</div>
       <div class="row">
-        <button class="btn ${isPicked?'bg':'bp'}" onclick="pickRecentMsg('${kind}', ${idx})">${isPicked?'انتخاب شده ✓':'انتخاب این پیام'}</button>
+        <button class="btn ${isPicked?'bg':'bp'}" onclick="pickRecentMsg(${idx})">${isPicked?'انتخاب شده ✓':'انتخاب این پیام'}</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function pickRecentMsg(kind, idx){
-  const m = (recentMsgs[kind] || [])[idx];
+function pickRecentMsg(idx){
+  const m = recentMsgs[idx];
   if(!m) return;
-  pickedMsg[kind] = m;
-  document.getElementById(kind+'PickedLabel').innerText = `پیام انتخاب‌شده: #${m.id} (${m.sender_name || '-'})`;
-  document.getElementById(kind+'Msg').innerText = `پیام #${m.id} به عنوان پیام تنظیم شد.`;
-  renderRecentMessages(kind);
+  pickedMsg = m;
+  document.getElementById('fwdPickedLabel').innerText = `پیام انتخاب‌شده: #${m.id} (${m.sender_name || '-'})`;
+  document.getElementById('fwdMsg').innerText = `پیام #${m.id} برای فوروارد آماده است.`;
+  renderRecentMessages();
 }
 
 function renderTags(inputId, viewId){
@@ -295,11 +260,11 @@ async function startJob(mode){
     const targets = document.getElementById('fwdTargets').value.trim();
     const speed = document.getElementById('fwdSpeed').value || 1000;
     const cnt = document.getElementById('fwdCount').value || 0;
-    if(!src || !pickedMsg.fwd || !targets){
+    if(!src || !pickedMsg || !targets){
       document.getElementById('fwdMsg').innerText = 'مبدا را انتخاب کن، یکی از ۱۰ پیام اخیر را بردار و مقصد را مشخص کن.';
       return;
     }
-    q = `?mode=forward_msg&source_chat=${encodeURIComponent(src)}&msg_id=${encodeURIComponent(pickedMsg.fwd.id)}&payload=${encodeURIComponent(pickedMsg.fwd.text||'')}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
+    q = `?mode=forward_msg&source_chat=${encodeURIComponent(src)}&msg_id=${encodeURIComponent(pickedMsg.id)}&payload=${encodeURIComponent(pickedMsg.text||'')}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
   } else if(mode === 'spam'){
     const text = document.getElementById('spamText').value.trim();
     const targets = document.getElementById('spamTargets').value.trim();
@@ -309,20 +274,9 @@ async function startJob(mode){
     const rm = document.getElementById('spamRestMs').value || 2000;
     if(!text || !targets){ document.getElementById('spamMsg').innerText = 'متن اسپم و مقصد را وارد کنید.'; return; }
     q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}`;
-  } else if(mode === 'reply_loop'){
-    const rtext = document.getElementById('replyText').value.trim();
-    const targets = document.getElementById('replyTargets').value.trim();
-    const speed = document.getElementById('replySpeed').value || 1000;
-    const cnt = document.getElementById('replyCount').value || 0;
-    if(!rtext || !targets || !pickedMsg.reply){
-      document.getElementById('replyMsg').innerText = 'متن ریپلای را بنویس، چت را انتخاب کن و پیام طرف را از ۱۰ پیام اخیر بردار.';
-      return;
-    }
-    const firstChat = (targets.split(',')[0] || '').trim();
-    q = `?mode=reply_loop&source_chat=${encodeURIComponent(firstChat)}&msg_id=${encodeURIComponent(pickedMsg.reply.id)}&payload=${encodeURIComponent(rtext)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
   }
   const d = await api('/api/add_job', q);
-  const msgEl = mode === 'forward_msg' ? 'fwdMsg' : (mode === 'spam' ? 'spamMsg' : 'replyMsg');
+  const msgEl = mode === 'forward_msg' ? 'fwdMsg' : 'spamMsg';
   document.getElementById(msgEl).innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
   poll();
 }
@@ -382,7 +336,7 @@ async function fetchGroups(openBox=false, targetKey=''){
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
-    ['fwdSrc','fwdDst','spamDst','replyDst'].forEach(renderGroupList);
+    ['fwdSrc','fwdDst','spamDst'].forEach(renderGroupList);
     if(openBox && targetKey){
       document.getElementById(targetKey+'Box').style.display = 'block';
     }
@@ -394,7 +348,6 @@ function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 async function poll(){
   renderTags('fwdTargets','fwdTags');
   renderTags('spamTargets','spamTags');
-  renderTags('replyTargets','replyTags');
   if(!baseUrl){
     document.getElementById('sysInfo').innerText = 'آدرس سرور تنظیم نشده است';
     renderAccounts(); renderTasks();
@@ -410,7 +363,7 @@ async function poll(){
     if(Array.isArray(d.groups)){
       chats = d.groups;
       document.getElementById('sGrp').innerText = chats.length;
-      ['fwdSrc','fwdDst','spamDst','replyDst'].forEach(renderGroupList);
+      ['fwdSrc','fwdDst','spamDst'].forEach(renderGroupList);
     }
     if(Array.isArray(d.jobs)) tasks = d.jobs;
     renderAccounts(); renderTasks();
