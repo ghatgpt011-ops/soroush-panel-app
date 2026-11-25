@@ -44,7 +44,7 @@
 <div class="stats">
   <div class="st"><b id="sAcc">0</b><span>اکانت</span></div>
   <div class="st"><b id="sGrp">0</b><span>گروه</span></div>
-  <div class="st"><b id="sRun3">0 / 3</b><span>اسپم فعال (حداکثر ۳)</span></div>
+  <div class="st"><b id="sRun3" dir="ltr">0 / 3</b><span>اسپم فعال (حداکثر ۳)</span></div>
   <div class="st"><b id="sOk">0</b><span>موفق</span></div>
   <div class="st"><b id="sRun">0</b><span>در حال اجرا</span></div>
   <div class="st"><b id="sFail">0</b><span>ناموفق</span></div>
@@ -263,7 +263,7 @@ async function poll(){
   try{
     const d = await api('/api/state');
     if(!d) return;
-    const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل' : 'آماده');
+    const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل' : 'سرور وصل');
     document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
     if(d.auth_msg){
       const el = document.getElementById('authMsg');
