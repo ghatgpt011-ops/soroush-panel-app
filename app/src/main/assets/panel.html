@@ -28,7 +28,9 @@
   .tab.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
   .item{background:#16203a;border:1px solid #273556;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;line-height:1.6}
   .chip{background:#16203a;border:1px solid #273556;border-radius:8px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px}
-  .preview{background:#090e1c;border:1px solid #38bdf8;border-radius:8px;padding:8px;margin-top:6px;font-size:11px;color:#e0f2fe;white-space:pre-wrap;word-break:break-word}
+  .mcard{background:#090e1c;border:1px solid #273556;border-radius:8px;padding:8px;margin-top:6px;font-size:11px}
+  .mcard.picked{border-color:#10b981;background:#071b16}
+  .mtxt{white-space:pre-wrap;word-break:break-word;color:#e2e8f0;margin-top:4px}
   .tag{display:inline-flex;align-items:center;gap:5px;background:#2e1065;border:1px solid #7c3aed;color:#fae8ff;padding:3px 8px;border-radius:7px;margin:2px;font-size:11px}
   .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:70px;overflow-y:auto;direction:ltr;text-align:left}
   .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
@@ -76,21 +78,25 @@
 </div>
 
 <div id="secFwd" class="box">
-  <h3>بخش فوروارد (فقط لینک پیام + بررسی + مقصد)</h3>
-  <label>لینک پیام در سروش:</label>
-  <input id="fwdLink" type="text" placeholder="https://splus.ir/c/24582951/189091" dir="ltr">
-  <button class="btn bp" style="width:100%;margin-top:6px" onclick="inspectLink('fwd')">بررسی لینک</button>
-
-  <div id="fwdPreviewBox" style="display:none;margin-top:6px;">
-    <div id="fwdPreviewText" class="preview"></div>
-    <div class="row"><button class="btn bg" onclick="confirmMsg('fwd')">تایید این پیام</button></div>
+  <h3>بخش فوروارد</h3>
+  <label>مبدا فوروارد:</label>
+  <div class="row">
+    <button class="btn bc" onclick="fetchGroups(true, 'fwdSrc')">دریافت لیست گروه‌ها</button>
+    <button class="btn bd" onclick="toggleList('fwdSrc')">انتخاب مبدا از لیست</button>
+    <button class="btn bp" onclick="loadRecentMessages('fwd')">۱۰ پیام اخیر</button>
   </div>
-  <div class="msg" id="fwdConfirmedLabel">وضعیت پیام: تایید نشده</div>
+  <div id="fwdSrcBox" style="display:none;margin-top:6px;">
+    <input id="fwdSrcSearch" type="text" placeholder="جستجوی مبدا..." oninput="renderGroupList('fwdSrc')">
+    <div id="fwdSrcList"></div>
+  </div>
+  <input id="fwdSrc" type="text" placeholder="آیدی یا یوزرنیم مبدا" style="margin-top:6px">
+  <div id="fwdRecentList"></div>
+  <div class="msg" id="fwdPickedLabel">پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.</div>
 
   <label>مقصدهای فوروارد:</label>
   <div class="row">
-    <button class="btn bc" onclick="fetchGroups(true)">دریافت لیست گروه‌ها</button>
-    <button class="btn bd" onclick="toggleList('fwdDst')">انتخاب از لیست</button>
+    <button class="btn bc" onclick="fetchGroups(true, 'fwdDst')">دریافت لیست گروه‌ها</button>
+    <button class="btn bd" onclick="toggleList('fwdDst')">انتخاب مقصد از لیست</button>
   </div>
   <div id="fwdDstBox" style="display:none;margin-top:6px;">
     <input id="fwdDstSearch" type="text" placeholder="جستجوی مقصد..." oninput="renderGroupList('fwdDst')">
@@ -114,8 +120,8 @@
 
   <label>مقصدهای اسپم:</label>
   <div class="row">
-    <button class="btn bc" onclick="fetchGroups(true)">دریافت لیست گروه‌ها</button>
-    <button class="btn bd" onclick="toggleList('spamDst')">انتخاب از لیست</button>
+    <button class="btn bc" onclick="fetchGroups(true, 'spamDst')">دریافت لیست گروه‌ها</button>
+    <button class="btn bd" onclick="toggleList('spamDst')">انتخاب مقصد از لیست</button>
   </div>
   <div id="spamDstBox" style="display:none;margin-top:6px;">
     <input id="spamDstSearch" type="text" placeholder="جستجوی مقصد..." oninput="renderGroupList('spamDst')">
@@ -137,24 +143,28 @@
 </div>
 
 <div id="secReply" class="box" style="display:none;">
-  <h3>بخش ریپلای متوالی (فقط لینک پیام + بررسی + مقصد)</h3>
-  <label>لینک پیام هدف در سروش:</label>
-  <input id="replyLink" type="text" placeholder="https://splus.ir/c/24582951/189091" dir="ltr">
-  <button class="btn bp" style="width:100%;margin-top:6px" onclick="inspectLink('reply')">بررسی لینک</button>
-
-  <div id="replyPreviewBox" style="display:none;margin-top:6px;">
-    <div id="replyPreviewText" class="preview"></div>
-    <div class="row"><button class="btn bg" onclick="confirmMsg('reply')">تایید این پیام</button></div>
+  <h3>بخش ریپلای متوالی</h3>
+  <label>مبدا پیام هدف:</label>
+  <div class="row">
+    <button class="btn bc" onclick="fetchGroups(true, 'replySrc')">دریافت لیست گروه‌ها</button>
+    <button class="btn bd" onclick="toggleList('replySrc')">انتخاب مبدا از لیست</button>
+    <button class="btn bp" onclick="loadRecentMessages('reply')">۱۰ پیام اخیر</button>
   </div>
-  <div class="msg" id="replyConfirmedLabel">وضعیت پیام: تایید نشده</div>
+  <div id="replySrcBox" style="display:none;margin-top:6px;">
+    <input id="replySrcSearch" type="text" placeholder="جستجوی مبدا..." oninput="renderGroupList('replySrc')">
+    <div id="replySrcList"></div>
+  </div>
+  <input id="replySrc" type="text" placeholder="آیدی یا یوزرنیم مبدا" style="margin-top:6px">
+  <div id="replyRecentList"></div>
+  <div class="msg" id="replyPickedLabel">پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.</div>
 
   <label>متن ریپلای متوالی:</label>
   <textarea id="replyText" placeholder="متن ریپلای را بنویسید..."></textarea>
 
   <label>مقصدهای ریپلای:</label>
   <div class="row">
-    <button class="btn bc" onclick="fetchGroups(true)">دریافت لیست گروه‌ها</button>
-    <button class="btn bd" onclick="toggleList('replyDst')">انتخاب از لیست</button>
+    <button class="btn bc" onclick="fetchGroups(true, 'replyDst')">دریافت لیست گروه‌ها</button>
+    <button class="btn bd" onclick="toggleList('replyDst')">انتخاب مقصد از لیست</button>
   </div>
   <div id="replyDstBox" style="display:none;margin-top:6px;">
     <input id="replyDstSearch" type="text" placeholder="جستجوی مقصد..." oninput="renderGroupList('replyDst')">
@@ -180,8 +190,8 @@
 const params = new URLSearchParams(location.search);
 const baseUrl = (params.get('server') || '').replace(/\/+$/, '');
 let chats = [], tasks = [], accounts = [];
-let inspectedMsg = { fwd: null, reply: null };
-let confirmedMsg = { fwd: null, reply: null };
+let recentMsgs = { fwd: [], reply: [] };
+let pickedMsg = { fwd: null, reply: null };
 
 function switchSec(sec){
   ['fwd','spam','reply'].forEach(k => {
@@ -207,9 +217,64 @@ function renderGroupList(key){
 
 function onPickGroup(key, id){
   document.getElementById(key+'Box').style.display = 'none';
-  if(key === 'fwdDst') addTag('fwdTargets', 'fwdTags', id);
+  if(key === 'fwdSrc'){
+    document.getElementById('fwdSrc').value = id;
+    loadRecentMessages('fwd');
+  } else if(key === 'replySrc'){
+    document.getElementById('replySrc').value = id;
+    loadRecentMessages('reply');
+  } else if(key === 'fwdDst') addTag('fwdTargets', 'fwdTags', id);
   else if(key === 'spamDst') addTag('spamTargets', 'spamTags', id);
   else if(key === 'replyDst') addTag('replyTargets', 'replyTags', id);
+}
+
+async function loadRecentMessages(kind){
+  const srcVal = document.getElementById(kind+'Src').value.trim();
+  const msgBox = document.getElementById(kind+'Msg');
+  const listEl = document.getElementById(kind+'RecentList');
+  if(!srcVal){
+    msgBox.innerText = 'ابتدا مبدا را وارد یا از لیست انتخاب کنید.';
+    return;
+  }
+  pickedMsg[kind] = null;
+  document.getElementById(kind+'PickedLabel').innerText = 'پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.';
+  msgBox.innerText = 'در حال دریافت ۱۰ پیام اخیر...';
+  listEl.innerHTML = '<div class="msg">در حال بارگذاری...</div>';
+
+  const d = await api('/api/recent_messages', `?chat_id=${encodeURIComponent(srcVal)}&limit=10`);
+  if(!d || !d.ok || !Array.isArray(d.messages) || !d.messages.length){
+    msgBox.innerText = (d && d.msg) || 'پیامی یافت نشد.';
+    listEl.innerHTML = '';
+    return;
+  }
+  recentMsgs[kind] = d.messages.slice(0, 10);
+  msgBox.innerText = `${recentMsgs[kind].length} پیام اخیر دریافت شد؛ روی پیام دلخواه بزنید تا انتخاب شود.`;
+  renderRecentMessages(kind);
+}
+
+function renderRecentMessages(kind){
+  const listEl = document.getElementById(kind+'RecentList');
+  const arr = recentMsgs[kind] || [];
+  const chosenId = pickedMsg[kind] ? String(pickedMsg[kind].id) : '';
+  listEl.innerHTML = arr.map((m, idx) => {
+    const isPicked = chosenId && chosenId === String(m.id);
+    return `<div class="mcard ${isPicked?'picked':''}">
+      <div><b>#${m.id}</b> | از: <b>${m.sender_name || '-'}</b></div>
+      <div class="mtxt">${m.text || ''}</div>
+      <div class="row">
+        <button class="btn ${isPicked?'bg':'bp'}" onclick="pickRecentMsg('${kind}', ${idx})">${isPicked?'انتخاب شده ✓':'انتخاب این پیام'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pickRecentMsg(kind, idx){
+  const m = (recentMsgs[kind] || [])[idx];
+  if(!m) return;
+  pickedMsg[kind] = m;
+  document.getElementById(kind+'PickedLabel').innerText = `پیام انتخاب‌شده: #${m.id} (${m.sender_name || '-'})`;
+  document.getElementById(kind+'Msg').innerText = `پیام #${m.id} به عنوان پیام تنظیم شد.`;
+  renderRecentMessages(kind);
 }
 
 function renderTags(inputId, viewId){
@@ -233,43 +298,18 @@ function addTag(inputId, viewId, val){
   renderTags(inputId, viewId);
 }
 
-async function inspectLink(kind){
-  const link = document.getElementById(kind+'Link').value.trim();
-  if(!link){ document.getElementById(kind+'Msg').innerText = 'لینک پیام را وارد کنید.'; return; }
-  confirmedMsg[kind] = null;
-  document.getElementById(kind+'ConfirmedLabel').innerText = 'وضعیت پیام: تایید نشده';
-  document.getElementById(kind+'Msg').innerText = 'در حال باز کردن و خواندن پیام از لینک...';
-
-  const d = await api('/api/inspect_link', `?link=${encodeURIComponent(link)}`);
-  if(!d || !d.ok || !d.message){
-    document.getElementById(kind+'Msg').innerText = (d && d.msg) || 'پیام پیدا نشد.';
-    return;
-  }
-  inspectedMsg[kind] = d.message;
-  document.getElementById(kind+'PreviewBox').style.display = 'block';
-  document.getElementById(kind+'PreviewText').innerText =
-    `پیام #${d.message.id} | چت: ${d.message.chat_id || '-'} | از: ${d.message.sender_name || '-'}\n\n${d.message.text || '[پیام/رسانه بدون متن]'}`;
-  document.getElementById(kind+'Msg').innerText = 'پیام خوانده شد؛ در صورت صحت «تایید این پیام» را بزنید.';
-}
-
-function confirmMsg(kind){
-  if(!inspectedMsg[kind]) return;
-  confirmedMsg[kind] = inspectedMsg[kind];
-  document.getElementById(kind+'ConfirmedLabel').innerText = `وضعیت پیام: تایید شد (#${confirmedMsg[kind].id})`;
-  document.getElementById(kind+'Msg').innerText = 'پیام تایید شد.';
-}
-
 async function startJob(mode){
   let q = '';
   if(mode === 'forward_msg'){
+    const src = document.getElementById('fwdSrc').value.trim();
     const targets = document.getElementById('fwdTargets').value.trim();
     const speed = document.getElementById('fwdSpeed').value || 1000;
     const cnt = document.getElementById('fwdCount').value || 0;
-    if(!confirmedMsg.fwd || !targets){
-      document.getElementById('fwdMsg').innerText = 'ابتدا لینک را بررسی و تایید کنید و مقصد را انتخاب نمایید.';
+    if(!src || !pickedMsg.fwd || !targets){
+      document.getElementById('fwdMsg').innerText = 'مبدا را انتخاب کن، یکی از ۱۰ پیام اخیر را بردار و مقصد را مشخص کن.';
       return;
     }
-    q = `?mode=forward_msg&source_chat=${encodeURIComponent(confirmedMsg.fwd.chat_id||'')}&msg_id=${encodeURIComponent(confirmedMsg.fwd.id)}&payload=${encodeURIComponent(confirmedMsg.fwd.text||'')}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
+    q = `?mode=forward_msg&source_chat=${encodeURIComponent(src)}&msg_id=${encodeURIComponent(pickedMsg.fwd.id)}&payload=${encodeURIComponent(pickedMsg.fwd.text||'')}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
   } else if(mode === 'spam'){
     const text = document.getElementById('spamText').value.trim();
     const targets = document.getElementById('spamTargets').value.trim();
@@ -280,15 +320,16 @@ async function startJob(mode){
     if(!text || !targets){ document.getElementById('spamMsg').innerText = 'متن اسپم و مقصد را وارد کنید.'; return; }
     q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}`;
   } else if(mode === 'reply_loop'){
+    const src = document.getElementById('replySrc').value.trim();
     const rtext = document.getElementById('replyText').value.trim();
     const targets = document.getElementById('replyTargets').value.trim();
     const speed = document.getElementById('replySpeed').value || 1000;
     const cnt = document.getElementById('replyCount').value || 0;
-    if(!confirmedMsg.reply || !rtext || !targets){
-      document.getElementById('replyMsg').innerText = 'لینک را بررسی و تایید کنید، متن ریپلای و مقصد را بنویسید.';
+    if(!src || !pickedMsg.reply || !rtext || !targets){
+      document.getElementById('replyMsg').innerText = 'مبدا و پیام را انتخاب کن، متن ریپلای و مقصد را بنویس.';
       return;
     }
-    q = `?mode=reply_loop&source_chat=${encodeURIComponent(confirmedMsg.reply.chat_id||'')}&msg_id=${encodeURIComponent(confirmedMsg.reply.id)}&payload=${encodeURIComponent(rtext)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
+    q = `?mode=reply_loop&source_chat=${encodeURIComponent(src)}&msg_id=${encodeURIComponent(pickedMsg.reply.id)}&payload=${encodeURIComponent(rtext)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
   }
   const d = await api('/api/add_job', q);
   const msgEl = mode === 'forward_msg' ? 'fwdMsg' : (mode === 'spam' ? 'spamMsg' : 'replyMsg');
@@ -345,17 +386,15 @@ async function verifyCode(){
   poll();
 }
 async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
-async function fetchGroups(openDst=false){
+async function fetchGroups(openBox=false, targetKey=''){
   if(!baseUrl) return;
   const d = await api('/api/groups');
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
-    ['fwdDst','spamDst','replyDst'].forEach(renderGroupList);
-    if(openDst){
-      const sec = document.getElementById('secFwd').style.display !== 'none' ? 'fwdDst' :
-                  (document.getElementById('secSpam').style.display !== 'none' ? 'spamDst' : 'replyDst');
-      document.getElementById(sec+'Box').style.display = 'block';
+    ['fwdSrc','fwdDst','spamDst','replySrc','replyDst'].forEach(renderGroupList);
+    if(openBox && targetKey){
+      document.getElementById(targetKey+'Box').style.display = 'block';
     }
   }
 }
@@ -380,7 +419,7 @@ async function poll(){
     if(Array.isArray(d.groups)){
       chats = d.groups;
       document.getElementById('sGrp').innerText = chats.length;
-      ['fwdDst','spamDst','replyDst'].forEach(renderGroupList);
+      ['fwdSrc','fwdDst','spamDst','replySrc','replyDst'].forEach(renderGroupList);
     }
     if(Array.isArray(d.jobs)) tasks = d.jobs;
     renderAccounts(); renderTasks();
