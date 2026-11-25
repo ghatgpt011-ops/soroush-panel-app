@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FONEX SPAM PANEL</title>
+<title>FONEX SPAM</title>
 <style>
   *{box-sizing:border-box;font-family:Tahoma,sans-serif}
   body{margin:0;padding:10px;color:#f8fafc;background:#070a14}
@@ -44,7 +44,7 @@
 <div class="stats">
   <div class="st"><b id="sAcc">0</b><span>اکانت</span></div>
   <div class="st"><b id="sGrp">0</b><span>گروه</span></div>
-  <div class="st"><b id="sRun3">0 / 3</b><span>اسپم فعال (حداکثر ۳)</span></div>
+  <div class="st"><b id="sRun3" dir="ltr">0 / 3</b><span>اسپم فعال (حداکثر ۳)</span></div>
   <div class="st"><b id="sOk">0</b><span>موفق</span></div>
   <div class="st"><b id="sRun">0</b><span>در حال اجرا</span></div>
   <div class="st"><b id="sFail">0</b><span>ناموفق</span></div>
@@ -67,7 +67,7 @@
 </div>
 
 <div class="box">
-  <h3>بخش اسپم (حداکثر ۳ مقصد و ۳ اجرای هم‌زمان)</h3>
+  <h3>اسپم (حداکثر ۳ مقصد و ۳ اجرای هم‌زمان)</h3>
   <label>متن اسپم:</label>
   <textarea id="spamText" placeholder="متن اسپم را بنویسید..."></textarea>
 
@@ -142,7 +142,7 @@ function renderTags(){
   const el = document.getElementById('spamTags');
   if(!arr.length){ el.innerHTML = '<div class="msg">مقصدی انتخاب نشده است.</div>'; return; }
   el.innerHTML = arr.map((t,i) => `<span class="tag">${t} <b style="cursor:pointer" onclick="removeTag(${i})">×</b></span>`).join('')
-    + (arr.length > 3 ? '<div class="msg warn">حداکثر ۳ مقصد مجاز است؛ موارد اضافی پذیرفته نمی‌شوند.</div>' : '');
+    + (arr.length > 3 ? '<div class="msg warn">حداکثر ۳ مقصد مجاز است.</div>' : '');
 }
 
 function removeTag(i){
@@ -156,8 +156,7 @@ function removeTag(i){
 function addTag(val){
   const inp = document.getElementById('spamTargets');
   const arr = getTargetsArray();
-  if(!val) return;
-  if(arr.includes(val)) return;
+  if(!val || arr.includes(val)) return;
   if(arr.length >= 3){
     document.getElementById('spamMsg').innerText = 'حداکثر ۳ مقصد هم‌زمان مجاز است.';
     return;
@@ -181,7 +180,7 @@ async function startSpam(){
     return;
   }
   if(arr.length > 3){
-    msgEl.innerText = 'فقط تا ۳ مقصد در هر اسپم می‌توانید انتخاب کنید.';
+    msgEl.innerText = 'فقط تا ۳ مقصد مجاز است.';
     return;
   }
 
@@ -263,7 +262,7 @@ async function poll(){
   try{
     const d = await api('/api/state');
     if(!d) return;
-    const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل' : 'آماده');
+    const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل' : 'سرور وصل');
     document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
     if(d.auth_msg){
       const el = document.getElementById('authMsg');
