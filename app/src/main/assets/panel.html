@@ -165,6 +165,12 @@ let chats = [], tasks = [], accounts = [];
 let draftMsg = null;
 let confirmedMsg = null;
 
+function cleanPeerInput(v){
+  let s = String(v || '').trim().replace(/[\u200f\u200e]/g, '');
+  if(s.endsWith('-') && /^\d+$/.test(s.slice(0, -1))) s = '-' + s.slice(0, -1);
+  return s;
+}
+
 function switchSec(sec){
   ['fwd','spam'].forEach(k => {
     const cap = k.charAt(0).toUpperCase() + k.slice(1);
@@ -189,29 +195,31 @@ function renderGroupList(key){
 
 function onPickGroup(key, id){
   document.getElementById(key+'Box').style.display = 'none';
+  const cleanId = cleanPeerInput(id);
   if(key === 'fwdSrc'){
-    document.getElementById('fwdSrc').value = id;
-    document.getElementById('fwdMsg').innerText = `چت ${id} انتخاب شد؛ لینک پیام را وارد کن و «بیار پیام» را بزن.`;
-  } else if(key === 'fwdDst') addTag('fwdTargets', 'fwdTags', id);
-  else if(key === 'spamDst') addTag('spamTargets', 'spamTags', id);
+    document.getElementById('fwdSrc').value = cleanId;
+    document.getElementById('fwdMsg').innerText = `چت ${cleanId} انتخاب شد؛ لینک را بده و «بیار پیام» را بزن.`;
+  } else if(key === 'fwdDst') addTag('fwdTargets', 'fwdTags', cleanId);
+  else if(key === 'spamDst') addTag('spamTargets', 'spamTags', cleanId);
 }
 
-function localMsgFromInputs(chatVal, linkVal){
+function makeMockMsg(chatVal, linkVal){
   const cleanLink = (linkVal || '').trim() || `https://splus.ir/${chatVal || 'chat'}/8`;
   const m = cleanLink.match(/(\d+)\s*$/);
   const mid = m ? parseInt(m[1], 10) : 8;
+  const cid = cleanPeerInput(chatVal) || 'chat_mock';
   return {
     ok: true,
     mock: true,
-    chat_id: chatVal || 'chat',
+    chat_id: cid,
     msg_id: mid,
     link: cleanLink,
-    text: `[پیام ماک #${mid}] ${cleanLink}`
+    text: `پیام #${mid} (${cid})\n${cleanLink}`
   };
 }
 
 async function fetchMsgByLink(){
-  const chatVal = document.getElementById('fwdSrc').value.trim();
+  const chatVal = cleanPeerInput(document.getElementById('fwdSrc').value);
   const linkVal = document.getElementById('fwdLink').value.trim();
   const msgEl = document.getElementById('fwdMsg');
   if(!chatVal && !linkVal){
@@ -224,26 +232,21 @@ async function fetchMsgByLink(){
   let d = null;
   if(baseUrl){
     try{
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 3500);
-      const r = await fetch(`${baseUrl}/api/fetch_by_link?chat_id=${encodeURIComponent(chatVal)}&link=${encodeURIComponent(linkVal)}`, {signal: ctrl.signal});
-      clearTimeout(t);
+      const r = await fetch(`${baseUrl}/api/fetch_by_link?chat_id=${encodeURIComponent(chatVal)}&link=${encodeURIComponent(linkVal)}`);
       d = await r.json();
     }catch(e){
       d = null;
     }
   }
-  if(!d || !d.ok){
-    d = localMsgFromInputs(chatVal, linkVal);
-  }
+  if(!d || !d.ok) d = makeMockMsg(chatVal, linkVal);
 
   draftMsg = d;
-  if(!chatVal && d.chat_id) document.getElementById('fwdSrc').value = d.chat_id;
+  if(!chatVal && d.chat_id) document.getElementById('fwdSrc').value = cleanPeerInput(d.chat_id);
 
   const card = document.getElementById('fetchedCard');
   card.style.display = 'block';
   card.className = 'preview-box';
-  document.getElementById('fetchedMeta').innerText = `پیام #${d.msg_id} از چت ${d.chat_id} (آماده تأیید)`;
+  document.getElementById('fetchedMeta').innerText = `پیام #${d.msg_id} از چت ${d.chat_id} (ماک)`;
   document.getElementById('fetchedText').innerText = d.text || '';
   document.getElementById('confirmBtn').innerText = 'تأیید پیام';
   document.getElementById('fwdPickedLabel').innerText = 'وضعیت پیام: پیام آورده شد؛ روی «تأیید پیام» بزنید.';
@@ -261,22 +264,23 @@ function confirmFetchedMsg(){
 }
 
 function renderTags(inputId, viewId){
-  const arr = (document.getElementById(inputId).value || '').split(',').map(x=>x.trim()).filter(Boolean);
+  const arr = (document.getElementById(inputId).value || '').split(',').map(x=>cleanPeerInput(x)).filter(Boolean);
   const el = document.getElementById(viewId);
   if(!arr.length){ el.innerHTML = '<div class="msg">مقصدی انتخاب نشده است.</div>'; return; }
   el.innerHTML = arr.map((t,i) => `<span class="tag">${t} <b style="cursor:pointer" onclick="removeTag('${inputId}','${viewId}',${i})">×</b></span>`).join('');
 }
 function removeTag(inputId, viewId, i){
   const inp = document.getElementById(inputId);
-  const arr = inp.value.split(',').map(x=>x.trim()).filter(Boolean);
+  const arr = inp.value.split(',').map(x=>cleanPeerInput(x)).filter(Boolean);
   arr.splice(i, 1);
   inp.value = arr.join(', ');
   renderTags(inputId, viewId);
 }
 function addTag(inputId, viewId, val){
   const inp = document.getElementById(inputId);
-  const arr = inp.value.split(',').map(x=>x.trim()).filter(Boolean);
-  if(!arr.includes(String(val))) arr.push(String(val));
+  const cleanVal = cleanPeerInput(val);
+  const arr = inp.value.split(',').map(x=>cleanPeerInput(x)).filter(Boolean);
+  if(cleanVal && !arr.includes(cleanVal)) arr.push(cleanVal);
   inp.value = arr.join(', ');
   renderTags(inputId, viewId);
 }
@@ -284,8 +288,8 @@ function addTag(inputId, viewId, val){
 async function startJob(mode){
   let q = '';
   if(mode === 'forward_msg'){
-    const src = document.getElementById('fwdSrc').value.trim();
-    const targets = document.getElementById('fwdTargets').value.trim();
+    const src = cleanPeerInput(document.getElementById('fwdSrc').value);
+    const targets = document.getElementById('fwdTargets').value.split(',').map(cleanPeerInput).filter(Boolean).join(',');
     const speed = document.getElementById('fwdSpeed').value || 1000;
     const cnt = document.getElementById('fwdCount').value || 0;
     if(!confirmedMsg){
@@ -300,7 +304,7 @@ async function startJob(mode){
     q = `?mode=forward_msg&source_chat=${encodeURIComponent(useSrc)}&msg_id=${encodeURIComponent(confirmedMsg.msg_id)}&payload=${encodeURIComponent(confirmedMsg.text||'')}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
   } else if(mode === 'spam'){
     const text = document.getElementById('spamText').value.trim();
-    const targets = document.getElementById('spamTargets').value.trim();
+    const targets = document.getElementById('spamTargets').value.split(',').map(cleanPeerInput).filter(Boolean).join(',');
     const speed = document.getElementById('spamSpeed').value || 500;
     const cnt = document.getElementById('spamCount').value || 0;
     const re = document.getElementById('spamRestEvery').value || 0;
