@@ -5,9 +5,9 @@
 
     <application
         android:allowBackup="true"
-        android:label="@string/app_name"
+        android:label="پنل فورواردر"
         android:usesCleartextTraffic="true"
-        android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
+        android:theme="@style/Theme.PanelLayken">
 
         <activity
             android:name=".MainActivity"

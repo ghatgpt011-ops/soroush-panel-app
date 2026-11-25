@@ -2,41 +2,84 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0B0E1A"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="16dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="آدرس سرور Render (مثال: https://your-app.onrender.com):"
+        android:gravity="center"
+        android:text="ورود به پنل"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
         android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text="سیستم فوروارد هوشمند سروش پلاس"
+        android:textColor="#9AA4C7"
+        android:textSize="13sp" />
 
     <EditText
         android:id="@+id/etServerUrl"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="https://..."
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:background="#151A2E"
+        android:hint="آدرس سرور (https://...onrender.com)"
         android:inputType="textUri"
-        android:layout_marginTop="6dp" />
+        android:paddingHorizontal="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6E789B" />
+
+    <EditText
+        android:id="@+id/etUsername"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="#151A2E"
+        android:hint="نام کاربری"
+        android:inputType="text"
+        android:paddingHorizontal="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6E789B" />
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="#151A2E"
+        android:hint="رمز عبور"
+        android:inputType="textPassword"
+        android:paddingHorizontal="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6E789B" />
 
     <Button
-        android:id="@+id/btnConnect"
+        android:id="@+id/btnLogin"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="اتصال به سرور و باز کردن پنل"
-        android:layout_marginTop="8dp" />
+        android:layout_height="50dp"
+        android:layout_marginTop="18dp"
+        android:background="#7B3FE4"
+        android:text="ورود"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="آماده اتصال"
-        android:layout_marginTop="6dp" />
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="آماده ورود"
+        android:textColor="#B8C2E6"
+        android:textSize="13sp" />
 
-    <WebView
-        android:id="@+id/webView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp" />
 </LinearLayout>

@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.PanelLayken" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">#0B0E1A</item>
+        <item name="colorPrimary">#6C47FF</item>
+        <item name="colorPrimaryDark">#0B0E1A</item>
+        <item name="colorAccent">#E040FB</item>
+    </style>
+</resources>
