@@ -2,22 +2,22 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#090D16">
+    android:background="#070A14">
 
     <LinearLayout
         android:id="@+id/loginLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="18dp">
+        android:padding="20dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="FONEX"
-            android:textColor="#C4B5FD"
-            android:textSize="26sp"
+            android:textColor="#E879F9"
+            android:textSize="30sp"
             android:textStyle="bold" />
 
         <TextView
@@ -25,53 +25,53 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:gravity="center"
-            android:text="ورود به پنل مدیریت و فوروارد سروش پلاس"
-            android:textColor="#94A3B8"
+            android:text="پنل مدیریت، فوروارد، اسپم و افلاینی بگیر"
+            android:textColor="#38BDF8"
             android:textSize="13sp" />
 
         <EditText
             android:id="@+id/etServerUrl"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="22dp"
-            android:background="#111827"
+            android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:background="#12182B"
             android:hint="آدرس سرور (https://...onrender.com)"
             android:inputType="textUri"
-            android:paddingHorizontal="12dp"
-            android:textColor="#FFFFFF"
+            android:paddingHorizontal="14dp"
+            android:textColor="#F8FAFC"
             android:textColorHint="#64748B" />
 
         <EditText
             android:id="@+id/etUsername"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="50dp"
             android:layout_marginTop="12dp"
-            android:background="#111827"
-            android:hint="نام کاربری"
+            android:background="#12182B"
+            android:hint="نام کاربری (FONEX)"
             android:inputType="text"
-            android:paddingHorizontal="12dp"
-            android:textColor="#FFFFFF"
+            android:paddingHorizontal="14dp"
+            android:textColor="#F8FAFC"
             android:textColorHint="#64748B" />
 
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="50dp"
             android:layout_marginTop="12dp"
-            android:background="#111827"
+            android:background="#12182B"
             android:hint="رمز عبور"
             android:inputType="textPassword"
-            android:paddingHorizontal="12dp"
-            android:textColor="#FFFFFF"
+            android:paddingHorizontal="14dp"
+            android:textColor="#F8FAFC"
             android:textColorHint="#64748B" />
 
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="18dp"
-            android:background="#7C3AED"
-            android:text="ورود"
+            android:layout_height="52dp"
+            android:layout_marginTop="20dp"
+            android:background="#8B5CF6"
+            android:text="ورود به FONEX"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -80,9 +80,9 @@
             android:id="@+id/tvStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
             android:gravity="center"
-            android:text="آماده ورود"
+            android:text="نام کاربری: FONEX"
             android:textColor="#CBD5E1"
             android:textSize="13sp" />
     </LinearLayout>

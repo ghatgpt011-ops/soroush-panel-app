@@ -15,7 +15,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String PREFS = "fonex_prefs";
+    private static final String PREFS = "fonex_auth_prefs";
+    private static final String VALID_USER = "FONEX";
+    private static final String VALID_PASS = "MOHAMMAD_1234";
+
     private LinearLayout loginLayout;
     private WebView panelWebView;
     private SharedPreferences prefs;
@@ -35,8 +38,12 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogin = findViewById(R.id.btnLogin);
         TextView tvStatus = findViewById(R.id.tvStatus);
 
-        etUrl.setText(prefs.getString("server_url", ""));
-        etUser.setText(prefs.getString("username", ""));
+        String savedUrl = prefs.getString("server_url", "");
+        String savedUser = prefs.getString("username", VALID_USER);
+        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
+
+        etUrl.setText(savedUrl);
+        etUser.setText(savedUser);
 
         WebSettings ws = panelWebView.getSettings();
         ws.setJavaScriptEnabled(true);
@@ -45,28 +52,38 @@ public class MainActivity extends AppCompatActivity {
         panelWebView.addJavascriptInterface(new AndroidBridge(), "AndroidBridge");
 
         btnLogin.setOnClickListener(v -> {
-            String url = etUrl.getText().toString().trim();
+            String url = normalizeUrl(etUrl.getText().toString().trim());
             String user = etUser.getText().toString().trim();
             String pass = etPass.getText().toString().trim();
 
-            if (url.isEmpty() || user.isEmpty() || pass.isEmpty()) {
-                tvStatus.setText("آدرس سرور، نام کاربری و رمز عبور را وارد کنید.");
+            if (!VALID_USER.equals(user) || !VALID_PASS.equals(pass)) {
+                tvStatus.setText("نام کاربری یا رمز عبور اشتباه است.");
                 return;
-            }
-            if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = "https://" + url;
-            }
-            if (url.endsWith("/")) {
-                url = url.substring(0, url.length() - 1);
             }
 
             prefs.edit()
                 .putString("server_url", url)
                 .putString("username", user)
+                .putBoolean("is_logged_in", true)
                 .apply();
 
             openPanel(url, user);
         });
+
+        if (isLoggedIn) {
+            openPanel(normalizeUrl(savedUrl), VALID_USER);
+        }
+    }
+
+    private String normalizeUrl(String url) {
+        if (url == null || url.isEmpty()) return "";
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "https://" + url;
+        }
+        while (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 
     private void openPanel(String url, String user) {
@@ -80,8 +97,16 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void logout() {
             runOnUiThread(() -> {
+                prefs.edit().putBoolean("is_logged_in", false).apply();
                 panelWebView.setVisibility(View.GONE);
                 loginLayout.setVisibility(View.VISIBLE);
+            });
+        }
+
+        @JavascriptInterface
+        public void saveServerUrl(String newUrl) {
+            runOnUiThread(() -> {
+                prefs.edit().putString("server_url", normalizeUrl(newUrl)).apply();
             });
         }
     }
@@ -89,8 +114,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (panelWebView.getVisibility() == View.VISIBLE) {
-            panelWebView.setVisibility(View.GONE);
-            loginLayout.setVisibility(View.VISIBLE);
+            moveTaskToBack(true);
         } else {
             super.onBackPressed();
         }
