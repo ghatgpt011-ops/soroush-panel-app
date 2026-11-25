@@ -403,7 +403,8 @@ async function poll(){
   try{
     const d = await api('/api/state');
     if(!d) return;
-    document.getElementById('sysInfo').innerText = `متصل | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
+    const connTxt = d.soroush_connected ? 'سروش وصل' : (d.healer_status || 'سروش قطع');
+    document.getElementById('sysInfo').innerText = `${connTxt} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
     if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
     if(Array.isArray(d.accounts)) accounts = d.accounts;
     if(Array.isArray(d.groups)){
