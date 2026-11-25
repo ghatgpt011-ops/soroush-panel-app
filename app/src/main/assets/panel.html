@@ -83,7 +83,7 @@
   <div class="row">
     <button class="btn bc" onclick="fetchGroups(true, 'fwdSrc')">دریافت لیست گروه‌ها</button>
     <button class="btn bd" onclick="toggleList('fwdSrc')">انتخاب مبدا از لیست</button>
-    <button class="btn bp" onclick="loadRecentMessages('fwd')">۱۰ پیام اخیر</button>
+    <button class="btn bp" onclick="loadRecentMessages('fwd', 'fwdSrc')">۱۰ پیام اخیر</button>
   </div>
   <div id="fwdSrcBox" style="display:none;margin-top:6px;">
     <input id="fwdSrcSearch" type="text" placeholder="جستجوی مبدا..." oninput="renderGroupList('fwdSrc')">
@@ -144,34 +144,23 @@
 
 <div id="secReply" class="box" style="display:none;">
   <h3>بخش ریپلای متوالی</h3>
-  <label>مبدا پیام هدف:</label>
-  <div class="row">
-    <button class="btn bc" onclick="fetchGroups(true, 'replySrc')">دریافت لیست گروه‌ها</button>
-    <button class="btn bd" onclick="toggleList('replySrc')">انتخاب مبدا از لیست</button>
-    <button class="btn bp" onclick="loadRecentMessages('reply')">۱۰ پیام اخیر</button>
-  </div>
-  <div id="replySrcBox" style="display:none;margin-top:6px;">
-    <input id="replySrcSearch" type="text" placeholder="جستجوی مبدا..." oninput="renderGroupList('replySrc')">
-    <div id="replySrcList"></div>
-  </div>
-  <input id="replySrc" type="text" placeholder="آیدی یا یوزرنیم مبدا" style="margin-top:6px">
-  <div id="replyRecentList"></div>
-  <div class="msg" id="replyPickedLabel">پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.</div>
-
   <label>متن ریپلای متوالی:</label>
   <textarea id="replyText" placeholder="متن ریپلای را بنویسید..."></textarea>
 
-  <label>مقصدهای ریپلای:</label>
+  <label>چت (مقصد ریپلای) و انتخاب پیام طرف از ۱۰ پیام اخیر:</label>
   <div class="row">
     <button class="btn bc" onclick="fetchGroups(true, 'replyDst')">دریافت لیست گروه‌ها</button>
-    <button class="btn bd" onclick="toggleList('replyDst')">انتخاب مقصد از لیست</button>
+    <button class="btn bd" onclick="toggleList('replyDst')">انتخاب چت از لیست</button>
+    <button class="btn bp" onclick="loadRecentMessages('reply', 'replyTargets')">۱۰ پیام اخیر</button>
   </div>
   <div id="replyDstBox" style="display:none;margin-top:6px;">
-    <input id="replyDstSearch" type="text" placeholder="جستجوی مقصد..." oninput="renderGroupList('replyDst')">
+    <input id="replyDstSearch" type="text" placeholder="جستجوی چت..." oninput="renderGroupList('replyDst')">
     <div id="replyDstList"></div>
   </div>
   <input id="replyTargets" type="text" placeholder="-10012345, @group" oninput="renderTags('replyTargets','replyTags')" style="margin-top:6px">
   <div id="replyTags"></div>
+  <div id="replyRecentList"></div>
+  <div class="msg" id="replyPickedLabel">پیام انتخاب‌شده: هیچ پیامی انتخاب نشده است.</div>
 
   <div class="g2">
     <div><label>سرعت ریپلای (ms):</label><input id="replySpeed" type="number" value="1000" min="50"></div>
@@ -219,21 +208,22 @@ function onPickGroup(key, id){
   document.getElementById(key+'Box').style.display = 'none';
   if(key === 'fwdSrc'){
     document.getElementById('fwdSrc').value = id;
-    loadRecentMessages('fwd');
-  } else if(key === 'replySrc'){
-    document.getElementById('replySrc').value = id;
-    loadRecentMessages('reply');
+    loadRecentMessages('fwd', 'fwdSrc');
   } else if(key === 'fwdDst') addTag('fwdTargets', 'fwdTags', id);
   else if(key === 'spamDst') addTag('spamTargets', 'spamTags', id);
-  else if(key === 'replyDst') addTag('replyTargets', 'replyTags', id);
+  else if(key === 'replyDst'){
+    addTag('replyTargets', 'replyTags', id);
+    loadRecentMessages('reply', 'replyTargets');
+  }
 }
 
-async function loadRecentMessages(kind){
-  const srcVal = document.getElementById(kind+'Src').value.trim();
+async function loadRecentMessages(kind, inputId){
+  const raw = document.getElementById(inputId).value.trim();
+  const chatVal = (raw.split(',')[0] || '').trim();
   const msgBox = document.getElementById(kind+'Msg');
   const listEl = document.getElementById(kind+'RecentList');
-  if(!srcVal){
-    msgBox.innerText = 'ابتدا مبدا را وارد یا از لیست انتخاب کنید.';
+  if(!chatVal){
+    msgBox.innerText = 'ابتدا چت را وارد یا از لیست انتخاب کنید.';
     return;
   }
   pickedMsg[kind] = null;
@@ -241,7 +231,7 @@ async function loadRecentMessages(kind){
   msgBox.innerText = 'در حال دریافت ۱۰ پیام اخیر...';
   listEl.innerHTML = '<div class="msg">در حال بارگذاری...</div>';
 
-  const d = await api('/api/recent_messages', `?chat_id=${encodeURIComponent(srcVal)}&limit=10`);
+  const d = await api('/api/recent_messages', `?chat_id=${encodeURIComponent(chatVal)}&limit=10`);
   if(!d || !d.ok || !Array.isArray(d.messages) || !d.messages.length){
     msgBox.innerText = (d && d.msg) || 'پیامی یافت نشد.';
     listEl.innerHTML = '';
@@ -320,16 +310,16 @@ async function startJob(mode){
     if(!text || !targets){ document.getElementById('spamMsg').innerText = 'متن اسپم و مقصد را وارد کنید.'; return; }
     q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}`;
   } else if(mode === 'reply_loop'){
-    const src = document.getElementById('replySrc').value.trim();
     const rtext = document.getElementById('replyText').value.trim();
     const targets = document.getElementById('replyTargets').value.trim();
     const speed = document.getElementById('replySpeed').value || 1000;
     const cnt = document.getElementById('replyCount').value || 0;
-    if(!src || !pickedMsg.reply || !rtext || !targets){
-      document.getElementById('replyMsg').innerText = 'مبدا و پیام را انتخاب کن، متن ریپلای و مقصد را بنویس.';
+    if(!rtext || !targets || !pickedMsg.reply){
+      document.getElementById('replyMsg').innerText = 'متن ریپلای را بنویس، چت را انتخاب کن و پیام طرف را از ۱۰ پیام اخیر بردار.';
       return;
     }
-    q = `?mode=reply_loop&source_chat=${encodeURIComponent(src)}&msg_id=${encodeURIComponent(pickedMsg.reply.id)}&payload=${encodeURIComponent(rtext)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
+    const firstChat = (targets.split(',')[0] || '').trim();
+    q = `?mode=reply_loop&source_chat=${encodeURIComponent(firstChat)}&msg_id=${encodeURIComponent(pickedMsg.reply.id)}&payload=${encodeURIComponent(rtext)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
   }
   const d = await api('/api/add_job', q);
   const msgEl = mode === 'forward_msg' ? 'fwdMsg' : (mode === 'spam' ? 'spamMsg' : 'replyMsg');
@@ -392,7 +382,7 @@ async function fetchGroups(openBox=false, targetKey=''){
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
-    ['fwdSrc','fwdDst','spamDst','replySrc','replyDst'].forEach(renderGroupList);
+    ['fwdSrc','fwdDst','spamDst','replyDst'].forEach(renderGroupList);
     if(openBox && targetKey){
       document.getElementById(targetKey+'Box').style.display = 'block';
     }
@@ -419,7 +409,7 @@ async function poll(){
     if(Array.isArray(d.groups)){
       chats = d.groups;
       document.getElementById('sGrp').innerText = chats.length;
-      ['fwdSrc','fwdDst','spamDst','replySrc','replyDst'].forEach(renderGroupList);
+      ['fwdSrc','fwdDst','spamDst','replyDst'].forEach(renderGroupList);
     }
     if(Array.isArray(d.jobs)) tasks = d.jobs;
     renderAccounts(); renderTasks();
