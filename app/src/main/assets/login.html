@@ -8,35 +8,24 @@
   *{box-sizing:border-box;font-family:Tahoma,sans-serif}
   body{
     margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;
-    color:#f8fafc;background:linear-gradient(-45deg,#070a14,#2e1065,#082f49,#4c0519);
-    background-size:400% 400%;animation:bgMove 11s ease infinite;
-  }
-  @keyframes bgMove{
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+    color:#f8fafc;background:#070a14;
   }
   .card{
-    width:100%;max-width:410px;background:rgba(13,19,38,.86);backdrop-filter:blur(12px);
-    border:1px solid rgba(168,85,247,.45);border-radius:20px;padding:22px;
-    box-shadow:0 18px 45px rgba(0,0,0,.55);
+    width:100%;max-width:400px;background:#101628;
+    border:1px solid #273556;border-radius:16px;padding:22px;
   }
   .logo{
-    text-align:center;font-size:32px;font-weight:900;letter-spacing:1px;
-    background:linear-gradient(90deg,#f472b6,#a855f7,#38bdf8);
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    text-align:center;font-size:28px;font-weight:900;color:#c084fc;
   }
-  .sub{text-align:center;color:#cbd5e1;font-size:12px;margin-top:4px;margin-bottom:18px}
+  .sub{text-align:center;color:#94a3b8;font-size:12px;margin-top:4px;margin-bottom:18px}
   label{display:block;font-size:12px;color:#e2e8f0;margin:10px 0 4px}
   input{
-    width:100%;padding:11px 12px;border-radius:11px;border:1px solid #334155;
-    background:rgba(7,10,20,.85);color:#fff;font-size:13px;outline:none;
+    width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273556;
+    background:#090e1c;color:#fff;font-size:13px;outline:none;
   }
-  input:focus{border-color:#e879f9;box-shadow:0 0 0 2px rgba(232,121,249,.2)}
   button{
-    width:100%;margin-top:20px;padding:12px;border:0;border-radius:12px;
-    background:linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4);
-    color:#fff;font-size:15px;font-weight:bold;cursor:pointer;
+    width:100%;margin-top:18px;padding:11px;border:0;border-radius:10px;
+    background:#7c3aed;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;
   }
   .msg{text-align:center;font-size:12px;color:#fda4af;margin-top:12px;min-height:18px}
 </style>
@@ -44,9 +33,9 @@
 <body>
 <div class="card">
   <div class="logo">FONEX</div>
-  <div class="sub">ورود به کنترل پنل هوشمند سروش پلاس</div>
+  <div class="sub">ورود به پنل مدیریت و فوروارد سروش پلاس</div>
 
-  <label>آدرس سرور Render</label>
+  <label>آدرس سرور</label>
   <input id="srv" type="text" placeholder="https://your-app.onrender.com" dir="ltr">
 
   <label>نام کاربری</label>
