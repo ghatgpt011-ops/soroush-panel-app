@@ -3,47 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FONEX</title>
+<title>FONEX PANEL</title>
 <style>
   :root{
-    --bg:#070a14;--card:#101628;--card2:#16203a;--bd:#273556;
-    --tx:#f8fafc;--mu:#94a3b8;--v:#8b5cf6;--m:#ec4899;--c:#06b6d4;
-    --ok:#10b981;--wa:#f59e0b;--er:#f43f5e;
+    --card:rgba(15,23,42,.86);--card2:rgba(30,41,59,.88);--bd:rgba(148,163,184,.24);
+    --tx:#f8fafc;--mu:#cbd5e1;
   }
   *{box-sizing:border-box;font-family:Tahoma,sans-serif}
   body{
-    margin:0;padding:10px;color:var(--tx);
-    background:radial-gradient(circle at 85% 5%,rgba(236,72,153,.22),transparent 38%),
-               radial-gradient(circle at 15% 15%,rgba(6,182,212,.2),transparent 42%),
-               var(--bg);
+    margin:0;padding:10px;color:var(--tx);min-height:100vh;
+    background:linear-gradient(-45deg,#070a14,#2e1065,#0f172a,#4c0519,#082f49);
+    background-size:400% 400%;animation:animBg 14s ease infinite;
   }
-  .top{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;margin-bottom:10px}
-  .brand{font-weight:bold;font-size:17px;background:linear-gradient(90deg,#e879f9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  @keyframes animBg{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+  .top{display:flex;justify-content:space-between;align-items:center;background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+  .brand{font-weight:900;font-size:17px;background:linear-gradient(90deg,#f472b6,#c084fc,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   .sys{font-size:11px;color:var(--mu);margin-top:2px}
   .btn{border:0;border-radius:9px;padding:8px 11px;color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
-  .bv{background:linear-gradient(135deg,var(--v),var(--m))}
-  .bc{background:linear-gradient(135deg,var(--c),#2563eb)}
-  .bg{background:var(--ok)} .bw{background:var(--wa);color:#090d16} .br{background:var(--er)} .bd{background:#1e293b;border:1px solid var(--bd)}
+  .bv{background:linear-gradient(135deg,#8b5cf6,#ec4899)}
+  .bc{background:linear-gradient(135deg,#06b6d4,#2563eb)}
+  .bo{background:linear-gradient(135deg,#f59e0b,#ea580c);color:#090d16}
+  .bg{background:#10b981} .bw{background:#f59e0b;color:#090d16} .br{background:#f43f5e} .bd{background:#334155}
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-  .st{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:8px;text-align:center}
-  .st b{display:block;font-size:15px;color:#f0abfc}.st span{font-size:11px;color:var(--mu)}
-  .box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px}
-  h3{margin:0 0 8px;font-size:14px;color:#f1f5f9;border-bottom:1px solid var(--bd);padding-bottom:6px}
-  label{display:block;font-size:11px;color:#cbd5e1;margin:7px 0 3px}
-  input,select,textarea{width:100%;padding:8px 10px;border-radius:9px;border:1px solid var(--bd);background:#090e1c;color:var(--tx);font-size:12px}
-  textarea{min-height:56px;resize:vertical}
+  .st{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--bd);border-radius:12px;padding:8px;text-align:center}
+  .st b{display:block;font-size:15px;color:#f5d0fe}.st span{font-size:11px;color:var(--mu)}
+  .box{background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px}
+  h3{margin:0 0 8px;font-size:14px;color:#fff;border-bottom:1px solid var(--bd);padding-bottom:6px}
+  label{display:block;font-size:11px;color:#e2e8f0;margin:7px 0 3px}
+  input,select,textarea{width:100%;padding:8px 10px;border-radius:9px;border:1px solid var(--bd);background:rgba(7,10,20,.85);color:#fff;font-size:12px}
+  textarea{min-height:54px;resize:vertical}
   .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
   .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
-  .tab{padding:10px 6px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:#cbd5e1;font-weight:bold;font-size:12px;cursor:pointer;text-align:center}
-  .tab.active-fwd{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;border-color:transparent}
-  .tab.active-spam{background:linear-gradient(135deg,#0891b2,#7c3aed);color:#fff;border-color:transparent}
-  .tab.active-off{background:linear-gradient(135deg,#d97706,#db2777);color:#fff;border-color:transparent}
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
+  .tab{padding:9px 4px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:#cbd5e1;font-weight:bold;font-size:11px;cursor:pointer;text-align:center}
+  .tab.active{background:linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4);color:#fff;border-color:transparent}
   .item{background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:8px;margin-top:6px;font-size:11px;line-height:1.65}
-  .chip{background:var(--card2);border:1px solid var(--bd);border-radius:9px;padding:6px 8px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px}
-  .tag{display:inline-flex;align-items:center;gap:5px;background:#3b0764;border:1px solid #a855f7;color:#fae8ff;padding:3px 8px;border-radius:7px;margin:2px;font-size:11px}
-  .log{background:#050811;border:1px solid #1e293b;border-radius:7px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:72px;overflow-y:auto;direction:ltr;text-align:left}
-  .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
+  .chip{background:var(--card2);border:1px solid var(--bd);border-radius:9px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+  .preview{background:rgba(2,6,23,.85);border:1px solid #38bdf8;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;color:#e0f2fe}
+  .tag{display:inline-flex;align-items:center;gap:5px;background:#4c1d95;border:1px solid #c084fc;color:#fae8ff;padding:3px 8px;border-radius:7px;margin:2px;font-size:11px}
+  .log{background:#020617;border:1px solid #1e293b;border-radius:7px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:74px;overflow-y:auto;direction:ltr;text-align:left}
+  .msg{font-size:11px;color:#e2e8f0;margin-top:6px;word-break:break-word}
 </style>
 </head>
 <body>
@@ -59,7 +62,7 @@
 <div class="stats">
   <div class="st"><b id="sAcc">0</b><span>اکانت</span></div>
   <div class="st"><b id="sGrp">0</b><span>گروه</span></div>
-  <div class="st"><b id="sRun">0</b><span>تسک فعال</span></div>
+  <div class="st"><b id="sRun3">0 / 3</b><span>فعال (فوروارد/اسپم/ریپلای)</span></div>
   <div class="st"><b id="sOk">0</b><span>موفق</span></div>
   <div class="st"><b id="sFail">0</b><span>ناموفق</span></div>
   <div class="st"><b id="sSides">0</b><span>ساید افلاینی</span></div>
@@ -81,94 +84,117 @@
   <div id="accList"></div>
 </div>
 
-<!-- دو بخش جداگانه: فوروارد و اسپم + بخش افلاینی بگیر -->
 <div class="tabs">
-  <div id="tabFwd" class="tab active-fwd" onclick="switchSection('fwd')">فوروارد</div>
-  <div id="tabSpam" class="tab" onclick="switchSection('spam')">اسپم</div>
-  <div id="tabOff" class="tab" onclick="switchSection('off')">افلاینی بگیر</div>
+  <div id="tabFwd" class="tab active" onclick="switchSec('fwd')">فوروارد</div>
+  <div id="tabSpam" class="tab" onclick="switchSec('spam')">اسپم</div>
+  <div id="tabReply" class="tab" onclick="switchSec('reply')">ریپلای متوالی</div>
+  <div id="tabOff" class="tab" onclick="switchSec('off')">افلاینی بگیر</div>
 </div>
 
-<!-- بخش ۱: فوروارد (کاملاً مجزا) -->
+<!-- 1. فوروارد -->
 <div id="secFwd" class="box">
-  <h3>بخش فوروارد (انتخاب مبدا و ۳ پیام اخیر)</h3>
+  <h3>بخش فوروارد (انتخاب گروه/کانال + بررسی لینک + تایید)</h3>
   <div class="row">
-    <button class="btn bc" style="flex:1" onclick="toggleSourceChats()">انتخاب مبدا</button>
+    <button class="btn bc" style="flex:1" onclick="togglePicker('fwd')">انتخاب گروه / کانال مبدا</button>
     <button class="btn bw" onclick="loadChats()">بروزرسانی چت‌ها</button>
   </div>
-  <div class="msg" id="fwdSrcInfo">مبدا انتخاب‌شده: هیچ‌کدام</div>
-  <div id="fwdChatPicker" style="display:none;margin-top:6px;">
-    <input id="fwdChatSearch" type="text" placeholder="جستجوی گروه/کانال مبدا..." oninput="renderFwdChats()">
-    <div id="fwdChatList"></div>
+  <div class="msg" id="fwdSrcLabel">مبدا انتخاب‌شده: هیچ‌کدام</div>
+  <div id="fwdPicker" style="display:none;margin-top:6px;">
+    <input id="fwdSearch" type="text" placeholder="جستجوی گروه/کانال..." oninput="renderPicker('fwd')">
+    <div id="fwdPickerList"></div>
   </div>
 
-  <div class="row" style="margin-top:8px;">
-    <button class="btn bv" style="width:100%" onclick="loadRecent3()">نمایش ۳ پیام اخیر</button>
+  <label>لینک پیام از همین گروه/کانال مبدا:</label>
+  <input id="fwdLink" type="text" placeholder="https://splus.ir/c/.../123" dir="ltr">
+  <button class="btn bv" style="width:100%;margin-top:6px" onclick="inspectLink('fwd')">بررسی لینک</button>
+
+  <div id="fwdPreviewBox" class="preview" style="display:none;">
+    <div id="fwdPreviewText"></div>
+    <div class="row"><button class="btn bg" onclick="confirmMsg('fwd')">تایید این پیام</button></div>
   </div>
-  <div id="recent3List"></div>
-  <div class="msg" id="pickedMsgInfo">پیام انتخاب‌شده برای فوروارد: هیچ‌کدام</div>
+  <div class="msg" id="fwdConfirmedLabel">وضعیت پیام: تایید نشده</div>
 
   <label>مقصدهای فوروارد (آیدی یا @یوزرنیم، جدا با کاما):</label>
-  <input id="fwdTargets" type="text" placeholder="مثال: -10012345, @channel" oninput="renderTargets('fwdTargets','fwdTargetsView')">
-  <div id="fwdTargetsView" style="margin-top:4px;"></div>
+  <input id="fwdTargets" type="text" placeholder="-10012345, @channel" oninput="renderTags('fwdTargets','fwdTags')">
+  <div id="fwdTags"></div>
 
   <div class="g2">
-    <div>
-      <label>سرعت (ms):</label>
-      <input id="fwdSpeed" type="number" value="1000" min="50">
-    </div>
-    <div>
-      <label>تعداد (0 = نامحدود):</label>
-      <input id="fwdCount" type="number" value="0" min="0">
-    </div>
+    <div><label>سرعت (ms):</label><input id="fwdSpeed" type="number" value="1000" min="50"></div>
+    <div><label>تعداد (0 = نامحدود):</label><input id="fwdCount" type="number" value="0" min="0"></div>
   </div>
 
-  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startForward()">استارت فوروارد</button>
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startJob('forward_msg')">استارت فوروارد</button>
   <div class="msg" id="fwdMsg"></div>
 </div>
 
-<!-- بخش ۲: اسپم (کاملاً مجزا) -->
+<!-- 2. اسپم -->
 <div id="secSpam" class="box" style="display:none;">
-  <h3>بخش اسپم (ارسال متوالی متن)</h3>
+  <h3>بخش اسپم</h3>
   <label>متن اسپم:</label>
   <textarea id="spamText" placeholder="متن اسپم را بنویسید..."></textarea>
 
   <label>مقصدهای اسپم (آیدی یا @یوزرنیم، جدا با کاما):</label>
-  <input id="spamTargets" type="text" placeholder="مثال: -10012345, @group" oninput="renderTargets('spamTargets','spamTargetsView')">
-  <div class="row">
-    <button class="btn bd" onclick="toggleSpamChatPicker()">انتخاب از لیست چت‌ها</button>
+  <input id="spamTargets" type="text" placeholder="-10012345, @group" oninput="renderTags('spamTargets','spamTags')">
+  <div class="row"><button class="btn bd" onclick="togglePicker('spam')">انتخاب از لیست چت‌ها</button></div>
+  <div id="spamPicker" style="display:none;margin-top:6px;">
+    <input id="spamSearch" type="text" placeholder="جستجوی چت..." oninput="renderPicker('spam')">
+    <div id="spamPickerList"></div>
   </div>
-  <div id="spamChatPicker" style="display:none;margin-top:6px;">
-    <div id="spamChatList"></div>
-  </div>
-  <div id="spamTargetsView" style="margin-top:4px;"></div>
+  <div id="spamTags"></div>
 
   <div class="g2">
-    <div>
-      <label>سرعت اسپم (ms):</label>
-      <input id="spamSpeed" type="number" value="250" min="50">
-    </div>
-    <div>
-      <label>تعداد اسپم (0 = نامحدود):</label>
-      <input id="spamCount" type="number" value="0" min="0">
-    </div>
+    <div><label>سرعت اسپم (ms):</label><input id="spamSpeed" type="number" value="500" min="50"></div>
+    <div><label>تعداد اسپم (0 = نامحدود):</label><input id="spamCount" type="number" value="0" min="0"></div>
   </div>
-
   <div class="g2">
-    <div>
-      <label>استراحت هر (تا) پیام:</label>
-      <input id="spamRestEvery" type="number" value="0" min="0">
-    </div>
-    <div>
-      <label>مدت استراحت (ms):</label>
-      <input id="spamRestMs" type="number" value="2000" min="0">
-    </div>
+    <div><label>استراحت هر (تا) پیام:</label><input id="spamRestEvery" type="number" value="0" min="0"></div>
+    <div><label>مدت استراحت (ms):</label><input id="spamRestMs" type="number" value="2000" min="0"></div>
   </div>
 
-  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startSpam()">استارت اسپم</button>
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startJob('spam')">استارت اسپم</button>
   <div class="msg" id="spamMsg"></div>
 </div>
 
-<!-- بخش ۳: افلاینی بگیر -->
+<!-- 3. ریپلای متوالی -->
+<div id="secReply" class="box" style="display:none;">
+  <h3>بخش ریپلای متوالی (انتخاب گروه + بررسی لینک + تایید)</h3>
+  <div class="row">
+    <button class="btn bc" style="flex:1" onclick="togglePicker('reply')">انتخاب گروه</button>
+    <button class="btn bw" onclick="loadChats()">بروزرسانی چت‌ها</button>
+  </div>
+  <div class="msg" id="replyGrpLabel">گروه انتخاب‌شده: هیچ‌کدام</div>
+  <div id="replyPicker" style="display:none;margin-top:6px;">
+    <input id="replySearch" type="text" placeholder="جستجوی گروه..." oninput="renderPicker('reply')">
+    <div id="replyPickerList"></div>
+  </div>
+
+  <label>لینک پیام هدف در همین گروه:</label>
+  <input id="replyLink" type="text" placeholder="https://splus.ir/c/.../123" dir="ltr">
+  <button class="btn bv" style="width:100%;margin-top:6px" onclick="inspectLink('reply')">بررسی لینک</button>
+
+  <div id="replyPreviewBox" class="preview" style="display:none;">
+    <div id="replyPreviewText"></div>
+    <div class="row"><button class="btn bg" onclick="confirmMsg('reply')">تایید این پیام</button></div>
+  </div>
+  <div class="msg" id="replyConfirmedLabel">وضعیت پیام: تایید نشده</div>
+
+  <label>متن ریپلای متوالی:</label>
+  <textarea id="replyText" placeholder="متنی که روی پیام ریپلای شود..."></textarea>
+
+  <label>مقصدها (آیدی یا @یوزرنیم، جدا با کاما):</label>
+  <input id="replyTargets" type="text" placeholder="-10012345, @group" oninput="renderTags('replyTargets','replyTags')">
+  <div id="replyTags"></div>
+
+  <div class="g2">
+    <div><label>سرعت ریپلای (ms):</label><input id="replySpeed" type="number" value="1000" min="50"></div>
+    <div><label>تعداد (0 = نامحدود):</label><input id="replyCount" type="number" value="0" min="0"></div>
+  </div>
+
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startJob('reply_loop')">استارت ریپلای متوالی</button>
+  <div class="msg" id="replyMsg"></div>
+</div>
+
+<!-- 4. افلاینی بگیر -->
 <div id="secOff" class="box" style="display:none;">
   <h3>افلاینی بگیر (مدیریت ساید و تشخیص آفلاین شدن به دقیقه)</h3>
 
@@ -181,32 +207,34 @@
   <label>انتخاب ساید فعال:</label>
   <select id="sideSelect" onchange="onSideChange()"></select>
 
-  <label>انتخاب گروه برای بررسی ۵ پیام اخیر و انتخاب کاربر:</label>
-  <select id="offChatSelect"></select>
-  <div class="row">
-    <button class="btn bc" style="flex:1" onclick="loadRecent5()">نمایش ۵ پیام اخیر</button>
+  <div class="row" style="margin-top:8px;">
+    <button class="btn bc" style="flex:1" onclick="togglePicker('off')">انتخاب گروه</button>
+    <button class="btn bw" onclick="loadChats()">بروزرسانی چت‌ها</button>
+  </div>
+  <div class="msg" id="offGrpLabel">گروه انتخاب‌شده: هیچ‌کدام</div>
+  <div id="offPicker" style="display:none;margin-top:6px;">
+    <input id="offSearch" type="text" placeholder="جستجوی گروه..." oninput="renderPicker('off')">
+    <div id="offPickerList"></div>
+  </div>
+
+  <div class="row" style="margin-top:6px;">
+    <button class="btn bv" style="width:100%" onclick="loadRecent5()">نمایش ۵ پیام اخیر و تشخیص کاربر</button>
   </div>
   <div id="recent5List"></div>
 
-  <div class="msg"><b>کاربران انتخاب‌شده در ساید فعال (هر تعداد دلخواه):</b></div>
-  <div id="sideUsersView" style="margin-top:4px;"></div>
+  <div class="msg"><b>کاربران انتخاب‌شده در ساید فعال:</b></div>
+  <div id="sideUsersView"></div>
 
   <div class="g2">
-    <div>
-      <label>مدت عدم پیام (دقیقه):</label>
-      <input id="offMinutes" type="number" value="3" min="1">
-    </div>
+    <div><label>مدت عدم پیام (دقیقه):</label><input id="offMinutes" type="number" value="3" min="1"></div>
     <div>
       <label>وضعیت ساید:</label>
-      <select id="offEnabled">
-        <option value="true">فعال</option>
-        <option value="false">غیرفعال</option>
-      </select>
+      <select id="offEnabled"><option value="true">فعال</option><option value="false">غیرفعال</option></select>
     </div>
   </div>
 
   <label>متن پاسخ (وقتی همه کاربران ساید به مدت تنظیم‌شده افلاین شوند، روی آخرین پیام ریپلای می‌خورد):</label>
-  <textarea id="offReplyText" placeholder="متنی که روی آخرین پیام ریپلای و ارسال شود..."></textarea>
+  <textarea id="offReplyText" placeholder="متن پاسخ..."></textarea>
 
   <button class="btn bg" style="width:100%;margin-top:10px" onclick="saveSideConfig()">ذخیره و فعال‌سازی ساید</button>
   <div class="msg" id="offMsg"></div>
@@ -215,233 +243,218 @@
 
 <!-- تسک‌های در حال اجرا -->
 <div class="box">
-  <h3>تسک‌های در حال اجرا و لاگ</h3>
+  <h3>تسک‌های در حال اجرا و لاگ (حداکثر ۳ تسک هم‌زمان برای فوروارد/اسپم/ریپلای)</h3>
   <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
 </div>
 
 <script>
 const params = new URLSearchParams(location.search);
-let baseUrl = (params.get('server') || '').replace(/\/+$/, '');
-let chats = [];
-let tasks = [];
-let accounts = [];
-let sides = [];
+const baseUrl = (params.get('server') || '').replace(/\/+$/, '');
+let chats = [], tasks = [], accounts = [], sides = [];
 
-let fwdSourceChat = null;
-let recent3Msgs = [];
-let selectedFwdMsg = null;
-
+let selChat = { fwd: null, reply: null, off: null };
+let inspectedMsg = { fwd: null, reply: null };
+let confirmedMsg = { fwd: null, reply: null };
 let recent5Msgs = [];
 let activeSideId = null;
 
-function switchSection(sec){
-  document.getElementById('secFwd').style.display = sec === 'fwd' ? 'block' : 'none';
-  document.getElementById('secSpam').style.display = sec === 'spam' ? 'block' : 'none';
-  document.getElementById('secOff').style.display = sec === 'off' ? 'block' : 'none';
-
-  document.getElementById('tabFwd').className = 'tab' + (sec === 'fwd' ? ' active-fwd' : '');
-  document.getElementById('tabSpam').className = 'tab' + (sec === 'spam' ? ' active-spam' : '');
-  document.getElementById('tabOff').className = 'tab' + (sec === 'off' ? ' active-off' : '');
+function switchSec(sec){
+  ['fwd','spam','reply','off'].forEach(k => {
+    document.getElementById('sec'+k.charAt(0).toUpperCase()+k.slice(1)).style.display = (k===sec)?'block':'none';
+    document.getElementById('tab'+k.charAt(0).toUpperCase()+k.slice(1)).className = 'tab' + (k===sec?' active':'');
+  });
 }
 
-function renderTargets(inputId, viewId){
-  const raw = document.getElementById(inputId).value || '';
-  const arr = raw.split(',').map(x=>x.trim()).filter(Boolean);
+function renderTags(inputId, viewId){
+  const arr = (document.getElementById(inputId).value || '').split(',').map(x=>x.trim()).filter(Boolean);
   const el = document.getElementById(viewId);
   if(!arr.length){ el.innerHTML = '<div class="msg">مقصدی انتخاب نشده است.</div>'; return; }
-  el.innerHTML = arr.map((t,i) => `<span class="tag">${t} <b style="cursor:pointer" onclick="removeTarget('${inputId}','${viewId}',${i})">×</b></span>`).join('');
+  el.innerHTML = arr.map((t,i) => `<span class="tag">${t} <b style="cursor:pointer" onclick="removeTag('${inputId}','${viewId}',${i})">×</b></span>`).join('');
 }
-
-function removeTarget(inputId, viewId, idx){
+function removeTag(inputId, viewId, i){
   const inp = document.getElementById(inputId);
   const arr = inp.value.split(',').map(x=>x.trim()).filter(Boolean);
-  arr.splice(idx, 1);
+  arr.splice(i, 1);
   inp.value = arr.join(', ');
-  renderTargets(inputId, viewId);
+  renderTags(inputId, viewId);
 }
-
-function addTargetValue(inputId, viewId, val){
+function addTag(inputId, viewId, val){
   const inp = document.getElementById(inputId);
   const arr = inp.value.split(',').map(x=>x.trim()).filter(Boolean);
   if(!arr.includes(String(val))) arr.push(String(val));
   inp.value = arr.join(', ');
-  renderTargets(inputId, viewId);
+  renderTags(inputId, viewId);
 }
 
-function toggleSourceChats(){
-  const p = document.getElementById('fwdChatPicker');
-  p.style.display = p.style.display === 'none' ? 'block' : 'none';
-  renderFwdChats();
+function togglePicker(kind){
+  const el = document.getElementById(kind+'Picker');
+  el.style.display = (el.style.display==='none') ? 'block' : 'none';
+  renderPicker(kind);
 }
 
-function renderFwdChats(){
-  const q = (document.getElementById('fwdChatSearch').value || '').toLowerCase();
+function renderPicker(kind){
+  const q = ((document.getElementById(kind+'Search')||{}).value || '').toLowerCase();
   const list = chats.filter(c => String(c.name||'').toLowerCase().includes(q) || String(c.id||'').includes(q));
-  document.getElementById('fwdChatList').innerHTML = list.length ? list.map(c =>
-    `<div class="chip"><span>${c.name||c.id} <small style="color:#94a3b8">(${c.id})</small></span><button class="btn bg" onclick="pickFwdSource('${c.id}','${encodeURIComponent(c.name||c.id)}')">انتخاب مبدا</button></div>`
+  const btnText = kind === 'spam' ? '+' : 'انتخاب';
+  document.getElementById(kind+'PickerList').innerHTML = list.length ? list.map(c =>
+    `<div class="chip"><span>${c.name||c.id} <small style="color:#94a3b8">(${c.id})</small></span><button class="btn bg" onclick="chooseChat('${kind}','${c.id}','${encodeURIComponent(c.name||c.id)}')">${btnText}</button></div>`
   ).join('') : '<div class="msg">گروه/کانالی یافت نشد.</div>';
 }
 
-function pickFwdSource(id, encName){
+function chooseChat(kind, id, encName){
   const name = decodeURIComponent(encName);
-  fwdSourceChat = { id: String(id), name };
-  document.getElementById('fwdSrcInfo').innerText = `مبدا انتخاب‌شده: ${name} (${id})`;
-  document.getElementById('fwdChatPicker').style.display = 'none';
-}
-
-async function loadRecent3(){
-  if(!fwdSourceChat){ document.getElementById('fwdMsg').innerText = 'ابتدا مبدا را انتخاب کنید.'; return; }
-  document.getElementById('fwdMsg').innerText = 'در حال دریافت ۳ پیام اخیر...';
-  const d = await api('/api/recent_messages', `?chat_id=${encodeURIComponent(fwdSourceChat.id)}&limit=3`);
-  recent3Msgs = Array.isArray(d) ? d : [];
-  const box = document.getElementById('recent3List');
-  if(!recent3Msgs.length){
-    box.innerHTML = '<div class="msg">پیامی یافت نشد.</div>';
+  if(kind === 'spam'){
+    addTag('spamTargets', 'spamTags', id);
     return;
   }
-  box.innerHTML = recent3Msgs.map((m, idx) =>
-    `<div class="item">
-      <b>پیام #${m.id}</b> | از: ${m.sender_name || m.sender_id || '-'}<br>
-      <span>${(m.text || '[رسانه/پیام]').slice(0,100)}</span>
-      <div class="row"><button class="btn bg" onclick="selectFwdMessage(${idx})">انتخاب این پیام</button></div>
-    </div>`
-  ).join('');
+  selChat[kind] = { id: String(id), name };
+  document.getElementById(kind+'Picker').style.display = 'none';
+  if(kind === 'fwd'){
+    confirmedMsg.fwd = null;
+    document.getElementById('fwdConfirmedLabel').innerText = 'وضعیت پیام: تایید نشده';
+    document.getElementById('fwdSrcLabel').innerText = `مبدا انتخاب‌شده: ${name} (${id})`;
+  } else if(kind === 'reply'){
+    confirmedMsg.reply = null;
+    document.getElementById('replyConfirmedLabel').innerText = 'وضعیت پیام: تایید نشده';
+    document.getElementById('replyGrpLabel').innerText = `گروه انتخاب‌شده: ${name} (${id})`;
+  } else if(kind === 'off'){
+    document.getElementById('offGrpLabel').innerText = `گروه انتخاب‌شده: ${name} (${id})`;
+  }
 }
 
-function selectFwdMessage(idx){
-  const m = recent3Msgs[idx];
-  if(!m) return;
-  selectedFwdMsg = m;
-  document.getElementById('pickedMsgInfo').innerText = `پیام انتخاب‌شده برای فوروارد: #${m.id} (${(m.text||'پیام').slice(0,45)})`;
-}
-
-async function startForward(){
-  const targets = document.getElementById('fwdTargets').value.trim();
-  const speed_ms = document.getElementById('fwdSpeed').value || 1000;
-  const max_count = document.getElementById('fwdCount').value || 0;
-  if(!fwdSourceChat || !selectedFwdMsg || !targets){
-    document.getElementById('fwdMsg').innerText = 'مبدا، یکی از ۳ پیام اخیر و مقصد را انتخاب کنید.';
+async function inspectLink(kind){
+  const ch = selChat[kind];
+  const link = document.getElementById(kind+'Link').value.trim();
+  if(!ch){ document.getElementById(kind+'Msg').innerText = 'ابتدا گروه/کانال را انتخاب کنید.'; return; }
+  if(!link){ document.getElementById(kind+'Msg').innerText = 'لینک پیام را وارد کنید.'; return; }
+  document.getElementById(kind+'Msg').innerText = 'در حال بررسی لینک پیام...';
+  const d = await api('/api/inspect_link', `?chat_id=${encodeURIComponent(ch.id)}&link=${encodeURIComponent(link)}`);
+  if(!d || !d.ok){
+    document.getElementById(kind+'Msg').innerText = (d && d.msg) || 'پیام با این لینک پیدا نشد.';
     return;
   }
-  const q = `?mode=forward_msg&source_chat=${encodeURIComponent(fwdSourceChat.id)}&msg_id=${encodeURIComponent(selectedFwdMsg.id)}&payload=${encodeURIComponent(selectedFwdMsg.text||'')}&targets=${encodeURIComponent(targets)}&speed_ms=${speed_ms}&max_count=${max_count}`;
+  inspectedMsg[kind] = d.message;
+  const box = document.getElementById(kind+'PreviewBox');
+  const txt = document.getElementById(kind+'PreviewText');
+  box.style.display = 'block';
+  txt.innerHTML = `<b>پیام پیدا شد (#${d.message.id})</b> | فرستنده: ${d.message.sender_name || '-'}<br>${(d.message.text || '[پیام/رسانه]')}`;
+  document.getElementById(kind+'Msg').innerText = 'پیام نمایش داده شد؛ در صورت صحت دکمه «تایید این پیام» را بزنید.';
+}
+
+function confirmMsg(kind){
+  if(!inspectedMsg[kind]) return;
+  confirmedMsg[kind] = inspectedMsg[kind];
+  document.getElementById(kind+'ConfirmedLabel').innerText = `وضعیت پیام: تایید شد (#${confirmedMsg[kind].id})`;
+  document.getElementById(kind+'Msg').innerText = 'پیام تایید شد.';
+}
+
+async function startJob(mode){
+  let q = '';
+  if(mode === 'forward_msg'){
+    const targets = document.getElementById('fwdTargets').value.trim();
+    const speed = document.getElementById('fwdSpeed').value || 1000;
+    const cnt = document.getElementById('fwdCount').value || 0;
+    if(!selChat.fwd || !confirmedMsg.fwd || !targets){
+      document.getElementById('fwdMsg').innerText = 'مبدا، تایید پیام لینک و مقصد را کامل کنید.';
+      return;
+    }
+    q = `?mode=forward_msg&source_chat=${encodeURIComponent(selChat.fwd.id)}&msg_id=${encodeURIComponent(confirmedMsg.fwd.id)}&payload=${encodeURIComponent(confirmedMsg.fwd.text||'')}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
+  } else if(mode === 'spam'){
+    const text = document.getElementById('spamText').value.trim();
+    const targets = document.getElementById('spamTargets').value.trim();
+    const speed = document.getElementById('spamSpeed').value || 500;
+    const cnt = document.getElementById('spamCount').value || 0;
+    const re = document.getElementById('spamRestEvery').value || 0;
+    const rm = document.getElementById('spamRestMs').value || 2000;
+    if(!text || !targets){ document.getElementById('spamMsg').innerText = 'متن اسپم و مقصد را وارد کنید.'; return; }
+    q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}`;
+  } else if(mode === 'reply_loop'){
+    const rtext = document.getElementById('replyText').value.trim();
+    const targets = document.getElementById('replyTargets').value.trim();
+    const speed = document.getElementById('replySpeed').value || 1000;
+    const cnt = document.getElementById('replyCount').value || 0;
+    if(!selChat.reply || !confirmedMsg.reply || !rtext || !targets){
+      document.getElementById('replyMsg').innerText = 'گروه، تایید پیام لینک، متن ریپلای و مقصد را کامل کنید.';
+      return;
+    }
+    q = `?mode=reply_loop&source_chat=${encodeURIComponent(selChat.reply.id)}&msg_id=${encodeURIComponent(confirmedMsg.reply.id)}&payload=${encodeURIComponent(rtext)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed}&max_count=${cnt}`;
+  }
   const d = await api('/api/add_job', q);
-  document.getElementById('fwdMsg').innerText = (d && d.msg) || 'تسک فوروارد ثبت شد.';
-  poll();
-}
-
-function toggleSpamChatPicker(){
-  const p = document.getElementById('spamChatPicker');
-  p.style.display = p.style.display === 'none' ? 'block' : 'none';
-  document.getElementById('spamChatList').innerHTML = chats.length ? chats.map(c =>
-    `<div class="chip"><span>${c.name||c.id} (${c.id})</span><button class="btn bg" onclick="addTargetValue('spamTargets','spamTargetsView','${c.id}')">+</button></div>`
-  ).join('') : '<div class="msg">چتی موجود نیست.</div>';
-}
-
-async function startSpam(){
-  const text = document.getElementById('spamText').value.trim();
-  const targets = document.getElementById('spamTargets').value.trim();
-  const speed_ms = document.getElementById('spamSpeed').value || 250;
-  const max_count = document.getElementById('spamCount').value || 0;
-  const rest_every = document.getElementById('spamRestEvery').value || 0;
-  const rest_ms = document.getElementById('spamRestMs').value || 0;
-  if(!text || !targets){
-    document.getElementById('spamMsg').innerText = 'متن اسپم و مقصد را وارد کنید.';
-    return;
-  }
-  const q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(targets)}&speed_ms=${speed_ms}&max_count=${max_count}&rest_every=${rest_every}&rest_ms=${rest_ms}`;
-  const d = await api('/api/add_job', q);
-  document.getElementById('spamMsg').innerText = (d && d.msg) || 'اسپم شروع شد.';
+  const targetMsgId = mode === 'forward_msg' ? 'fwdMsg' : (mode === 'spam' ? 'spamMsg' : 'replyMsg');
+  document.getElementById(targetMsgId).innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
   poll();
 }
 
 /* افلاینی بگیر */
-function getActiveSide(){
-  return sides.find(s => String(s.id) === String(activeSideId)) || sides[0] || null;
-}
-
+function getActiveSide(){ return sides.find(s => String(s.id) === String(activeSideId)) || sides[0] || null; }
 function renderSideSelect(){
   const sel = document.getElementById('sideSelect');
-  if(!sides.length){
-    sel.innerHTML = '<option value="">ابتدا یک ساید ایجاد کنید</option>';
-    activeSideId = null;
-    renderSideUsers();
-    return;
-  }
-  if(!activeSideId || !sides.some(s => String(s.id) === String(activeSideId))){
-    activeSideId = sides[0].id;
-  }
+  if(!sides.length){ sel.innerHTML = '<option value="">ابتدا ساید بسازید</option>'; activeSideId = null; renderSideUsers(); return; }
+  if(!activeSideId || !sides.some(s => String(s.id) === String(activeSideId))) activeSideId = sides[0].id;
   sel.innerHTML = sides.map(s => `<option value="${s.id}" ${String(s.id)===String(activeSideId)?'selected':''}>${s.name} (${(s.users||[]).length} کاربر)</option>`).join('');
   const cur = getActiveSide();
   if(cur){
     document.getElementById('offMinutes').value = cur.minutes || 3;
     document.getElementById('offReplyText').value = cur.reply_text || '';
     document.getElementById('offEnabled').value = cur.enabled === false ? 'false' : 'true';
-    if(cur.chat_id) document.getElementById('offChatSelect').value = cur.chat_id;
+    if(cur.chat_id){
+      selChat.off = { id: String(cur.chat_id), name: cur.chat_name || String(cur.chat_id) };
+      document.getElementById('offGrpLabel').innerText = `گروه انتخاب‌شده: ${selChat.off.name} (${selChat.off.id})`;
+    }
   }
   renderSideUsers();
 }
-
-function onSideChange(){
-  activeSideId = document.getElementById('sideSelect').value;
-  renderSideSelect();
-}
-
+function onSideChange(){ activeSideId = document.getElementById('sideSelect').value; renderSideSelect(); }
 function renderSideUsers(){
   const cur = getActiveSide();
   const box = document.getElementById('sideUsersView');
   if(!cur){ box.innerHTML = '<div class="msg">سایدی انتخاب نشده است.</div>'; return; }
   const users = cur.users || [];
-  if(!users.length){ box.innerHTML = '<div class="msg">کاربری در این ساید نیست؛ از ۵ پیام اخیر یک پیام را انتخاب کنید.</div>'; return; }
-  box.innerHTML = users.map((u, idx) =>
-    `<span class="tag">${u.name || u.id} (${u.id}) <b style="cursor:pointer" onclick="removeSideUser(${idx})">×</b></span>`
-  ).join('');
+  if(!users.length){ box.innerHTML = '<div class="msg">کاربری انتخاب نشده است.</div>'; return; }
+  box.innerHTML = users.map((u, idx) => `<span class="tag">${u.name||u.id} (${u.id}) <b style="cursor:pointer" onclick="removeSideUser(${idx})">×</b></span>`).join('');
 }
-
-function removeSideUser(idx){
-  const cur = getActiveSide();
-  if(!cur) return;
-  cur.users.splice(idx, 1);
-  renderSideUsers();
-}
+function removeSideUser(idx){ const cur = getActiveSide(); if(!cur) return; cur.users.splice(idx,1); renderSideUsers(); }
 
 async function createSide(){
   const name = document.getElementById('newSideName').value.trim();
-  const chatId = document.getElementById('offChatSelect').value || '';
   if(!name){ document.getElementById('offMsg').innerText = 'نام ساید را وارد کنید.'; return; }
-  const d = await api('/api/side_save', `?name=${encodeURIComponent(name)}&chat_id=${encodeURIComponent(chatId)}&minutes=3&reply_text=&enabled=true&users=${encodeURIComponent('[]')}`);
+  const cid = selChat.off ? selChat.off.id : '';
+  const cname = selChat.off ? selChat.off.name : '';
+  const d = await api('/api/side_save', `?name=${encodeURIComponent(name)}&chat_id=${encodeURIComponent(cid)}&chat_name=${encodeURIComponent(cname)}&minutes=3&reply_text=&enabled=true&users=${encodeURIComponent('[]')}`);
   if(d && d.side) activeSideId = d.side.id;
   document.getElementById('newSideName').value = '';
-  document.getElementById('offMsg').innerText = 'ساید ایجاد شد.';
+  document.getElementById('offMsg').innerText = 'ساید ساخته شد.';
   poll();
 }
 
 async function loadRecent5(){
-  const chatId = document.getElementById('offChatSelect').value;
-  if(!chatId){ document.getElementById('offMsg').innerText = 'ابتدا گروه را انتخاب کنید.'; return; }
-  const d = await api('/api/recent_messages', `?chat_id=${encodeURIComponent(chatId)}&limit=5`);
+  if(!selChat.off || !selChat.off.id){ document.getElementById('offMsg').innerText = 'ابتدا گروه را انتخاب کنید.'; return; }
+  document.getElementById('offMsg').innerText = 'در حال دریافت ۵ پیام اخیر...';
+  const d = await api('/api/recent_messages', `?chat_id=${encodeURIComponent(selChat.off.id)}&limit=5`);
   recent5Msgs = Array.isArray(d) ? d : [];
   const box = document.getElementById('recent5List');
-  if(!recent5Msgs.length){ box.innerHTML = '<div class="msg">پیامی یافت نشد.</div>'; return; }
+  if(!recent5Msgs.length){ box.innerHTML = '<div class="msg">پیامی دریافت نشد.</div>'; return; }
   box.innerHTML = recent5Msgs.map((m, idx) =>
     `<div class="item">
-      <b>#${m.id}</b> | کاربر: <b>${m.sender_name || m.sender_id}</b> (ID: ${m.sender_id})<br>
+      <b>#${m.id}</b> | کاربر: <b>${m.sender_name || m.sender_id}</b> (${m.sender_id})<br>
       <span>${(m.text || '[پیام]').slice(0,90)}</span>
-      <div class="row"><button class="btn bg" onclick="pickUserFromMsg(${idx})">تشخیص و انتخاب این کاربر</button></div>
+      <div class="row"><button class="btn bg" onclick="pickUser(${idx})">انتخاب این کاربر</button></div>
     </div>`
   ).join('');
+  document.getElementById('offMsg').innerText = '۵ پیام اخیر نمایش داده شد.';
 }
 
-function pickUserFromMsg(idx){
+function pickUser(idx){
   const m = recent5Msgs[idx];
   const cur = getActiveSide();
   if(!m) return;
-  if(!cur){ document.getElementById('offMsg').innerText = 'ابتدا یک ساید بسازید یا انتخاب کنید.'; return; }
+  if(!cur){ document.getElementById('offMsg').innerText = 'ابتدا یک ساید بسازید.'; return; }
   cur.users = cur.users || [];
   const uid = String(m.sender_id || '');
   if(uid && !cur.users.some(u => String(u.id) === uid)){
     cur.users.push({ id: uid, name: m.sender_name || uid });
   }
-  document.getElementById('offMsg').innerText = `کاربر ${m.sender_name || uid} به ساید «${cur.name}» اضافه شد.`;
+  document.getElementById('offMsg').innerText = `کاربر ${m.sender_name||uid} اضافه شد.`;
   renderSideUsers();
 }
 
@@ -451,25 +464,22 @@ async function saveSideConfig(){
   const minutes = Math.max(1, parseInt(document.getElementById('offMinutes').value || '3', 10));
   const replyText = document.getElementById('offReplyText').value.trim();
   const enabled = document.getElementById('offEnabled').value === 'true';
-  const chatId = document.getElementById('offChatSelect').value || cur.chat_id || '';
+  const cid = selChat.off ? selChat.off.id : (cur.chat_id || '');
+  const cname = selChat.off ? selChat.off.name : (cur.chat_name || '');
   if(!replyText){ document.getElementById('offMsg').innerText = 'متن پاسخ را وارد کنید.'; return; }
-
-  const q = `?id=${encodeURIComponent(cur.id)}&name=${encodeURIComponent(cur.name)}&chat_id=${encodeURIComponent(chatId)}&minutes=${minutes}&reply_text=${encodeURIComponent(replyText)}&enabled=${enabled}&users=${encodeURIComponent(JSON.stringify(cur.users||[]))}`;
+  const q = `?id=${encodeURIComponent(cur.id)}&name=${encodeURIComponent(cur.name)}&chat_id=${encodeURIComponent(cid)}&chat_name=${encodeURIComponent(cname)}&minutes=${minutes}&reply_text=${encodeURIComponent(replyText)}&enabled=${enabled}&users=${encodeURIComponent(JSON.stringify(cur.users||[]))}`;
   const d = await api('/api/side_save', q);
-  document.getElementById('offMsg').innerText = (d && d.msg) || 'تنظیمات ساید ذخیره شد.';
+  document.getElementById('offMsg').innerText = (d && d.msg) || 'ذخیره شد.';
   poll();
 }
 
-async function deleteSide(id){
-  await api('/api/side_delete', `?id=${encodeURIComponent(id)}`);
-  poll();
-}
+async function deleteSide(id){ await api('/api/side_delete', `?id=${encodeURIComponent(id)}`); poll(); }
 
 function renderSidesList(){
   document.getElementById('sSides').innerText = sides.length;
   document.getElementById('sidesList').innerHTML = sides.map(s =>
     `<div class="item">
-      <b>ساید: ${s.name}</b> | مدت: <b>${s.minutes || 3} دقیقه</b> | وضعیت: <b>${s.enabled!==false?'فعال':'غیرفعال'}</b><br>
+      <b>ساید: ${s.name}</b> | مدت: <b>${s.minutes||3} دقیقه</b> | وضعیت: <b>${s.enabled!==false?'فعال':'غیرفعال'}</b><br>
       کاربران: ${((s.users||[]).map(u=>u.name||u.id).join('، ')) || '-'}<br>
       متن پاسخ: ${s.reply_text || '-'}
       <div class="row"><button class="btn br" onclick="deleteSide('${s.id}')">حذف ساید</button></div>
@@ -477,26 +487,21 @@ function renderSidesList(){
   ).join('');
 }
 
-function renderChatsSelect(){
-  const sel = document.getElementById('offChatSelect');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">انتخاب گروه...</option>' + chats.map(c =>
-    `<option value="${c.id}" ${String(c.id)===String(prev)?'selected':''}>${c.name||c.id} (${c.id})</option>`
-  ).join('');
-}
-
 function renderAccounts(){
   document.getElementById('sAcc').innerText = accounts.length;
   document.getElementById('accList').innerHTML = accounts.length ? accounts.map((a,i) =>
-    `<div class="chip"><span>${a.name || a.phone} <small style="color:#10b981">(متصل)</small></span><button class="btn br" onclick="delAcc(${i})">حذف</button></div>`
+    `<div class="chip"><span>${a.name||a.phone} <small style="color:#10b981">(متصل)</small></span><button class="btn br" onclick="delAcc(${i})">حذف</button></div>`
   ).join('') : '<div class="msg">اکانتی ثبت نشده است.</div>';
 }
 
 function renderTasks(){
-  let ok=0, run=0, fail=0;
-  tasks.forEach(t=>{ ok+=(t.ok||0); fail+=(t.fail||0); if(t.running) run++; });
+  let ok=0, run3=0, fail=0;
+  tasks.forEach(t=>{
+    ok+=(t.ok||0); fail+=(t.fail||0);
+    if(t.running && ['forward_msg','spam','reply_loop'].includes(t.mode)) run3++;
+  });
   document.getElementById('sOk').innerText = ok;
-  document.getElementById('sRun').innerText = run;
+  document.getElementById('sRun3').innerText = `${run3} / 3`;
   document.getElementById('sFail').innerText = fail;
 
   document.getElementById('taskList').innerHTML = tasks.length ? tasks.map(t =>
@@ -517,7 +522,6 @@ async function api(path, q=''){
   const r = await fetch(baseUrl + path + q);
   return await r.json();
 }
-
 async function sendPhone(){
   const p = document.getElementById('phone').value.trim();
   if(!p || !baseUrl) return;
@@ -526,7 +530,6 @@ async function sendPhone(){
   const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p));
   if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
 }
-
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
@@ -534,29 +537,25 @@ async function verifyCode(){
   if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
   poll();
 }
-
 async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
-
 async function loadChats(){
   if(!baseUrl) return;
   const d = await api('/api/groups');
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
-    renderFwdChats();
-    renderChatsSelect();
+    ['fwd','spam','reply','off'].forEach(renderPicker);
   }
 }
-
 async function ctrlTask(id, act){ await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`); poll(); }
-
 function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 
 async function poll(){
-  renderTargets('fwdTargets','fwdTargetsView');
-  renderTargets('spamTargets','spamTargetsView');
+  renderTags('fwdTargets','fwdTags');
+  renderTags('spamTargets','spamTags');
+  renderTags('replyTargets','replyTags');
   if(!baseUrl){
-    document.getElementById('sysInfo').innerText = 'آدرس سرور در صفحه ورود وارد نشده است';
+    document.getElementById('sysInfo').innerText = 'آدرس سرور تنظیم نشده است';
     renderAccounts(); renderTasks(); renderSidesList();
     return;
   }
@@ -569,14 +568,13 @@ async function poll(){
     if(Array.isArray(d.groups)){
       chats = d.groups;
       document.getElementById('sGrp').innerText = chats.length;
-      renderFwdChats();
-      renderChatsSelect();
+      ['fwd','spam','reply','off'].forEach(renderPicker);
     }
     if(Array.isArray(d.jobs)) tasks = d.jobs;
     if(Array.isArray(d.sides)){ sides = d.sides; renderSideSelect(); renderSidesList(); }
     renderAccounts(); renderTasks();
   }catch(e){
-    document.getElementById('sysInfo').innerText = 'سرور پاسخ نداد (وضعیت Render را چک کنید)';
+    document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
   }
 }
 setInterval(poll, 2500);

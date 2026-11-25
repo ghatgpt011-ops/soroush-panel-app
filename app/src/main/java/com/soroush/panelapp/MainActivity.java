@@ -8,10 +8,6 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String VALID_USER = "FONEX";
     private static final String VALID_PASS = "MOHAMMAD_1234";
 
-    private LinearLayout loginLayout;
+    private WebView loginWebView;
     private WebView panelWebView;
     private SharedPreferences prefs;
 
@@ -29,54 +25,34 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        loginLayout = findViewById(R.id.loginLayout);
+        loginWebView = findViewById(R.id.loginWebView);
         panelWebView = findViewById(R.id.panelWebView);
 
-        EditText etUrl = findViewById(R.id.etServerUrl);
-        EditText etUser = findViewById(R.id.etUsername);
-        EditText etPass = findViewById(R.id.etPassword);
-        Button btnLogin = findViewById(R.id.btnLogin);
-        TextView tvStatus = findViewById(R.id.tvStatus);
+        setupWebView(loginWebView);
+        setupWebView(panelWebView);
 
-        String savedUrl = prefs.getString("server_url", "");
-        String savedUser = prefs.getString("username", VALID_USER);
+        String savedUrl = normalizeUrl(prefs.getString("server_url", ""));
         boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
 
-        etUrl.setText(savedUrl);
-        etUser.setText(savedUser);
-
-        WebSettings ws = panelWebView.getSettings();
-        ws.setJavaScriptEnabled(true);
-        ws.setDomStorageEnabled(true);
-        panelWebView.setWebViewClient(new WebViewClient());
-        panelWebView.addJavascriptInterface(new AndroidBridge(), "AndroidBridge");
-
-        btnLogin.setOnClickListener(v -> {
-            String url = normalizeUrl(etUrl.getText().toString().trim());
-            String user = etUser.getText().toString().trim();
-            String pass = etPass.getText().toString().trim();
-
-            if (!VALID_USER.equals(user) || !VALID_PASS.equals(pass)) {
-                tvStatus.setText("نام کاربری یا رمز عبور اشتباه است.");
-                return;
-            }
-
-            prefs.edit()
-                .putString("server_url", url)
-                .putString("username", user)
-                .putBoolean("is_logged_in", true)
-                .apply();
-
-            openPanel(url, user);
-        });
-
         if (isLoggedIn) {
-            openPanel(normalizeUrl(savedUrl), VALID_USER);
+            openPanel(savedUrl, VALID_USER);
+        } else {
+            openLogin(savedUrl);
         }
     }
 
+    private void setupWebView(WebView wv) {
+        WebSettings ws = wv.getSettings();
+        ws.setJavaScriptEnabled(true);
+        ws.setDomStorageEnabled(true);
+        wv.setWebViewClient(new WebViewClient());
+        wv.addJavascriptInterface(new AndroidBridge(), "AndroidBridge");
+    }
+
     private String normalizeUrl(String url) {
-        if (url == null || url.isEmpty()) return "";
+        if (url == null) return "";
+        url = url.trim();
+        if (url.isEmpty()) return "";
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             url = "https://" + url;
         }
@@ -86,8 +62,15 @@ public class MainActivity extends AppCompatActivity {
         return url;
     }
 
+    private void openLogin(String savedUrl) {
+        panelWebView.setVisibility(View.GONE);
+        loginWebView.setVisibility(View.VISIBLE);
+        String target = "file:///android_asset/login.html?server=" + Uri.encode(savedUrl);
+        loginWebView.loadUrl(target);
+    }
+
     private void openPanel(String url, String user) {
-        loginLayout.setVisibility(View.GONE);
+        loginWebView.setVisibility(View.GONE);
         panelWebView.setVisibility(View.VISIBLE);
         String target = "file:///android_asset/panel.html?server=" + Uri.encode(url) + "&user=" + Uri.encode(user);
         panelWebView.loadUrl(target);
@@ -95,18 +78,28 @@ public class MainActivity extends AppCompatActivity {
 
     public class AndroidBridge {
         @JavascriptInterface
-        public void logout() {
-            runOnUiThread(() -> {
-                prefs.edit().putBoolean("is_logged_in", false).apply();
-                panelWebView.setVisibility(View.GONE);
-                loginLayout.setVisibility(View.VISIBLE);
-            });
+        public String login(String serverUrl, String username, String password) {
+            String u = username == null ? "" : username.trim();
+            String p = password == null ? "" : password.trim();
+            String s = normalizeUrl(serverUrl);
+            if (!VALID_USER.equals(u) || !VALID_PASS.equals(p)) {
+                return "ERR:نام کاربری یا رمز عبور اشتباه است.";
+            }
+            prefs.edit()
+                .putString("server_url", s)
+                .putString("username", VALID_USER)
+                .putBoolean("is_logged_in", true)
+                .apply();
+            runOnUiThread(() -> openPanel(s, VALID_USER));
+            return "OK";
         }
 
         @JavascriptInterface
-        public void saveServerUrl(String newUrl) {
+        public void logout() {
             runOnUiThread(() -> {
-                prefs.edit().putString("server_url", normalizeUrl(newUrl)).apply();
+                prefs.edit().putBoolean("is_logged_in", false).apply();
+                String s = normalizeUrl(prefs.getString("server_url", ""));
+                openLogin(s);
             });
         }
     }

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FONEX Login</title>
+<style>
+  *{box-sizing:border-box;font-family:Tahoma,sans-serif}
+  body{
+    margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;
+    color:#f8fafc;background:linear-gradient(-45deg,#070a14,#2e1065,#082f49,#4c0519);
+    background-size:400% 400%;animation:bgMove 11s ease infinite;
+  }
+  @keyframes bgMove{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+  .card{
+    width:100%;max-width:410px;background:rgba(13,19,38,.86);backdrop-filter:blur(12px);
+    border:1px solid rgba(168,85,247,.45);border-radius:20px;padding:22px;
+    box-shadow:0 18px 45px rgba(0,0,0,.55);
+  }
+  .logo{
+    text-align:center;font-size:32px;font-weight:900;letter-spacing:1px;
+    background:linear-gradient(90deg,#f472b6,#a855f7,#38bdf8);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .sub{text-align:center;color:#cbd5e1;font-size:12px;margin-top:4px;margin-bottom:18px}
+  label{display:block;font-size:12px;color:#e2e8f0;margin:10px 0 4px}
+  input{
+    width:100%;padding:11px 12px;border-radius:11px;border:1px solid #334155;
+    background:rgba(7,10,20,.85);color:#fff;font-size:13px;outline:none;
+  }
+  input:focus{border-color:#e879f9;box-shadow:0 0 0 2px rgba(232,121,249,.2)}
+  button{
+    width:100%;margin-top:20px;padding:12px;border:0;border-radius:12px;
+    background:linear-gradient(135deg,#8b5cf6,#ec4899,#06b6d4);
+    color:#fff;font-size:15px;font-weight:bold;cursor:pointer;
+  }
+  .msg{text-align:center;font-size:12px;color:#fda4af;margin-top:12px;min-height:18px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">FONEX</div>
+  <div class="sub">ورود به کنترل پنل هوشمند سروش پلاس</div>
+
+  <label>آدرس سرور Render</label>
+  <input id="srv" type="text" placeholder="https://your-app.onrender.com" dir="ltr">
+
+  <label>نام کاربری</label>
+  <input id="usr" type="text" placeholder="FONEX">
+
+  <label>رمز عبور</label>
+  <input id="pwd" type="password" placeholder="رمز عبور">
+
+  <button onclick="doLogin()">ورود به پنل</button>
+  <div class="msg" id="msg"></div>
+</div>
+<script>
+const p = new URLSearchParams(location.search);
+if(p.get('server')) document.getElementById('srv').value = p.get('server');
+function doLogin(){
+  const s = document.getElementById('srv').value.trim();
+  const u = document.getElementById('usr').value.trim();
+  const pw = document.getElementById('pwd').value.trim();
+  if(window.AndroidBridge){
+    const res = window.AndroidBridge.login(s, u, pw);
+    if(res && res.startsWith('ERR:')) document.getElementById('msg').innerText = res.slice(4);
+  }
+}
+</script>
+</body>
+</html>
