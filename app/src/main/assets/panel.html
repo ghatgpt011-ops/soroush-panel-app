@@ -251,6 +251,18 @@ function loadCache(){
   }catch(e){}
 }
 
+function burstRefresh(times=4, intervalMs=350){
+  let count = 0;
+  const runOnce = () => {
+    count += 1;
+    poll();
+    if(count < times){
+      setTimeout(runOnce, intervalMs);
+    }
+  };
+  runOnce();
+}
+
 function switchTab(tabName){
   const panels = document.querySelectorAll('.sec-panel');
   panels.forEach(p => p.style.display = 'none');
@@ -381,13 +393,13 @@ async function startEnemyRule(){
   const q = `?chat_id=${encodeURIComponent(identifiedEnemy.chat_id)}&user_id=${encodeURIComponent(identifiedEnemy.user_id)}&user_name=${encodeURIComponent(identifiedEnemy.user_name)}&reply_text=${encodeURIComponent(replyText)}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_enemy', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
-  poll();
+  burstRefresh(3, 300);
 }
 
 async function ctrlEnemy(id, act){
   const d = await api('/api/enemy_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
   if(d && d.ok === false && d.msg) document.getElementById('enemyMsg').innerText = d.msg;
-  poll();
+  burstRefresh(2, 250);
 }
 
 function renderEnemyList(){
@@ -420,7 +432,7 @@ async function startReplyChain(){
   const q = `?mode=reply_chain&link=${encodeURIComponent(rawLink)}&targets=${encodeURIComponent(parsed.chatId)}&reply_to_msg_id=${parsed.msgId}&msg_id=${parsed.msgId}&payload=${encodeURIComponent(text)}&speed_ms=${speed}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
-  poll();
+  burstRefresh(3, 300);
 }
 
 async function fetchFwdMsg(){
@@ -475,7 +487,7 @@ async function startForwardJob(){
   const q = `?mode=forward&source_chat=${encodeURIComponent(fwdConfirmed.chat_id)}&msg_id=${encodeURIComponent(fwdConfirmed.msg_id)}&link=${encodeURIComponent(fwdConfirmed.link)}&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
-  poll();
+  burstRefresh(3, 300);
 }
 
 async function startSpamJob(){
@@ -499,7 +511,7 @@ async function startSpamJob(){
   const q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
-  poll();
+  burstRefresh(3, 300);
 }
 
 async function switchAccount(key){
@@ -512,7 +524,7 @@ async function switchAccount(key){
     document.getElementById('sGrp').innerText = chats.length;
     renderGroupList(activePickerMode);
   }
-  poll();
+  burstRefresh(3, 250);
 }
 
 function renderAccounts(){
@@ -601,15 +613,16 @@ async function sendPhone(){
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
+  document.getElementById('authMsg').innerText = 'در حال تأیید کد...';
   const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 15000);
   if(d){
     if(d.active_acc_key) activeAccKey = d.active_acc_key;
     if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
   }
-  await poll();
+  burstRefresh(5, 300);
   fetchGroups(false, activePickerMode);
 }
-async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
+async function delAcc(i){ await api('/api/del_account', '?index='+i); burstRefresh(3, 250); }
 async function fetchGroups(openBox=false, prefix=activePickerMode){
   if(!baseUrl) return;
   activePickerMode = prefix;
@@ -627,7 +640,7 @@ async function fetchGroups(openBox=false, prefix=activePickerMode){
 async function ctrlTask(id, act){
   const d = await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
   if(d && d.ok === false && d.msg) document.getElementById('spamMsg').innerText = d.msg;
-  poll();
+  burstRefresh(2, 250);
 }
 function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 
@@ -663,11 +676,11 @@ renderEnemyList();
 renderTasks();
 loadCache();
 notifyPanelOpen();
-document.addEventListener('DOMContentLoaded', () => { loadCache(); notifyPanelOpen(); poll(); });
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); notifyPanelOpen(); poll(); } });
-window.addEventListener('focus', () => { notifyPanelOpen(); poll(); });
+burstRefresh(4, 350);
+document.addEventListener('DOMContentLoaded', () => { loadCache(); notifyPanelOpen(); burstRefresh(3, 300); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); notifyPanelOpen(); burstRefresh(4, 300); } });
+window.addEventListener('focus', () => { notifyPanelOpen(); burstRefresh(3, 300); });
 setInterval(poll, 1000);
-poll();
 </script>
 </body>
 </html>
