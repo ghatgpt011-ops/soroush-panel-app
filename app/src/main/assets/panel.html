@@ -29,7 +29,8 @@
   .preview{background:#090e1c;border:1px solid #334155;border-radius:9px;padding:8px;margin-top:8px;font-size:11px}
   .preview.ok{border-color:#10b981;background:#071b16}
   .item{background:#16203a;border:1px solid #273556;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;line-height:1.6}
-  .chip{background:#16203a;border:1px solid #273556;border-radius:8px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+  .chip{background:#16203a;border:1px solid #273556;border-radius:8px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px;gap:6px}
+  .chip.active-acc{border-color:#a855f7;background:#22163d}
   .tag{display:inline-flex;align-items:center;gap:5px;background:#2e1065;border:1px solid #7c3aed;color:#fae8ff;padding:3px 8px;border-radius:7px;margin:2px;font-size:11px}
   .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:75px;overflow-y:auto;direction:ltr;text-align:left;white-space:pre-line}
   .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
@@ -41,7 +42,7 @@
 <div class="top">
   <div>
     <div class="brand">FONEX PANEL</div>
-    <div class="sys" id="sysInfo">سرور در دسترس است</div>
+    <div class="sys" id="sysInfo">در حال اتصال به سرور...</div>
   </div>
   <button class="btn br" onclick="logoutApp()">خروج</button>
 </div>
@@ -65,6 +66,7 @@
 
 <div class="box">
   <h3>+ اکانت و حساب‌های متصل</h3>
+  <div class="msg" id="activeAccBanner">اکانت فعال: هیچ‌کدام</div>
   <div class="row">
     <input id="phone" type="text" placeholder="+98912..." dir="ltr" style="flex:1">
     <button class="btn bp" onclick="sendPhone()">ارسال کد</button>
@@ -221,13 +223,23 @@
 
 <script>
 const params = new URLSearchParams(location.search);
-const baseUrl = (params.get('server') || '').replace(/\/+$/, '');
+let baseUrl = (params.get('server') || '').trim().replace(/\/+$/, '');
+try{
+  if(baseUrl){ localStorage.setItem('fonex_server_url', baseUrl); }
+  else {
+    const saved = (localStorage.getItem('fonex_server_url') || '').trim().replace(/\/+$/, '');
+    if(saved) baseUrl = saved;
+    else if(window.location.origin && window.location.origin.startsWith('http')) baseUrl = window.location.origin.replace(/\/+$/, '');
+  }
+}catch(e){}
+
 let chats = [], tasks = [], accounts = [], offlineRules = [], enemies = [];
+let activeAccKey = '';
 let activePickerMode = 'forward';
 let fwdDraft = null, fwdConfirmed = null;
 let identifiedEnemy = null;
 let offlineSelectedUsers = [];
-let serverReachable = true;
+let failCount = 0;
 
 function switchTab(tabName){
   const panels = document.querySelectorAll('.sec-panel');
@@ -339,7 +351,7 @@ async function addOfflineUserFromLink(){
   const stEl = document.getElementById('offUserStatus');
   if(!link){ stEl.innerText = 'لینک پیام کاربر را وارد کن.'; return; }
   stEl.innerText = 'در حال شناسایی کاربر از لینک...';
-  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}&chat_id=${encodeURIComponent(chatId)}`);
+  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}&chat_id=${encodeURIComponent(chatId)}&acc_key=${encodeURIComponent(activeAccKey)}`);
   if(!d || !d.ok){
     stEl.innerText = (d && d.msg) || 'کاربر شناسایی نشد.';
     return;
@@ -381,29 +393,31 @@ async function saveOfflineRule(){
   const minutes = document.getElementById('offMinutes').value || 3;
   const replyText = document.getElementById('offReplyText').value.trim();
   const msgEl = document.getElementById('offMsg');
-  const q = `?chat_id=${encodeURIComponent(chatId)}&minutes=${encodeURIComponent(minutes)}&reply_text=${encodeURIComponent(replyText)}&users=${encodeURIComponent(JSON.stringify(offlineSelectedUsers))}`;
+  const q = `?chat_id=${encodeURIComponent(chatId)}&minutes=${encodeURIComponent(minutes)}&reply_text=${encodeURIComponent(replyText)}&users=${encodeURIComponent(JSON.stringify(offlineSelectedUsers))}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/save_offline_rule', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
   poll();
 }
 
 async function ctrlOfflineRule(id, act){
-  await api('/api/offline_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  const d = await api('/api/offline_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  if(d && d.ok === false && d.msg) document.getElementById('offMsg').innerText = d.msg;
   poll();
 }
 
 function renderOfflineRules(){
   const el = document.getElementById('offRulesList');
-  if(!offlineRules.length){
-    el.innerHTML = '<div class="msg">قانون آفلاینی فعالی ثبت نشده است.</div>';
+  const list = activeAccKey ? offlineRules.filter(r => r.acc_key === activeAccKey) : offlineRules;
+  if(!list.length){
+    el.innerHTML = '<div class="msg">قانون آفلاینی برای این اکانت ثبت نشده است.</div>';
     return;
   }
-  el.innerHTML = offlineRules.map(r => {
+  el.innerHTML = list.map(r => {
     const uHtml = (r.users || []).map(u =>
       `<div>• <b>${u.user_name}</b> (${u.user_id}) — ${u.status || 'در انتظار'} | ریپلای‌شده: ${u.replied_count || 0}</div>`
     ).join('');
     return `<div class="item">
-      <b>چت: ${r.chat_id}</b> | زمان سکوت: <b>${r.minutes} دقیقه</b> | وضعیت: <b>${r.running ? 'فعال' : 'متوقف'}</b><br>
+      <b>اکانت: ${r.acc_label || r.acc_key}</b> | چت: <b>${r.chat_id}</b> | سکوت: <b>${r.minutes} دقیقه</b> | وضعیت: <b>${r.running ? 'فعال' : 'متوقف'}</b><br>
       متن ریپلای: ${r.reply_text}<br>
       ${uHtml}
       <div class="row">
@@ -420,7 +434,7 @@ async function identifyEnemy(){
   if(!link){ infoEl.innerText = 'لینک پیام را وارد کن.'; return; }
   identifiedEnemy = null;
   infoEl.innerText = 'در حال شناسایی کاربر در چت...';
-  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}`);
+  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`);
   if(!d || !d.ok){
     infoEl.innerText = (d && d.msg) || 'کاربر شناسایی نشد.';
     return;
@@ -442,21 +456,23 @@ async function startEnemyRule(){
     msgEl.innerText = 'متن ریپلای دشمن را وارد کن.';
     return;
   }
-  const q = `?chat_id=${encodeURIComponent(identifiedEnemy.chat_id)}&user_id=${encodeURIComponent(identifiedEnemy.user_id)}&user_name=${encodeURIComponent(identifiedEnemy.user_name)}&reply_text=${encodeURIComponent(replyText)}&max_count=${count}`;
+  const q = `?chat_id=${encodeURIComponent(identifiedEnemy.chat_id)}&user_id=${encodeURIComponent(identifiedEnemy.user_id)}&user_name=${encodeURIComponent(identifiedEnemy.user_name)}&reply_text=${encodeURIComponent(replyText)}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_enemy', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
   poll();
 }
 
 async function ctrlEnemy(id, act){
-  await api('/api/enemy_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  const d = await api('/api/enemy_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  if(d && d.ok === false && d.msg) document.getElementById('enemyMsg').innerText = d.msg;
   poll();
 }
 
 function renderEnemyList(){
-  document.getElementById('enemyList').innerHTML = enemies.length ? enemies.map(e =>
+  const list = activeAccKey ? enemies.filter(e => e.acc_key === activeAccKey) : enemies;
+  document.getElementById('enemyList').innerHTML = list.length ? list.map(e =>
     `<div class="item">
-      <b>دشمن: ${e.user_name}</b> (${e.user_id}) | چت: ${e.chat_id}<br>
+      <b>اکانت: ${e.acc_label || e.acc_key}</b> | دشمن: <b>${e.user_name}</b> (${e.user_id}) | چت: ${e.chat_id}<br>
       وضعیت: <b>${e.status}</b> | ریپلای‌شده: ${e.replied_count || 0}${e.max_count ? ' / ' + e.max_count : ''}<br>
       متن ریپلای: ${e.reply_text}
       <div class="row">
@@ -464,7 +480,7 @@ function renderEnemyList(){
         <button class="btn br" onclick="ctrlEnemy('${e.id}','delete')">حذف</button>
       </div>
     </div>`
-  ).join('') : '<div class="msg">دشمنی فعال نیست.</div>';
+  ).join('') : '<div class="msg">دشمنی برای این اکانت فعال نیست.</div>';
 }
 
 async function startReplyChain(){
@@ -479,7 +495,7 @@ async function startReplyChain(){
     return;
   }
   if(!text){ msgEl.innerText = 'متن ریپلای را وارد کن.'; return; }
-  const q = `?mode=reply_chain&link=${encodeURIComponent(rawLink)}&targets=${encodeURIComponent(parsed.chatId)}&reply_to_msg_id=${parsed.msgId}&msg_id=${parsed.msgId}&payload=${encodeURIComponent(text)}&speed_ms=${speed}&max_count=${count}`;
+  const q = `?mode=reply_chain&link=${encodeURIComponent(rawLink)}&targets=${encodeURIComponent(parsed.chatId)}&reply_to_msg_id=${parsed.msgId}&msg_id=${parsed.msgId}&payload=${encodeURIComponent(text)}&speed_ms=${speed}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
   poll();
@@ -491,7 +507,7 @@ async function fetchFwdMsg(){
   if(!link){ msgEl.innerText = 'لینک پیام را وارد کن.'; return; }
   fwdConfirmed = null;
   msgEl.innerText = 'در حال پیدا کردن کانال و خواندن پیام...';
-  const d = await api('/api/fetch_msg', '?link=' + encodeURIComponent(link));
+  const d = await api('/api/fetch_msg', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`);
   if(!d || !d.ok){
     msgEl.innerText = (d && d.msg) || 'خطا در خواندن پیام';
     return;
@@ -534,7 +550,7 @@ async function startForwardJob(){
   if(arr.length > 3){ msgEl.innerText = 'فقط تا ۳ مقصد مجاز است.'; return; }
   const speed = document.getElementById('fwdSpeed').value || 800;
   const cnt = document.getElementById('fwdCount').value || 0;
-  const q = `?mode=forward&source_chat=${encodeURIComponent(fwdConfirmed.chat_id)}&msg_id=${encodeURIComponent(fwdConfirmed.msg_id)}&link=${encodeURIComponent(fwdConfirmed.link)}&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}`;
+  const q = `?mode=forward&source_chat=${encodeURIComponent(fwdConfirmed.chat_id)}&msg_id=${encodeURIComponent(fwdConfirmed.msg_id)}&link=${encodeURIComponent(fwdConfirmed.link)}&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
   poll();
@@ -558,30 +574,59 @@ async function startSpamJob(){
     return;
   }
 
-  const q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}`;
+  const q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
   poll();
 }
 
+async function switchAccount(key){
+  if(!key) return;
+  activeAccKey = key;
+  identifiedEnemy = null;
+  offlineSelectedUsers = [];
+  await api('/api/switch_account', `?key=${encodeURIComponent(key)}`);
+  await fetchGroups(false, activePickerMode);
+  poll();
+}
+
 function renderAccounts(){
   document.getElementById('sAcc').innerText = accounts.length;
-  document.getElementById('accList').innerHTML = accounts.length ? accounts.map((a,i) =>
-    `<div class="chip"><span>${a.name||a.phone} <small style="color:#10b981">(متصل)</small></span><button class="btn br" onclick="delAcc(${i})">حذف</button></div>`
-  ).join('') : '<div class="msg">اکانتی ثبت نشده است.</div>';
+  const curObj = accounts.find(a => a.key === activeAccKey) || accounts[0];
+  if(curObj){
+    activeAccKey = curObj.key;
+    document.getElementById('activeAccBanner').innerText = `اکانت فعال روی پنل: ${curObj.name || curObj.phone} (${curObj.phone || curObj.key})`;
+  } else {
+    document.getElementById('activeAccBanner').innerText = 'اکانت فعال: هیچ‌کدام';
+  }
+
+  document.getElementById('accList').innerHTML = accounts.length ? accounts.map((a,i) => {
+    const isAct = a.key === activeAccKey;
+    const stText = a.kicked ? '(خارج‌شده)' : (a.connected ? '(متصل)' : '(آماده)');
+    return `<div class="chip ${isAct ? 'active-acc' : ''}">
+      <span><b>${a.name||a.phone}</b> <small style="color:#94a3b8">${a.phone||''} ${stText}</small>${isAct ? ' <small style="color:#c084fc">[فعال]</small>' : ''}</span>
+      <div class="row" style="margin:0">
+        ${!isAct ? `<button class="btn bp" onclick="switchAccount('${a.key}')">انتخاب</button>` : ''}
+        <button class="btn br" onclick="delAcc(${i})">حذف</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="msg">اکانتی ثبت نشده است.</div>';
 }
 
 function renderTasks(){
   let ok=0, run=0, fail=0;
   tasks.forEach(t=>{ ok+=(t.ok||0); fail+=(t.fail||0); if(t.running) run++; });
+  enemies.forEach(e=>{ ok+=(e.replied_count||0); if(e.running) run++; });
+  offlineRules.forEach(r=>{ ok+=(r.replied_count||0); if(r.running) run++; });
+
   document.getElementById('sOk').innerText = ok;
   document.getElementById('sRun').innerText = run;
   document.getElementById('sRun3').innerText = `${run} / 3`;
   document.getElementById('sFail').innerText = fail;
 
-  document.getElementById('taskList').innerHTML = tasks.length ? tasks.map(t =>
+  const jobCards = tasks.map(t =>
     `<div class="item">
-      <b>#${t.id}</b> [${t.mode||'spam'}] | وضعیت: <b>${t.running?'ران':'متوقف'}</b>${t.last_error ? ` | <span class="warn">${t.last_error}</span>` : ''}<br>
+      <b>#${t.id}</b> [${t.mode||'spam'}] | اکانت: <b>${t.acc_label||t.acc_key||'-'}</b> | وضعیت: <b>${t.running?'ران':'متوقف'}</b>${t.last_error ? ` | <span class="warn">${t.last_error}</span>` : ''}<br>
       مقصد: ${(t.targets||[]).join('، ')}${t.reply_to_msg_id ? ` | پیام هدف: #${t.reply_to_msg_id}` : ''} | موفق: ${t.ok||0} | ناموفق: ${t.fail||0}
       <div class="row">
         <button class="btn bw" onclick="ctrlTask('${t.id}','toggle')">${t.running?'توقف':'ری‌استارت'}</button>
@@ -589,15 +634,41 @@ function renderTasks(){
       </div>
       <div class="log">${(t.logs||[]).slice(-6).join('\n') || 'waiting...'}</div>
     </div>`
-  ).join('') : '<div class="msg">تسکی ثبت نشده است.</div>';
+  );
+
+  const enemyCards = enemies.map(e =>
+    `<div class="item">
+      <b>دشمن: ${e.user_name}</b> (${e.user_id}) | اکانت: <b>${e.acc_label||e.acc_key||'-'}</b> | چت: ${e.chat_id} | وضعیت: <b>${e.running?'ران':'متوقف'}</b><br>
+      ${e.status || 'آماده ریپلای آنی'} | ریپلای‌شده: ${e.replied_count||0}${e.max_count ? ' / ' + e.max_count : ''}
+      <div class="row">
+        <button class="btn bw" onclick="ctrlEnemy('${e.id}','toggle')">${e.running?'توقف':'ری‌استارت'}</button>
+        <button class="btn br" onclick="ctrlEnemy('${e.id}','delete')">حذف</button>
+      </div>
+    </div>`
+  );
+
+  const offlineCards = offlineRules.map(r =>
+    `<div class="item">
+      <b>آفلاینی بگیر</b> | اکانت: <b>${r.acc_label||r.acc_key||'-'}</b> | چت: ${r.chat_id} | سکوت: ${r.minutes} دقیقه | وضعیت: <b>${r.running?'ران':'متوقف'}</b><br>
+      تعداد کاربران: ${(r.users||[]).length} | ریپلای‌شده: ${r.replied_count||0}
+      <div class="row">
+        <button class="btn bw" onclick="ctrlOfflineRule('${r.id}','toggle')">${r.running?'توقف':'ری‌استارت'}</button>
+        <button class="btn br" onclick="ctrlOfflineRule('${r.id}','delete')">حذف</button>
+      </div>
+    </div>`
+  );
+
+  const allCards = [...jobCards, ...enemyCards, ...offlineCards];
+  document.getElementById('taskList').innerHTML = allCards.length ? allCards.join('') : '<div class="msg">تسکی ثبت نشده است.</div>';
 }
 
-async function api(path, q='', timeoutMs=4500){
+async function api(path, q='', timeoutMs=3000){
   if(!baseUrl) return null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try{
-    const r = await fetch(baseUrl + path + q, { signal: ctrl.signal });
+    const bust = q ? `${q}${q.includes('?') ? '&' : '?'}_t=${Date.now()}` : `${path.includes('?') ? '&' : '?'}_t=${Date.now()}`;
+    const r = await fetch(baseUrl + path + bust, { signal: ctrl.signal, cache: 'no-store' });
     return await r.json();
   }finally{
     clearTimeout(timer);
@@ -609,20 +680,26 @@ async function sendPhone(){
   document.getElementById('codeBox').style.display = 'block';
   document.getElementById('authMsg').innerText = 'در حال ارسال کد...';
   const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 18000);
-  if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+  if(d){
+    if(d.active_acc_key) activeAccKey = d.active_acc_key;
+    if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+  }
 }
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
   const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 18000);
-  if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+  if(d){
+    if(d.active_acc_key) activeAccKey = d.active_acc_key;
+    if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+  }
   poll();
 }
 async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
 async function fetchGroups(openBox=false, prefix=activePickerMode){
   if(!baseUrl) return;
   activePickerMode = prefix;
-  const d = await api('/api/groups', '', 8000);
+  const d = await api('/api/groups', `?acc_key=${encodeURIComponent(activeAccKey)}`, 8000);
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
@@ -633,7 +710,11 @@ async function fetchGroups(openBox=false, prefix=activePickerMode){
     }
   }
 }
-async function ctrlTask(id, act){ await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`); poll(); }
+async function ctrlTask(id, act){
+  const d = await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  if(d && d.ok === false && d.msg) document.getElementById('spamMsg').innerText = d.msg;
+  poll();
+}
 function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 
 async function poll(){
@@ -642,15 +723,15 @@ async function poll(){
   renderOfflineSelectedUsers();
   renderOfflineRules();
   renderEnemyList();
+  renderTasks();
   if(!baseUrl){
     document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
-    renderAccounts(); renderTasks();
     return;
   }
   try{
-    const d = await api('/api/state', '', 3500);
+    const d = await api('/api/state', '', 3000);
     if(!d) return;
-    serverReachable = true;
+    failCount = 0;
     const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل | سرور در دسترس است' : 'سرور در دسترس است');
     document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
     if(d.auth_msg){
@@ -658,6 +739,7 @@ async function poll(){
       el.innerText = d.auth_msg;
       el.className = 'msg' + (d.kicked_out ? ' warn' : '');
     }
+    if(d.active_acc_key) activeAccKey = d.active_acc_key;
     if(Array.isArray(d.accounts)) accounts = d.accounts;
     if(Array.isArray(d.groups)){
       chats = d.groups;
@@ -669,11 +751,15 @@ async function poll(){
     if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
     renderAccounts(); renderTasks(); renderOfflineRules(); renderEnemyList();
   }catch(e){
-    serverReachable = false;
-    document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
+    failCount += 1;
+    if(failCount >= 2){
+      document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
+    }
   }
 }
-setInterval(poll, 1800);
+document.addEventListener('DOMContentLoaded', poll);
+window.addEventListener('focus', poll);
+setInterval(poll, 1500);
 poll();
 </script>
 </body>
