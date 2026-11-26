@@ -69,7 +69,7 @@
 <div class="stats">
   <div class="st"><b id="sAcc">0</b><span>اکانت</span></div>
   <div class="st"><b id="sGrp">0</b><span>گروه</span></div>
-  <div class="st"><b id="sRun3" dir="ltr">0 / 3</b><span>فعال (حداکثر ۳)</span></div>
+  <div class="st"><b id="sRun3" dir="ltr">0 / 5</b><span>فعال (حداکثر ۵)</span></div>
   <div class="st"><b id="sOk">0</b><span>موفق</span></div>
   <div class="st"><b id="sRun">0</b><span>در حال اجرا</span></div>
   <div class="st"><b id="sFail">0</b><span>ناموفق</span></div>
@@ -210,12 +210,13 @@
 </div>
 
 <div class="box">
-  <h3>تسک‌های فعال و لاگ (حداکثر ۳ هم‌زمان)</h3>
+  <h3>تسک‌های فعال و لاگ (حداکثر ۵ هم‌زمان)</h3>
   <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
 </div>
 
 <script>
 const CACHE_KEY = 'fonex_panel_cache_v1';
+const MAX_ACTIVE_JOBS = 5;
 const params = new URLSearchParams(location.search);
 let baseUrl = (params.get('server') || '').trim().replace(/\/+$/, '');
 try{
@@ -699,7 +700,7 @@ function renderTasks(){
 
   document.getElementById('sOk').innerText = ok;
   document.getElementById('sRun').innerText = run;
-  document.getElementById('sRun3').innerText = `${run} / 3`;
+  document.getElementById('sRun3').innerText = `${run} / ${MAX_ACTIVE_JOBS}`;
   document.getElementById('sFail').innerText = fail;
 
   const jobCards = tasks.map(t =>
