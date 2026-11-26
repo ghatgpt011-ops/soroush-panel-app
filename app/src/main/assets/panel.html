@@ -36,7 +36,8 @@
   .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:75px;overflow-y:auto;direction:ltr;text-align:left;white-space:pre-line}
   .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
   .warn{color:#fca5a5;font-weight:bold}
-  #centerLoader{position:fixed;inset:0;background:rgba(7,10,20,0.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(2px)}
+  .live-badge{font-size:11px;color:#34d399;margin-top:4px;min-height:16px}
+  #centerLoader{position:fixed;inset:0;background:rgba(7,10,20,0.74);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(2px)}
   .spinner{width:46px;height:46px;border:4px solid rgba(192,132,252,0.22);border-top-color:#c084fc;border-radius:50%;animation:spin .8s linear infinite}
   .loader-txt{margin-top:10px;font-size:12px;color:#f8fafc;font-weight:bold}
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -46,13 +47,14 @@
 
 <div id="centerLoader">
   <div class="spinner"></div>
-  <div class="loader-txt" id="loaderText">در حال بروزرسانی اطلاعات پنل...</div>
+  <div class="loader-txt" id="loaderText">در حال دریافت اعلان سروش و بروزرسانی پنل...</div>
 </div>
 
 <div class="top">
   <div>
     <div class="brand">FONEX PANEL</div>
     <div class="sys" id="sysInfo">در حال اتصال به سرور...</div>
+    <div class="live-badge" id="soroushNotice"></div>
   </div>
   <button class="btn br" onclick="logoutApp()">خروج</button>
 </div>
@@ -231,9 +233,10 @@ let activePickerMode = 'forward';
 let fwdDraft = null, fwdConfirmed = null;
 let identifiedEnemy = null;
 let failCount = 0;
+let lastSeenEventSeq = 0;
 let loaderTimer = null;
 
-function showCenterLoader(text='در حال بروزرسانی اطلاعات پنل...', autoHideMs=1800){
+function showCenterLoader(text='در حال دریافت اعلان سروش و بروزرسانی پنل...', autoHideMs=2200){
   const el = document.getElementById('centerLoader');
   const txt = document.getElementById('loaderText');
   if(txt) txt.innerText = text;
@@ -245,6 +248,17 @@ function showCenterLoader(text='در حال بروزرسانی اطلاعات پ
 function hideCenterLoader(){
   const el = document.getElementById('centerLoader');
   if(el) el.style.display = 'none';
+}
+
+function onSoroushSignal(noticeText, withSpinner=true){
+  if(noticeText){
+    document.getElementById('soroushNotice').innerText = `اعلان سروش: ${noticeText}`;
+  }
+  if(withSpinner){
+    showCenterLoader(noticeText ? `اعلان سروش: ${noticeText}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1800);
+  }
+  fetchGroups(false, activePickerMode);
+  poll();
 }
 
 function addReplyTextBox(){
@@ -299,6 +313,9 @@ function applyStateData(d){
   if(!d) return;
   const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل | سرور در دسترس است' : 'سرور در دسترس است');
   document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
+  if(d.event_notice){
+    document.getElementById('soroushNotice').innerText = `اعلان سروش: ${d.event_notice}`;
+  }
   if(d.auth_msg){
     const el = document.getElementById('authMsg');
     el.innerText = d.auth_msg;
@@ -313,6 +330,16 @@ function applyStateData(d){
   }
   if(Array.isArray(d.jobs)) tasks = d.jobs;
   if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
+
+  const newSeq = parseInt(d.event_seq || 0, 10);
+  if(newSeq > 0 && lastSeenEventSeq > 0 && newSeq > lastSeenEventSeq){
+    showCenterLoader(d.event_notice ? `اعلان سروش: ${d.event_notice}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1600);
+    if(!chats.length && d.soroush_connected){
+      fetchGroups(false, activePickerMode);
+    }
+  }
+  if(newSeq > 0) lastSeenEventSeq = newSeq;
+
   renderAccounts();
   renderTasks();
   renderEnemyList();
@@ -342,7 +369,7 @@ function loadCache(){
 }
 
 function burstRefresh(times=5, intervalMs=300, withLoader=false){
-  if(withLoader) showCenterLoader('در حال بروزرسانی اطلاعات پنل...', times * intervalMs + 600);
+  if(withLoader) showCenterLoader('در حال دریافت اعلان سروش و بروزرسانی پنل...', times * intervalMs + 600);
   let count = 0;
   const runOnce = async () => {
     count += 1;
@@ -598,7 +625,7 @@ async function startSpamJob(){
     return;
   }
   if(arr.length > 3){
-    msgEl.innerText = 'فقط تا ۳ مقصد مجاز است.';
+    msgEl.innerText = 'فقط تا ۳ مقصد هم‌زمان مجاز است.';
     return;
   }
 
@@ -707,15 +734,15 @@ async function sendPhone(){
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
-  document.getElementById('authMsg').innerText = 'در حال تأیید کد و بروزرسانی پنل...';
-  showCenterLoader('در حال اتصال اکانت و بروزرسانی پنل...', 3000);
+  document.getElementById('authMsg').innerText = 'در حال تأیید کد و دریافت اعلان سروش...';
+  showCenterLoader('در حال اتصال به سروش و بروزرسانی پنل...', 3000);
   const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 15000);
   if(d){
     if(d.active_acc_key) activeAccKey = d.active_acc_key;
     if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+    onSoroushSignal(d.event_notice || 'اکانت به سروش وصل شد', true);
   }
   burstRefresh(6, 300, true);
-  fetchGroups(false, activePickerMode);
 }
 async function delAcc(i){ await api('/api/del_account', '?index='+i); burstRefresh(3, 250, true); }
 async function fetchGroups(openBox=false, prefix=activePickerMode){
@@ -742,7 +769,14 @@ function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 async function notifyPanelOpen(){
   if(!baseUrl) return;
   try{
-    await api('/api/hello', `?acc_key=${encodeURIComponent(activeAccKey)}`, 2000);
+    const hello = await api('/api/hello', `?acc_key=${encodeURIComponent(activeAccKey)}`, 2500);
+    if(hello && hello.event_notice){
+      document.getElementById('soroushNotice').innerText = `اعلان سروش: ${hello.event_notice}`;
+    }
+    const pingRes = await api('/api/soroush_ping', `?acc_key=${encodeURIComponent(activeAccKey)}`, 6000);
+    if(pingRes && pingRes.soroush_connected){
+      onSoroushSignal(pingRes.event_notice || 'سروش به پنل وصل شد', true);
+    }
   }catch(e){}
 }
 
@@ -773,10 +807,10 @@ renderEnemyList();
 renderTasks();
 loadCache();
 notifyPanelOpen();
-burstRefresh(5, 300, true);
-document.addEventListener('DOMContentLoaded', () => { loadCache(); notifyPanelOpen(); burstRefresh(4, 300, true); });
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); notifyPanelOpen(); burstRefresh(4, 300, true); } });
-window.addEventListener('focus', () => { notifyPanelOpen(); burstRefresh(3, 300, true); });
+burstRefresh(6, 300, true);
+document.addEventListener('DOMContentLoaded', () => { loadCache(); notifyPanelOpen(); burstRefresh(5, 300, true); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); notifyPanelOpen(); burstRefresh(5, 300, true); } });
+window.addEventListener('focus', () => { notifyPanelOpen(); burstRefresh(4, 300, true); });
 setInterval(poll, 1000);
 </script>
 </body>
