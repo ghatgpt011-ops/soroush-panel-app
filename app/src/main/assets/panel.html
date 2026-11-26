@@ -47,7 +47,7 @@
 
 <div id="centerLoader">
   <div class="spinner"></div>
-  <div class="loader-txt" id="loaderText">در حال دریافت اعلان سروش و بروزرسانی پنل...</div>
+  <div class="loader-txt" id="loaderText">در حال بروزرسانی سریع اکانت‌ها و تسک‌ها...</div>
 </div>
 
 <div class="top">
@@ -79,7 +79,7 @@
   <h3>+ اکانت و حساب‌های متصل</h3>
   <div class="msg" id="activeAccBanner">اکانت فعال: هیچ‌کدام</div>
   <div class="row">
-    <input id="phone" type="text" placeholder="+98912..." dir="ltr" style="flex:1">
+    <input id="phone" type="text" placeholder="+98912..." dir="ltr" oninput="onPhoneTyped()" style="flex:1">
     <button class="btn bp" onclick="sendPhone()">ارسال کد</button>
   </div>
   <div id="codeBox" style="display:none;margin-top:6px;">
@@ -236,7 +236,7 @@ let failCount = 0;
 let lastSeenEventSeq = 0;
 let loaderTimer = null;
 
-function showCenterLoader(text='در حال دریافت اعلان سروش و بروزرسانی پنل...', autoHideMs=2200){
+function showCenterLoader(text='در حال بروزرسانی سریع اکانت‌ها و تسک‌ها...', autoHideMs=1800){
   const el = document.getElementById('centerLoader');
   const txt = document.getElementById('loaderText');
   if(txt) txt.innerText = text;
@@ -255,10 +255,33 @@ function onSoroushSignal(noticeText, withSpinner=true){
     document.getElementById('soroushNotice').innerText = `اعلان سروش: ${noticeText}`;
   }
   if(withSpinner){
-    showCenterLoader(noticeText ? `اعلان سروش: ${noticeText}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1800);
+    showCenterLoader(noticeText ? `اعلان سروش: ${noticeText}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1600);
   }
+  renderAccounts();
+  renderTasks();
+  renderEnemyList();
   fetchGroups(false, activePickerMode);
   poll();
+}
+
+function onPhoneTyped(){
+  const p = (document.getElementById('phone').value || '').trim();
+  const cleanKey = p.replace(/[^\d+A-Za-z_-]/g, '');
+  if(!cleanKey) return;
+  activeAccKey = cleanKey;
+  if(!accounts.some(a => a.key === cleanKey)){
+    accounts.push({
+      key: cleanKey,
+      phone: p,
+      name: p,
+      connected: false,
+      kicked: false,
+      active: true
+    });
+  }
+  renderAccounts();
+  renderTasks();
+  renderEnemyList();
 }
 
 function addReplyTextBox(){
@@ -322,7 +345,7 @@ function applyStateData(d){
     el.className = 'msg' + (d.kicked_out ? ' warn' : '');
   }
   if(d.active_acc_key) activeAccKey = d.active_acc_key;
-  if(Array.isArray(d.accounts)) accounts = d.accounts;
+  if(Array.isArray(d.accounts) && d.accounts.length) accounts = d.accounts;
   if(Array.isArray(d.groups)){
     chats = d.groups;
     document.getElementById('sGrp').innerText = chats.length;
@@ -333,7 +356,7 @@ function applyStateData(d){
 
   const newSeq = parseInt(d.event_seq || 0, 10);
   if(newSeq > 0 && lastSeenEventSeq > 0 && newSeq > lastSeenEventSeq){
-    showCenterLoader(d.event_notice ? `اعلان سروش: ${d.event_notice}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1600);
+    showCenterLoader(d.event_notice ? `اعلان سروش: ${d.event_notice}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1400);
     if(!chats.length && d.soroush_connected){
       fetchGroups(false, activePickerMode);
     }
@@ -343,9 +366,7 @@ function applyStateData(d){
   renderAccounts();
   renderTasks();
   renderEnemyList();
-  if(accounts.length > 0 || tasks.length > 0 || enemies.length > 0){
-    hideCenterLoader();
-  }
+  hideCenterLoader();
 }
 
 function saveCache(d){
@@ -368,8 +389,8 @@ function loadCache(){
   }catch(e){}
 }
 
-function burstRefresh(times=5, intervalMs=300, withLoader=false){
-  if(withLoader) showCenterLoader('در حال دریافت اعلان سروش و بروزرسانی پنل...', times * intervalMs + 600);
+function burstRefresh(times=5, intervalMs=250, withLoader=false){
+  if(withLoader) showCenterLoader('در حال بروزرسانی سریع اکانت‌ها و تسک‌ها...', times * intervalMs + 500);
   let count = 0;
   const runOnce = async () => {
     count += 1;
@@ -513,7 +534,7 @@ async function startEnemyRule(){
   const q = `?chat_id=${encodeURIComponent(identifiedEnemy.chat_id)}&user_id=${encodeURIComponent(identifiedEnemy.user_id)}&user_name=${encodeURIComponent(identifiedEnemy.user_name)}&reply_texts=${encodeURIComponent(JSON.stringify(replyTexts))}&reply_text=${encodeURIComponent(replyTexts[0])}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_enemy', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
-  burstRefresh(3, 300);
+  burstRefresh(3, 250);
 }
 
 async function ctrlEnemy(id, act){
@@ -523,8 +544,7 @@ async function ctrlEnemy(id, act){
 }
 
 function renderEnemyList(){
-  const list = activeAccKey ? enemies.filter(e => e.acc_key === activeAccKey) : enemies;
-  document.getElementById('enemyList').innerHTML = list.length ? list.map(e => {
+  document.getElementById('enemyList').innerHTML = enemies.length ? enemies.map(e => {
     const tList = Array.isArray(e.reply_texts) && e.reply_texts.length ? e.reply_texts : [e.reply_text || ''];
     return `<div class="item">
       <b>اکانت: ${e.acc_label || e.acc_key}</b> | دشمن: <b>${e.user_name}</b> (${e.user_id}) | چت: ${e.chat_id}<br>
@@ -535,7 +555,7 @@ function renderEnemyList(){
         <button class="btn br" onclick="ctrlEnemy('${e.id}','delete')">حذف</button>
       </div>
     </div>`;
-  }).join('') : '<div class="msg">دشمنی برای این اکانت فعال نیست.</div>';
+  }).join('') : '<div class="msg">دشمنی ثبت نشده است.</div>';
 }
 
 async function startReplyChain(){
@@ -553,7 +573,7 @@ async function startReplyChain(){
   const q = `?mode=reply_chain&link=${encodeURIComponent(rawLink)}&targets=${encodeURIComponent(parsed.chatId)}&reply_to_msg_id=${parsed.msgId}&msg_id=${parsed.msgId}&texts=${encodeURIComponent(JSON.stringify(texts))}&payload=${encodeURIComponent(texts[0])}&speed_ms=${speed}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
-  burstRefresh(3, 300);
+  burstRefresh(3, 250);
 }
 
 async function fetchFwdMsg(){
@@ -608,7 +628,7 @@ async function startForwardJob(){
   const q = `?mode=forward&source_chat=${encodeURIComponent(fwdConfirmed.chat_id)}&msg_id=${encodeURIComponent(fwdConfirmed.msg_id)}&link=${encodeURIComponent(fwdConfirmed.link)}&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
-  burstRefresh(3, 300);
+  burstRefresh(3, 250);
 }
 
 async function startSpamJob(){
@@ -632,13 +652,14 @@ async function startSpamJob(){
   const q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}&acc_key=${encodeURIComponent(activeAccKey)}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
-  burstRefresh(3, 300);
+  burstRefresh(3, 250);
 }
 
 async function switchAccount(key){
   if(!key) return;
   activeAccKey = key;
   identifiedEnemy = null;
+  renderAccounts();
   const res = await api('/api/switch_account', `?key=${encodeURIComponent(key)}`, 6000);
   if(res && Array.isArray(res.groups)){
     chats = res.groups;
@@ -660,7 +681,7 @@ function renderAccounts(){
 
   document.getElementById('accList').innerHTML = accounts.length ? accounts.map((a,i) => {
     const isAct = a.key === activeAccKey;
-    const stText = a.kicked ? '(خارج‌شده)' : (a.connected ? '(متصل)' : '(آماده)');
+    const stText = a.kicked ? '(خارج‌شده)' : (a.connected ? '(متصل)' : '(فعال / در حال اتصال)');
     return `<div class="chip ${isAct ? 'active-acc' : ''}">
       <span><b>${a.name||a.phone}</b> <small style="color:#94a3b8">${a.phone||''} ${stText}</small>${isAct ? ' <small style="color:#c084fc">[فعال]</small>' : ''}</span>
       <div class="row" style="margin:0">
@@ -722,27 +743,30 @@ async function api(path, q='', timeoutMs=2500){
 }
 async function sendPhone(){
   const p = document.getElementById('phone').value.trim();
-  if(!p || !baseUrl) return;
+  if(!p) return;
+  onPhoneTyped();
   document.getElementById('codeBox').style.display = 'block';
   document.getElementById('authMsg').innerText = 'در حال ارسال کد...';
+  if(!baseUrl) return;
   const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 15000);
   if(d){
     if(d.active_acc_key) activeAccKey = d.active_acc_key;
     if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
   }
+  burstRefresh(3, 250);
 }
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
   document.getElementById('authMsg').innerText = 'در حال تأیید کد و دریافت اعلان سروش...';
-  showCenterLoader('در حال اتصال به سروش و بروزرسانی پنل...', 3000);
+  showCenterLoader('در حال اتصال به سروش و بروزرسانی پنل...', 2500);
   const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 15000);
   if(d){
     if(d.active_acc_key) activeAccKey = d.active_acc_key;
     if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
     onSoroushSignal(d.event_notice || 'اکانت به سروش وصل شد', true);
   }
-  burstRefresh(6, 300, true);
+  burstRefresh(6, 250, true);
 }
 async function delAcc(i){ await api('/api/del_account', '?index='+i); burstRefresh(3, 250, true); }
 async function fetchGroups(openBox=false, prefix=activePickerMode){
@@ -803,14 +827,15 @@ async function poll(){
 
 renderTags('fwd');
 renderTags('spam');
+renderAccounts();
 renderEnemyList();
 renderTasks();
 loadCache();
 notifyPanelOpen();
-burstRefresh(6, 300, true);
-document.addEventListener('DOMContentLoaded', () => { loadCache(); notifyPanelOpen(); burstRefresh(5, 300, true); });
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); notifyPanelOpen(); burstRefresh(5, 300, true); } });
-window.addEventListener('focus', () => { notifyPanelOpen(); burstRefresh(4, 300, true); });
+burstRefresh(6, 250, true);
+document.addEventListener('DOMContentLoaded', () => { loadCache(); renderAccounts(); renderTasks(); notifyPanelOpen(); burstRefresh(5, 250, true); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); renderAccounts(); renderTasks(); notifyPanelOpen(); burstRefresh(5, 250, true); } });
+window.addEventListener('focus', () => { renderAccounts(); renderTasks(); notifyPanelOpen(); burstRefresh(4, 250, true); });
 setInterval(poll, 1000);
 </script>
 </body>
