@@ -13,7 +13,7 @@
   .btn{border:0;border-radius:8px;padding:8px 11px;color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
   .bp{background:#7c3aed} .bc{background:#2563eb} .bg{background:#10b981}
   .bw{background:#f59e0b;color:#090d16} .br{background:#ef4444} .bd{background:#1e293b;border:1px solid #334155}
-  .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
   .tab{background:#101628;border:1px solid #273556;color:#cbd5e1;border-radius:9px;padding:9px 4px;font-size:11px;font-weight:bold;cursor:pointer;text-align:center}
   .tab.active{background:#7c3aed;border-color:#a855f7;color:#fff}
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
@@ -52,7 +52,6 @@
   <button class="tab" id="tab-reply" onclick="switchTab('reply')">ریپلای</button>
   <button class="tab" id="tab-enemy" onclick="switchTab('enemy')">دشمن</button>
   <button class="tab" id="tab-spam" onclick="switchTab('spam')">اسپم</button>
-  <button class="tab" id="tab-offline" onclick="switchTab('offline')">آفلاینی بگیر</button>
 </div>
 
 <div class="stats">
@@ -184,38 +183,6 @@
   <div class="msg" id="spamMsg"></div>
 </div>
 
-<div class="box sec-panel" id="sec-offline" style="display:none;">
-  <h3>آفلاینی بگیر (تشخیص کاربر از لینک پیام در چت + ریپلای پس از سکوت)</h3>
-
-  <label>چت مورد نظر:</label>
-  <div class="row">
-    <button class="btn bc" onclick="fetchGroups(true, 'offline')">دریافت لیست چت‌ها</button>
-    <button class="btn bd" onclick="toggleList('offline')">نمایش/بستن لیست</button>
-  </div>
-  <div id="offlineDstBox" style="display:none;margin-top:6px;">
-    <input id="offlineDstSearch" type="text" placeholder="جستجوی چت..." oninput="renderGroupList('offline')">
-    <div id="offlineDstList"></div>
-  </div>
-  <input id="offChatId" type="text" placeholder="شناسه چت (مثلاً -10012345)" dir="ltr" style="margin-top:6px">
-
-  <label>لینک پیام کاربر در همین چت (فقط کاربر را می‌گیرد، کاری به متن پیام ندارد):</label>
-  <div class="row">
-    <input id="offUserLink" type="text" placeholder="https://splus.ir/c/25810580/8" dir="ltr" style="flex:1">
-    <button class="btn bp" onclick="addOfflineUserFromLink()">افزودن کاربر به لیست</button>
-  </div>
-  <div class="msg" id="offUserStatus">هنوز کاربری به لیست آفلاینی بگیر اضافه نشده است.</div>
-  <div id="offUsersList"></div>
-
-  <div class="g2">
-    <div><label>مدت سکوت تا آفلاین شدن (دقیقه):</label><input id="offMinutes" type="number" value="3" min="0.1" step="0.5"></div>
-    <div><label>متن ریپلای روی آخرین پیام کاربر:</label><input id="offReplyText" type="text" placeholder="متن ریپلای پس از آفلاین شدن..."></div>
-  </div>
-
-  <button class="btn bg" style="width:100%;margin-top:10px" onclick="saveOfflineRule()">فعال‌سازی آفلاینی بگیر</button>
-  <div class="msg" id="offMsg"></div>
-  <div id="offRulesList"></div>
-</div>
-
 <div class="box">
   <h3>تسک‌های فعال و لاگ (حداکثر ۳ هم‌زمان)</h3>
   <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
@@ -233,12 +200,11 @@ try{
   }
 }catch(e){}
 
-let chats = [], tasks = [], accounts = [], offlineRules = [], enemies = [];
+let chats = [], tasks = [], accounts = [], enemies = [];
 let activeAccKey = '';
 let activePickerMode = 'forward';
 let fwdDraft = null, fwdConfirmed = null;
 let identifiedEnemy = null;
-let offlineSelectedUsers = [];
 let failCount = 0;
 
 function switchTab(tabName){
@@ -265,8 +231,9 @@ function parseLinkClient(raw){
   if(mc){
     let cid = mc[1].trim();
     if(cid.endsWith('-') && /^\d+$/.test(cid.slice(0, -1))) cid = '-' + cid.slice(0, -1);
-    const numId = cid.replace(/^-/, '');
-    const chatId = /^\d+$/.test(numId) ? `-100${numId}` : cid;
+    const digits = cid.replace(/^-/, '');
+    const core = (digits.startsWith('100') && digits.length > 5) ? digits.slice(3) : digits;
+    const chatId = /^\d+$/.test(core) ? `-100${core}` : cid;
     return { chatId, msgId: parseInt(mc[2], 10) };
   }
   const ma = s.match(/(?:https?:\/\/)?(?:www\.)?splus\.ir\/([^\/\s?#]+)\/(\d+)/i);
@@ -286,7 +253,7 @@ function getTargetsArray(prefix){
 
 function toggleList(prefix){
   activePickerMode = prefix;
-  const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox', offline: 'offlineDstBox' };
+  const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox' };
   const box = document.getElementById(mapBox[prefix]);
   if(!box) return;
   box.style.display = (box.style.display === 'none') ? 'block' : 'none';
@@ -294,8 +261,8 @@ function toggleList(prefix){
 }
 
 function renderGroupList(prefix){
-  const mapSearch = { fwd: 'fwdDstSearch', spam: 'spamDstSearch', offline: 'offlineDstSearch' };
-  const mapList = { fwd: 'fwdDstList', spam: 'spamDstList', offline: 'offlineDstList' };
+  const mapSearch = { fwd: 'fwdDstSearch', spam: 'spamDstSearch' };
+  const mapList = { fwd: 'fwdDstList', spam: 'spamDstList' };
   const q = ((document.getElementById(mapSearch[prefix]) || {}).value || '').toLowerCase();
   const list = chats.filter(c => String(c.name || '').toLowerCase().includes(q) || String(c.id || '').includes(q));
   document.getElementById(mapList[prefix]).innerHTML = list.length ? list.map(c =>
@@ -304,15 +271,9 @@ function renderGroupList(prefix){
 }
 
 function onPickGroup(id, prefix){
-  const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox', offline: 'offlineDstBox' };
+  const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox' };
   document.getElementById(mapBox[prefix]).style.display = 'none';
-  const cleaned = cleanPeerInput(id);
-  if(prefix === 'offline'){
-    document.getElementById('offChatId').value = cleaned;
-    document.getElementById('offUserStatus').innerText = `چت ${cleaned} انتخاب شد؛ حالا لینک پیام کاربر را بده.`;
-    return;
-  }
-  addTag(cleaned, prefix);
+  addTag(cleanPeerInput(id), prefix);
 }
 
 function renderTags(prefix){
@@ -343,89 +304,6 @@ function addTag(val, prefix){
   arr.push(val);
   inp.value = arr.join(', ');
   renderTags(prefix);
-}
-
-async function addOfflineUserFromLink(){
-  const link = document.getElementById('offUserLink').value.trim();
-  const chatId = document.getElementById('offChatId').value.trim();
-  const stEl = document.getElementById('offUserStatus');
-  if(!link){ stEl.innerText = 'لینک پیام کاربر را وارد کن.'; return; }
-  stEl.innerText = 'در حال شناسایی کاربر از لینک...';
-  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}&chat_id=${encodeURIComponent(chatId)}&acc_key=${encodeURIComponent(activeAccKey)}`);
-  if(!d || !d.ok){
-    stEl.innerText = (d && d.msg) || 'کاربر شناسایی نشد.';
-    return;
-  }
-  if(!chatId && d.chat_id){
-    document.getElementById('offChatId').value = d.chat_id;
-  }
-  const exists = offlineSelectedUsers.some(x => String(x.user_id) === String(d.user_id));
-  if(!exists){
-    offlineSelectedUsers.push({
-      user_id: d.user_id,
-      user_name: d.user_name,
-      msg_id: d.msg_id || 0
-    });
-  }
-  stEl.innerText = `کاربر «${d.user_name}» به لیست آفلاینی بگیر اضافه شد.`;
-  document.getElementById('offUserLink').value = '';
-  renderOfflineSelectedUsers();
-}
-
-function removeOfflineSelectedUser(idx){
-  offlineSelectedUsers.splice(idx, 1);
-  renderOfflineSelectedUsers();
-}
-
-function renderOfflineSelectedUsers(){
-  const el = document.getElementById('offUsersList');
-  if(!offlineSelectedUsers.length){
-    el.innerHTML = '<div class="msg">کاربری در لیست نیست.</div>';
-    return;
-  }
-  el.innerHTML = offlineSelectedUsers.map((u, idx) =>
-    `<span class="tag">${u.user_name} (${u.user_id}) <b style="cursor:pointer" onclick="removeOfflineSelectedUser(${idx})">×</b></span>`
-  ).join('');
-}
-
-async function saveOfflineRule(){
-  const chatId = cleanPeerInput(document.getElementById('offChatId').value);
-  const minutes = document.getElementById('offMinutes').value || 3;
-  const replyText = document.getElementById('offReplyText').value.trim();
-  const msgEl = document.getElementById('offMsg');
-  const q = `?chat_id=${encodeURIComponent(chatId)}&minutes=${encodeURIComponent(minutes)}&reply_text=${encodeURIComponent(replyText)}&users=${encodeURIComponent(JSON.stringify(offlineSelectedUsers))}&acc_key=${encodeURIComponent(activeAccKey)}`;
-  const d = await api('/api/save_offline_rule', q);
-  msgEl.innerText = (d && d.msg) || 'انجام شد';
-  poll();
-}
-
-async function ctrlOfflineRule(id, act){
-  const d = await api('/api/offline_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
-  if(d && d.ok === false && d.msg) document.getElementById('offMsg').innerText = d.msg;
-  poll();
-}
-
-function renderOfflineRules(){
-  const el = document.getElementById('offRulesList');
-  const list = activeAccKey ? offlineRules.filter(r => r.acc_key === activeAccKey) : offlineRules;
-  if(!list.length){
-    el.innerHTML = '<div class="msg">قانون آفلاینی برای این اکانت ثبت نشده است.</div>';
-    return;
-  }
-  el.innerHTML = list.map(r => {
-    const uHtml = (r.users || []).map(u =>
-      `<div>• <b>${u.user_name}</b> (${u.user_id}) — ${u.status || 'در انتظار'} | ریپلای‌شده: ${u.replied_count || 0}</div>`
-    ).join('');
-    return `<div class="item">
-      <b>اکانت: ${r.acc_label || r.acc_key}</b> | چت: <b>${r.chat_id}</b> | سکوت: <b>${r.minutes} دقیقه</b> | وضعیت: <b>${r.running ? 'فعال' : 'متوقف'}</b><br>
-      متن ریپلای: ${r.reply_text}<br>
-      ${uHtml}
-      <div class="row">
-        <button class="btn bw" onclick="ctrlOfflineRule('${r.id}','toggle')">${r.running ? 'توقف' : 'ادامه'}</button>
-        <button class="btn br" onclick="ctrlOfflineRule('${r.id}','delete')">حذف</button>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 async function identifyEnemy(){
@@ -507,7 +385,7 @@ async function fetchFwdMsg(){
   if(!link){ msgEl.innerText = 'لینک پیام را وارد کن.'; return; }
   fwdConfirmed = null;
   msgEl.innerText = 'در حال پیدا کردن کانال و خواندن پیام...';
-  const d = await api('/api/fetch_msg', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`);
+  const d = await api('/api/fetch_msg', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`, 10000);
   if(!d || !d.ok){
     msgEl.innerText = (d && d.msg) || 'خطا در خواندن پیام';
     return;
@@ -584,9 +462,12 @@ async function switchAccount(key){
   if(!key) return;
   activeAccKey = key;
   identifiedEnemy = null;
-  offlineSelectedUsers = [];
-  await api('/api/switch_account', `?key=${encodeURIComponent(key)}`);
-  await fetchGroups(false, activePickerMode);
+  const res = await api('/api/switch_account', `?key=${encodeURIComponent(key)}`, 6000);
+  if(res && Array.isArray(res.groups)){
+    chats = res.groups;
+    document.getElementById('sGrp').innerText = chats.length;
+    renderGroupList(activePickerMode);
+  }
   poll();
 }
 
@@ -617,7 +498,6 @@ function renderTasks(){
   let ok=0, run=0, fail=0;
   tasks.forEach(t=>{ ok+=(t.ok||0); fail+=(t.fail||0); if(t.running) run++; });
   enemies.forEach(e=>{ ok+=(e.replied_count||0); if(e.running) run++; });
-  offlineRules.forEach(r=>{ ok+=(r.replied_count||0); if(r.running) run++; });
 
   document.getElementById('sOk').innerText = ok;
   document.getElementById('sRun').innerText = run;
@@ -647,22 +527,11 @@ function renderTasks(){
     </div>`
   );
 
-  const offlineCards = offlineRules.map(r =>
-    `<div class="item">
-      <b>آفلاینی بگیر</b> | اکانت: <b>${r.acc_label||r.acc_key||'-'}</b> | چت: ${r.chat_id} | سکوت: ${r.minutes} دقیقه | وضعیت: <b>${r.running?'ران':'متوقف'}</b><br>
-      تعداد کاربران: ${(r.users||[]).length} | ریپلای‌شده: ${r.replied_count||0}
-      <div class="row">
-        <button class="btn bw" onclick="ctrlOfflineRule('${r.id}','toggle')">${r.running?'توقف':'ری‌استارت'}</button>
-        <button class="btn br" onclick="ctrlOfflineRule('${r.id}','delete')">حذف</button>
-      </div>
-    </div>`
-  );
-
-  const allCards = [...jobCards, ...enemyCards, ...offlineCards];
+  const allCards = [...jobCards, ...enemyCards];
   document.getElementById('taskList').innerHTML = allCards.length ? allCards.join('') : '<div class="msg">تسکی ثبت نشده است.</div>';
 }
 
-async function api(path, q='', timeoutMs=3000){
+async function api(path, q='', timeoutMs=2500){
   if(!baseUrl) return null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -679,7 +548,7 @@ async function sendPhone(){
   if(!p || !baseUrl) return;
   document.getElementById('codeBox').style.display = 'block';
   document.getElementById('authMsg').innerText = 'در حال ارسال کد...';
-  const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 18000);
+  const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 15000);
   if(d){
     if(d.active_acc_key) activeAccKey = d.active_acc_key;
     if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
@@ -688,24 +557,25 @@ async function sendPhone(){
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
-  const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 18000);
+  const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 15000);
   if(d){
     if(d.active_acc_key) activeAccKey = d.active_acc_key;
     if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
   }
-  poll();
+  await poll();
+  fetchGroups(false, activePickerMode);
 }
 async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
 async function fetchGroups(openBox=false, prefix=activePickerMode){
   if(!baseUrl) return;
   activePickerMode = prefix;
-  const d = await api('/api/groups', `?acc_key=${encodeURIComponent(activeAccKey)}`, 8000);
+  const d = await api('/api/groups', `?acc_key=${encodeURIComponent(activeAccKey)}`, 6000);
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
     renderGroupList(prefix);
     if(openBox){
-      const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox', offline: 'offlineDstBox' };
+      const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox' };
       document.getElementById(mapBox[prefix]).style.display = 'block';
     }
   }
@@ -718,18 +588,12 @@ async function ctrlTask(id, act){
 function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 
 async function poll(){
-  renderTags('fwd');
-  renderTags('spam');
-  renderOfflineSelectedUsers();
-  renderOfflineRules();
-  renderEnemyList();
-  renderTasks();
   if(!baseUrl){
     document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
     return;
   }
   try{
-    const d = await api('/api/state', '', 3000);
+    const d = await api('/api/state', '', 2500);
     if(!d) return;
     failCount = 0;
     const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل | سرور در دسترس است' : 'سرور در دسترس است');
@@ -747,9 +611,8 @@ async function poll(){
       renderGroupList(activePickerMode);
     }
     if(Array.isArray(d.jobs)) tasks = d.jobs;
-    if(Array.isArray(d.offline_rules)) offlineRules = d.offline_rules;
     if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
-    renderAccounts(); renderTasks(); renderOfflineRules(); renderEnemyList();
+    renderAccounts(); renderTasks(); renderEnemyList();
   }catch(e){
     failCount += 1;
     if(failCount >= 2){
@@ -757,9 +620,13 @@ async function poll(){
     }
   }
 }
+renderTags('fwd');
+renderTags('spam');
+renderEnemyList();
+renderTasks();
 document.addEventListener('DOMContentLoaded', poll);
 window.addEventListener('focus', poll);
-setInterval(poll, 1500);
+setInterval(poll, 1000);
 poll();
 </script>
 </body>
