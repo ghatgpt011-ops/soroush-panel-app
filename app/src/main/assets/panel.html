@@ -41,7 +41,7 @@
 <div class="top">
   <div>
     <div class="brand">FONEX PANEL</div>
-    <div class="sys" id="sysInfo">سرور وصل | پینگ: 12 ms | CPU: 0% | RAM: 0%</div>
+    <div class="sys" id="sysInfo">وضعیت سرور: در حال بررسی...</div>
   </div>
   <button class="btn br" onclick="logoutApp()">خروج</button>
 </div>
@@ -221,7 +221,7 @@
 
 <script>
 const params = new URLSearchParams(location.search);
-const baseUrl = (params.get('server') || window.location.origin || '').replace(/\/+$/, '');
+const baseUrl = (params.get('server') || '').replace(/\/+$/, '');
 let chats = [], tasks = [], accounts = [], offlineRules = [], enemies = [];
 let activePickerMode = 'forward';
 let fwdDraft = null, fwdConfirmed = null;
@@ -615,11 +615,16 @@ async function poll(){
   renderOfflineSelectedUsers();
   renderOfflineRules();
   renderEnemyList();
+  if(!baseUrl){
+    document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
+    renderAccounts(); renderTasks();
+    return;
+  }
   try{
     const d = await api('/api/state');
-    if(!d || d.ok === false) return;
+    if(!d) return;
     const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل' : 'سرور وصل');
-    document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'12 ms'} | CPU: ${d.cpu||'0'}% | RAM: ${d.ram||'0'}%`;
+    document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
     if(d.auth_msg){
       const el = document.getElementById('authMsg');
       el.innerText = d.auth_msg;
@@ -636,7 +641,7 @@ async function poll(){
     if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
     renderAccounts(); renderTasks(); renderOfflineRules(); renderEnemyList();
   }catch(e){
-    document.getElementById('sysInfo').innerText = 'سرور در حال اتصال مجدد...';
+    document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
   }
 }
 setInterval(poll, 2500);
