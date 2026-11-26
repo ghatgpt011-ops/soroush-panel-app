@@ -41,7 +41,7 @@
 <div class="top">
   <div>
     <div class="brand">FONEX PANEL</div>
-    <div class="sys" id="sysInfo">وضعیت سرور: در حال بررسی...</div>
+    <div class="sys" id="sysInfo">سرور در دسترس است</div>
   </div>
   <button class="btn br" onclick="logoutApp()">خروج</button>
 </div>
@@ -118,18 +118,18 @@
 </div>
 
 <div class="box sec-panel" id="sec-reply" style="display:none;">
-  <h3>ریپلای متوالی روی یک پیام مشخص</h3>
-  <div class="g2">
-    <div><label>چت مقصد / گروه:</label><input id="repChat" type="text" placeholder="-10012345" dir="ltr"></div>
-    <div><label>شماره پیام هدف (Message ID):</label><input id="repMsgId" type="number" placeholder="8" dir="ltr"></div>
-  </div>
+  <h3>ریپلای روی پیام از طریق لینک</h3>
+  <label>لینک پیام هدف (مثلاً https://splus.ir/c/25810580/8):</label>
+  <input id="repLink" type="text" placeholder="https://splus.ir/c/25810580/8" dir="ltr">
+
   <label>متن ریپلای:</label>
-  <textarea id="repText" placeholder="متنی که روی همین پیام پشت سر هم ریپلای شود..."></textarea>
+  <textarea id="repText" placeholder="متنی که روی همین پیام ریپلای شود..."></textarea>
+
   <div class="g2">
-    <div><label>سرعت ریپلای (ms):</label><input id="repSpeed" type="number" value="700" min="50"></div>
-    <div><label>تعداد ریپلای (0 = نامحدود):</label><input id="repCount" type="number" value="5" min="0"></div>
+    <div><label>سرعت ریپلای (ms):</label><input id="repSpeed" type="number" value="500" min="40"></div>
+    <div><label>تعداد ریپلای (0 = نامحدود):</label><input id="repCount" type="number" value="1" min="0"></div>
   </div>
-  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startReplyChain()">استارت ریپلای متوالی</button>
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startReplyChain()">ارسال ریپلای</button>
   <div class="msg" id="repMsg"></div>
 </div>
 
@@ -227,6 +227,7 @@ let activePickerMode = 'forward';
 let fwdDraft = null, fwdConfirmed = null;
 let identifiedEnemy = null;
 let offlineSelectedUsers = [];
+let serverReachable = true;
 
 function switchTab(tabName){
   const panels = document.querySelectorAll('.sec-panel');
@@ -244,6 +245,23 @@ function cleanPeerInput(v){
   let s = String(v || '').trim().replace(/[\u200f\u200e]/g, '');
   if(s.endsWith('-') && /^\d+$/.test(s.slice(0, -1))) s = '-' + s.slice(0, -1);
   return s;
+}
+
+function parseLinkClient(raw){
+  const s = String(raw || '').trim().replace(/[\u200f\u200e]/g, '');
+  const mc = s.match(/(?:https?:\/\/)?(?:www\.)?splus\.ir\/c\/([^\/\s?#]+)\/(\d+)/i);
+  if(mc){
+    let cid = mc[1].trim();
+    if(cid.endsWith('-') && /^\d+$/.test(cid.slice(0, -1))) cid = '-' + cid.slice(0, -1);
+    const numId = cid.replace(/^-/, '');
+    const chatId = /^\d+$/.test(numId) ? `-100${numId}` : cid;
+    return { chatId, msgId: parseInt(mc[2], 10) };
+  }
+  const ma = s.match(/(?:https?:\/\/)?(?:www\.)?splus\.ir\/([^\/\s?#]+)\/(\d+)/i);
+  if(ma){
+    return { chatId: ma[1].replace(/^@/, '').trim(), msgId: parseInt(ma[2], 10) };
+  }
+  return { chatId: '', msgId: 0 };
 }
 
 function getTargetsArray(prefix){
@@ -450,15 +468,18 @@ function renderEnemyList(){
 }
 
 async function startReplyChain(){
-  const chat = cleanPeerInput(document.getElementById('repChat').value);
-  const msgId = parseInt(document.getElementById('repMsgId').value || '0', 10);
+  const rawLink = document.getElementById('repLink').value.trim();
+  const parsed = parseLinkClient(rawLink);
   const text = document.getElementById('repText').value.trim();
-  const speed = document.getElementById('repSpeed').value || 700;
-  const count = document.getElementById('repCount').value || 0;
+  const speed = document.getElementById('repSpeed').value || 500;
+  const count = document.getElementById('repCount').value || 1;
   const msgEl = document.getElementById('repMsg');
-  if(!chat || !msgId){ msgEl.innerText = 'چت و شماره پیام هدف را وارد کن.'; return; }
+  if(!rawLink || !parsed.chatId || !parsed.msgId){
+    msgEl.innerText = 'لینک پیام معتبر وارد کن (مثل https://splus.ir/c/25810580/8).';
+    return;
+  }
   if(!text){ msgEl.innerText = 'متن ریپلای را وارد کن.'; return; }
-  const q = `?mode=reply_chain&targets=${encodeURIComponent(chat)}&reply_to_msg_id=${msgId}&msg_id=${msgId}&payload=${encodeURIComponent(text)}&speed_ms=${speed}&max_count=${count}`;
+  const q = `?mode=reply_chain&link=${encodeURIComponent(rawLink)}&targets=${encodeURIComponent(parsed.chatId)}&reply_to_msg_id=${parsed.msgId}&msg_id=${parsed.msgId}&payload=${encodeURIComponent(text)}&speed_ms=${speed}&max_count=${count}`;
   const d = await api('/api/add_job', q);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
   poll();
@@ -571,23 +592,29 @@ function renderTasks(){
   ).join('') : '<div class="msg">تسکی ثبت نشده است.</div>';
 }
 
-async function api(path, q=''){
+async function api(path, q='', timeoutMs=4500){
   if(!baseUrl) return null;
-  const r = await fetch(baseUrl + path + q);
-  return await r.json();
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try{
+    const r = await fetch(baseUrl + path + q, { signal: ctrl.signal });
+    return await r.json();
+  }finally{
+    clearTimeout(timer);
+  }
 }
 async function sendPhone(){
   const p = document.getElementById('phone').value.trim();
   if(!p || !baseUrl) return;
   document.getElementById('codeBox').style.display = 'block';
   document.getElementById('authMsg').innerText = 'در حال ارسال کد...';
-  const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p));
+  const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 18000);
   if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
 }
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
-  const d = await api('/api/verify_code', '?code='+encodeURIComponent(c));
+  const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 18000);
   if(d && d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
   poll();
 }
@@ -595,7 +622,7 @@ async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
 async function fetchGroups(openBox=false, prefix=activePickerMode){
   if(!baseUrl) return;
   activePickerMode = prefix;
-  const d = await api('/api/groups');
+  const d = await api('/api/groups', '', 8000);
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
@@ -621,9 +648,10 @@ async function poll(){
     return;
   }
   try{
-    const d = await api('/api/state');
+    const d = await api('/api/state', '', 3500);
     if(!d) return;
-    const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل' : 'سرور وصل');
+    serverReachable = true;
+    const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل | سرور در دسترس است' : 'سرور در دسترس است');
     document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
     if(d.auth_msg){
       const el = document.getElementById('authMsg');
@@ -641,10 +669,11 @@ async function poll(){
     if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
     renderAccounts(); renderTasks(); renderOfflineRules(); renderEnemyList();
   }catch(e){
+    serverReachable = false;
     document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
   }
 }
-setInterval(poll, 2500);
+setInterval(poll, 1800);
 poll();
 </script>
 </body>
