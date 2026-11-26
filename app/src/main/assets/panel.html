@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FONEX SPAM</title>
+<title>FONEX PANEL</title>
 <style>
   *{box-sizing:border-box;font-family:Tahoma,sans-serif}
   body{margin:0;padding:10px;color:#f8fafc;background:#070a14}
@@ -20,13 +20,15 @@
   h3{margin:0 0 8px;font-size:14px;color:#f1f5f9;border-bottom:1px solid #273556;padding-bottom:6px}
   label{display:block;font-size:11px;color:#cbd5e1;margin:8px 0 3px}
   input,textarea{width:100%;padding:8px 10px;border-radius:8px;border:1px solid #273556;background:#090e1c;color:#fff;font-size:12px}
-  textarea{min-height:58px;resize:vertical}
+  textarea{min-height:60px;resize:vertical}
   .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
   .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .preview{background:#090e1c;border:1px solid #334155;border-radius:9px;padding:8px;margin-top:8px;font-size:11px}
+  .preview.ok{border-color:#10b981;background:#071b16}
   .item{background:#16203a;border:1px solid #273556;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;line-height:1.6}
   .chip{background:#16203a;border:1px solid #273556;border-radius:8px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px}
   .tag{display:inline-flex;align-items:center;gap:5px;background:#2e1065;border:1px solid #7c3aed;color:#fae8ff;padding:3px 8px;border-radius:7px;margin:2px;font-size:11px}
-  .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:70px;overflow-y:auto;direction:ltr;text-align:left}
+  .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:75px;overflow-y:auto;direction:ltr;text-align:left;white-space:pre-line}
   .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
   .warn{color:#fca5a5;font-weight:bold}
 </style>
@@ -35,7 +37,7 @@
 
 <div class="top">
   <div>
-    <div class="brand">FONEX SPAM</div>
+    <div class="brand">FONEX PANEL</div>
     <div class="sys" id="sysInfo">وضعیت سرور: در حال بررسی...</div>
   </div>
   <button class="btn br" onclick="logoutApp()">خروج</button>
@@ -44,7 +46,7 @@
 <div class="stats">
   <div class="st"><b id="sAcc">0</b><span>اکانت</span></div>
   <div class="st"><b id="sGrp">0</b><span>گروه</span></div>
-  <div class="st"><b id="sRun3" dir="ltr">0 / 3</b><span>اسپم فعال (حداکثر ۳)</span></div>
+  <div class="st"><b id="sRun3" dir="ltr">0 / 3</b><span>فعال (حداکثر ۳)</span></div>
   <div class="st"><b id="sOk">0</b><span>موفق</span></div>
   <div class="st"><b id="sRun">0</b><span>در حال اجرا</span></div>
   <div class="st"><b id="sFail">0</b><span>ناموفق</span></div>
@@ -67,20 +69,105 @@
 </div>
 
 <div class="box">
-  <h3>اسپم (حداکثر ۳ مقصد و ۳ اجرای هم‌زمان)</h3>
+  <h3>آفلاین‌گیر</h3>
+  <div class="g2">
+    <div><label>آیدی یا یوزرنیم کاربر:</label><input id="offUser" type="text" placeholder="@username یا id" dir="ltr"></div>
+    <div><label>شناسه چت (اختیاری):</label><input id="offChat" type="text" placeholder="-10012345" dir="ltr"></div>
+  </div>
+  <button class="btn bc" style="width:100%;margin-top:8px" onclick="addOfflineTracker()">فعال‌سازی آفلاین‌گیر</button>
+  <div class="msg" id="offMsg"></div>
+  <div id="offList"></div>
+</div>
+
+<div class="box">
+  <h3>دشمن (تشخیص کاربر از لینک پیام در همان چت + ریپلای آنی)</h3>
+  <label>لینک پیام شخص در چت:</label>
+  <div class="row">
+    <input id="enemyLink" type="text" placeholder="https://splus.ir/c/25810580/8" dir="ltr" style="flex:1">
+    <button class="btn bp" onclick="identifyEnemy()">شناسایی کاربر در چت</button>
+  </div>
+  <div class="msg" id="enemyFoundInfo">هنوز کاربری از لینک شناسایی نشده است.</div>
+
+  <label>متن ریپلای دشمن:</label>
+  <textarea id="enemyReplyText" placeholder="متنی که هر بار از این کاربر پیام آمد، همون لحظه رو پیامش ریپلای شود..."></textarea>
+
+  <label>تعداد ریپلای (0 = نامحدود):</label>
+  <input id="enemyCount" type="number" value="0" min="0">
+
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startEnemyRule()">فعال‌سازی دشمن</button>
+  <div class="msg" id="enemyMsg"></div>
+  <div id="enemyList"></div>
+</div>
+
+<div class="box">
+  <h3>ریپلای متوالی روی یک پیام مشخص</h3>
+  <div class="g2">
+    <div><label>چت مقصد / گروه:</label><input id="repChat" type="text" placeholder="-10012345" dir="ltr"></div>
+    <div><label>شماره پیام هدف (Message ID):</label><input id="repMsgId" type="number" placeholder="8" dir="ltr"></div>
+  </div>
+  <label>متن ریپلای:</label>
+  <textarea id="repText" placeholder="متنی که روی همین پیام پشت سر هم ریپلای شود..."></textarea>
+  <div class="g2">
+    <div><label>سرعت ریپلای (ms):</label><input id="repSpeed" type="number" value="700" min="50"></div>
+    <div><label>تعداد ریپلای (0 = نامحدود):</label><input id="repCount" type="number" value="5" min="0"></div>
+  </div>
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startReplyChain()">استارت ریپلای متوالی</button>
+  <div class="msg" id="repMsg"></div>
+</div>
+
+<div class="box">
+  <h3>فوروارد پیام از لینک کانال</h3>
+  <label>لینک پیام سروش (مثلاً https://splus.ir/c/25810580/8):</label>
+  <div class="row">
+    <input id="fwdLink" type="text" placeholder="https://splus.ir/c/25810580/8" dir="ltr" style="flex:1">
+    <button class="btn bp" onclick="fetchFwdMsg()">بیار پیام</button>
+  </div>
+
+  <div id="fwdBox" class="preview" style="display:none;">
+    <div id="fwdMeta"></div>
+    <label>متن پیام خوانده‌شده (قابل بررسی/تأیید):</label>
+    <textarea id="fwdText"></textarea>
+    <div class="row">
+      <button id="fwdConfirmBtn" class="btn bg" onclick="confirmFwdMsg()">تأیید پیام</button>
+    </div>
+  </div>
+  <div class="msg" id="fwdPicked">وضعیت پیام: هنوز تأیید نشده است.</div>
+
+  <label>مقصدهای فوروارد (حداکثر ۳ مقصد):</label>
+  <div class="row">
+    <button class="btn bc" onclick="fetchGroups(true, 'fwd')">دریافت مقصد</button>
+    <button class="btn bd" onclick="toggleList('fwd')">لیست چت‌ها</button>
+  </div>
+  <div id="fwdDstBox" style="display:none;margin-top:6px;">
+    <input id="fwdDstSearch" type="text" placeholder="جستجوی مقصد..." oninput="renderGroupList('fwd')">
+    <div id="fwdDstList"></div>
+  </div>
+  <input id="fwdTargets" type="text" placeholder="-10012345, @target" oninput="renderTags('fwd')" style="margin-top:6px">
+  <div id="fwdTags"></div>
+
+  <div class="g2">
+    <div><label>سرعت فوروارد (ms):</label><input id="fwdSpeed" type="number" value="800" min="50"></div>
+    <div><label>تعداد ارسال (0 = نامحدود):</label><input id="fwdCount" type="number" value="0" min="0"></div>
+  </div>
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startForwardJob()">استارت فوروارد</button>
+  <div class="msg" id="fwdMsg"></div>
+</div>
+
+<div class="box">
+  <h3>اسپم (حداکثر ۳ مقصد)</h3>
   <label>متن اسپم:</label>
   <textarea id="spamText" placeholder="متن اسپم را بنویسید..."></textarea>
 
   <label>مقصدهای اسپم (حداکثر ۳ مقصد):</label>
   <div class="row">
-    <button class="btn bc" onclick="fetchGroups(true)">لیست چت‌ها</button>
-    <button class="btn bd" onclick="toggleList()">انتخاب مقصد</button>
+    <button class="btn bc" onclick="fetchGroups(true, 'spam')">دریافت مقصد</button>
+    <button class="btn bd" onclick="toggleList('spam')">لیست چت‌ها</button>
   </div>
   <div id="spamDstBox" style="display:none;margin-top:6px;">
-    <input id="spamDstSearch" type="text" placeholder="جستجوی مقصد..." oninput="renderGroupList()">
+    <input id="spamDstSearch" type="text" placeholder="جستجوی مقصد..." oninput="renderGroupList('spam')">
     <div id="spamDstList"></div>
   </div>
-  <input id="spamTargets" type="text" placeholder="-10012345, @group" oninput="renderTags()" style="margin-top:6px">
+  <input id="spamTargets" type="text" placeholder="-10012345, @group" oninput="renderTags('spam')" style="margin-top:6px">
   <div id="spamTags"></div>
 
   <div class="g2">
@@ -91,19 +178,22 @@
     <div><label>استراحت هر (تا) پیام:</label><input id="spamRestEvery" type="number" value="0" min="0"></div>
     <div><label>مدت استراحت (ms):</label><input id="spamRestMs" type="number" value="2000" min="0"></div>
   </div>
-  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startSpam()">استارت اسپم</button>
+  <button class="btn bg" style="width:100%;margin-top:10px" onclick="startSpamJob()">استارت اسپم</button>
   <div class="msg" id="spamMsg"></div>
 </div>
 
 <div class="box">
-  <h3>تسک‌های اسپم و لاگ (حداکثر ۳ هم‌زمان)</h3>
+  <h3>تسک‌های فعال و لاگ (حداکثر ۳ هم‌زمان)</h3>
   <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
 </div>
 
 <script>
 const params = new URLSearchParams(location.search);
 const baseUrl = (params.get('server') || '').replace(/\/+$/, '');
-let chats = [], tasks = [], accounts = [];
+let chats = [], tasks = [], accounts = [], offlineList = [], enemies = [];
+let activePickerMode = 'spam';
+let fwdDraft = null, fwdConfirmed = null;
+let identifiedEnemy = null;
 
 function cleanPeerInput(v){
   let s = String(v || '').trim().replace(/[\u200f\u200e]/g, '');
@@ -111,64 +201,216 @@ function cleanPeerInput(v){
   return s;
 }
 
-function getTargetsArray(){
-  return (document.getElementById('spamTargets').value || '')
+function getTargetsArray(prefix){
+  const id = prefix === 'fwd' ? 'fwdTargets' : 'spamTargets';
+  return (document.getElementById(id).value || '')
     .split(',')
     .map(cleanPeerInput)
     .filter(Boolean);
 }
 
-function toggleList(){
-  const box = document.getElementById('spamDstBox');
+function toggleList(prefix){
+  activePickerMode = prefix;
+  const boxId = prefix === 'fwd' ? 'fwdDstBox' : 'spamDstBox';
+  const box = document.getElementById(boxId);
   box.style.display = (box.style.display==='none') ? 'block' : 'none';
-  renderGroupList();
+  renderGroupList(prefix);
 }
 
-function renderGroupList(){
-  const q = ((document.getElementById('spamDstSearch')||{}).value || '').toLowerCase();
+function renderGroupList(prefix){
+  const searchId = prefix === 'fwd' ? 'fwdDstSearch' : 'spamDstSearch';
+  const listId = prefix === 'fwd' ? 'fwdDstList' : 'spamDstList';
+  const q = ((document.getElementById(searchId)||{}).value || '').toLowerCase();
   const list = chats.filter(c => String(c.name||'').toLowerCase().includes(q) || String(c.id||'').includes(q));
-  document.getElementById('spamDstList').innerHTML = list.length ? list.map(c =>
-    `<div class="chip"><span>${c.name||c.id} <small style="color:#94a3b8">(${c.id})</small></span><button class="btn bg" onclick="onPickGroup('${c.id}')">+</button></div>`
+  document.getElementById(listId).innerHTML = list.length ? list.map(c =>
+    `<div class="chip"><span>${c.name||c.id} <small style="color:#94a3b8">(${c.id})</small></span><button class="btn bg" onclick="onPickGroup('${c.id}','${prefix}')">+</button></div>`
   ).join('') : '<div class="msg">چتی یافت نشد.</div>';
 }
 
-function onPickGroup(id){
-  document.getElementById('spamDstBox').style.display = 'none';
-  addTag(cleanPeerInput(id));
+function onPickGroup(id, prefix){
+  const boxId = prefix === 'fwd' ? 'fwdDstBox' : 'spamDstBox';
+  document.getElementById(boxId).style.display = 'none';
+  addTag(cleanPeerInput(id), prefix);
 }
 
-function renderTags(){
-  const arr = getTargetsArray();
-  const el = document.getElementById('spamTags');
+function renderTags(prefix){
+  const arr = getTargetsArray(prefix);
+  const el = document.getElementById(prefix === 'fwd' ? 'fwdTags' : 'spamTags');
   if(!arr.length){ el.innerHTML = '<div class="msg">مقصدی انتخاب نشده است.</div>'; return; }
-  el.innerHTML = arr.map((t,i) => `<span class="tag">${t} <b style="cursor:pointer" onclick="removeTag(${i})">×</b></span>`).join('')
+  el.innerHTML = arr.map((t,i) => `<span class="tag">${t} <b style="cursor:pointer" onclick="removeTag(${i},'${prefix}')">×</b></span>`).join('')
     + (arr.length > 3 ? '<div class="msg warn">حداکثر ۳ مقصد مجاز است.</div>' : '');
 }
 
-function removeTag(i){
-  const inp = document.getElementById('spamTargets');
-  const arr = getTargetsArray();
+function removeTag(i, prefix){
+  const inp = document.getElementById(prefix === 'fwd' ? 'fwdTargets' : 'spamTargets');
+  const arr = getTargetsArray(prefix);
   arr.splice(i, 1);
   inp.value = arr.join(', ');
-  renderTags();
+  renderTags(prefix);
 }
 
-function addTag(val){
-  const inp = document.getElementById('spamTargets');
-  const arr = getTargetsArray();
+function addTag(val, prefix){
+  const inp = document.getElementById(prefix === 'fwd' ? 'fwdTargets' : 'spamTargets');
+  const msgEl = document.getElementById(prefix === 'fwd' ? 'fwdMsg' : 'spamMsg');
+  const arr = getTargetsArray(prefix);
   if(!val || arr.includes(val)) return;
   if(arr.length >= 3){
-    document.getElementById('spamMsg').innerText = 'حداکثر ۳ مقصد هم‌زمان مجاز است.';
+    msgEl.innerText = 'حداکثر ۳ مقصد هم‌زمان مجاز است.';
     return;
   }
   arr.push(val);
   inp.value = arr.join(', ');
-  renderTags();
+  renderTags(prefix);
 }
 
-async function startSpam(){
+async function addOfflineTracker(){
+  const user = document.getElementById('offUser').value.trim();
+  const chatId = document.getElementById('offChat').value.trim();
+  const msgEl = document.getElementById('offMsg');
+  if(!user){ msgEl.innerText = 'آیدی یا یوزرنیم کاربر را وارد کن.'; return; }
+  const d = await api('/api/add_offline_tracker', `?user=${encodeURIComponent(user)}&chat_id=${encodeURIComponent(chatId)}`);
+  msgEl.innerText = (d && d.msg) || 'انجام شد';
+  poll();
+}
+
+async function delOfflineTracker(id){
+  await api('/api/del_offline_tracker', `?id=${encodeURIComponent(id)}`);
+  poll();
+}
+
+function renderOfflineList(){
+  document.getElementById('offList').innerHTML = offlineList.length ? offlineList.map(t =>
+    `<div class="item"><b>${t.user}</b> | چت: ${t.chat_id || 'همه'} | وضعیت: <b>${t.status}</b> | آخرین ثبت: ${t.last_seen || '-'}
+    <div class="row"><button class="btn br" onclick="delOfflineTracker('${t.id}')">حذف</button></div></div>`
+  ).join('') : '<div class="msg">کاربری در آفلاین‌گیر ثبت نشده است.</div>';
+}
+
+async function identifyEnemy(){
+  const link = document.getElementById('enemyLink').value.trim();
+  const infoEl = document.getElementById('enemyFoundInfo');
+  if(!link){ infoEl.innerText = 'لینک پیام را وارد کن.'; return; }
+  identifiedEnemy = null;
+  infoEl.innerText = 'در حال شناسایی کاربر در چت...';
+  const d = await api('/api/identify_enemy', `?link=${encodeURIComponent(link)}`);
+  if(!d || !d.ok){
+    infoEl.innerText = (d && d.msg) || 'کاربر شناسایی نشد.';
+    return;
+  }
+  identifiedEnemy = d;
+  const chTitle = d.channel_name ? `${d.channel_name} (${d.chat_id})` : d.chat_id;
+  infoEl.innerText = `کاربر شناسایی‌شده در چت ${chTitle}: ${d.user_name} (${d.user_id})`;
+}
+
+async function startEnemyRule(){
+  const msgEl = document.getElementById('enemyMsg');
+  const replyText = document.getElementById('enemyReplyText').value.trim();
+  const count = document.getElementById('enemyCount').value || 0;
+  if(!identifiedEnemy){
+    msgEl.innerText = 'ابتدا لینک پیام را بده و «شناسایی کاربر در چت» را بزن.';
+    return;
+  }
+  if(!replyText){
+    msgEl.innerText = 'متن ریپلای دشمن را وارد کن.';
+    return;
+  }
+  const q = `?chat_id=${encodeURIComponent(identifiedEnemy.chat_id)}&user_id=${encodeURIComponent(identifiedEnemy.user_id)}&user_name=${encodeURIComponent(identifiedEnemy.user_name)}&reply_text=${encodeURIComponent(replyText)}&max_count=${count}`;
+  const d = await api('/api/add_enemy', q);
+  msgEl.innerText = (d && d.msg) || 'انجام شد';
+  poll();
+}
+
+async function ctrlEnemy(id, act){
+  await api('/api/enemy_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  poll();
+}
+
+function renderEnemyList(){
+  document.getElementById('enemyList').innerHTML = enemies.length ? enemies.map(e =>
+    `<div class="item">
+      <b>دشمن: ${e.user_name}</b> (${e.user_id}) | چت: ${e.chat_id}<br>
+      وضعیت: <b>${e.status}</b> | ریپلای‌شده: ${e.replied_count || 0}${e.max_count ? ' / ' + e.max_count : ''}<br>
+      متن ریپلای: ${e.reply_text}
+      <div class="row">
+        <button class="btn bw" onclick="ctrlEnemy('${e.id}','toggle')">${e.running?'توقف':'ادامه'}</button>
+        <button class="btn br" onclick="ctrlEnemy('${e.id}','delete')">حذف</button>
+      </div>
+    </div>`
+  ).join('') : '<div class="msg">دشمنی فعال نیست.</div>';
+}
+
+async function startReplyChain(){
+  const chat = cleanPeerInput(document.getElementById('repChat').value);
+  const msgId = parseInt(document.getElementById('repMsgId').value || '0', 10);
+  const text = document.getElementById('repText').value.trim();
+  const speed = document.getElementById('repSpeed').value || 700;
+  const count = document.getElementById('repCount').value || 0;
+  const msgEl = document.getElementById('repMsg');
+  if(!chat || !msgId){ msgEl.innerText = 'چت و شماره پیام هدف را وارد کن.'; return; }
+  if(!text){ msgEl.innerText = 'متن ریپلای را وارد کن.'; return; }
+  const q = `?mode=reply_chain&targets=${encodeURIComponent(chat)}&reply_to_msg_id=${msgId}&msg_id=${msgId}&payload=${encodeURIComponent(text)}&speed_ms=${speed}&max_count=${count}`;
+  const d = await api('/api/add_job', q);
+  msgEl.innerText = (d && d.msg) || 'انجام شد';
+  poll();
+}
+
+async function fetchFwdMsg(){
+  const link = document.getElementById('fwdLink').value.trim();
+  const msgEl = document.getElementById('fwdMsg');
+  if(!link){ msgEl.innerText = 'لینک پیام را وارد کن.'; return; }
+  fwdConfirmed = null;
+  msgEl.innerText = 'در حال پیدا کردن کانال و خواندن پیام...';
+  const d = await api('/api/fetch_msg', '?link=' + encodeURIComponent(link));
+  if(!d || !d.ok){
+    msgEl.innerText = (d && d.msg) || 'خطا در خواندن پیام';
+    return;
+  }
+  fwdDraft = d;
+  const box = document.getElementById('fwdBox');
+  box.style.display = 'block';
+  box.className = 'preview';
+  const ch = d.channel_name ? `${d.channel_name} (${d.chat_id})` : d.chat_id;
+  document.getElementById('fwdMeta').innerText = `کانال: ${ch} | پیام: #${d.msg_id} | وضعیت: ${d.source_label || '-'}`;
+  document.getElementById('fwdText').value = d.text || '';
+  document.getElementById('fwdConfirmBtn').innerText = 'تأیید پیام';
+  document.getElementById('fwdPicked').innerText = 'وضعیت پیام: بررسی کن و روی «تأیید پیام» بزن.';
+  msgEl.innerText = d.note || '';
+}
+
+function confirmFwdMsg(){
+  if(!fwdDraft) return;
+  fwdConfirmed = {
+    chat_id: fwdDraft.chat_id || '',
+    msg_id: fwdDraft.msg_id || 0,
+    link: fwdDraft.link || '',
+    text: document.getElementById('fwdText').value || ''
+  };
+  document.getElementById('fwdBox').className = 'preview ok';
+  document.getElementById('fwdConfirmBtn').innerText = 'تأیید شد ✓';
+  document.getElementById('fwdPicked').innerText = `وضعیت پیام: تأیید شد (#${fwdConfirmed.msg_id})`;
+}
+
+async function startForwardJob(){
+  const msgEl = document.getElementById('fwdMsg');
+  if(!fwdConfirmed){
+    msgEl.innerText = 'ابتدا «بیار پیام» و بعد «تأیید پیام» را بزن.';
+    return;
+  }
+  const text = (document.getElementById('fwdText').value || fwdConfirmed.text || '').trim();
+  const arr = getTargetsArray('fwd');
+  if(!text){ msgEl.innerText = 'متن پیام خالی است.'; return; }
+  if(!arr.length){ msgEl.innerText = 'مقصد را وارد کن.'; return; }
+  if(arr.length > 3){ msgEl.innerText = 'فقط تا ۳ مقصد مجاز است.'; return; }
+  const speed = document.getElementById('fwdSpeed').value || 800;
+  const cnt = document.getElementById('fwdCount').value || 0;
+  const q = `?mode=forward&source_chat=${encodeURIComponent(fwdConfirmed.chat_id)}&msg_id=${encodeURIComponent(fwdConfirmed.msg_id)}&link=${encodeURIComponent(fwdConfirmed.link)}&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}`;
+  const d = await api('/api/add_job', q);
+  msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
+  poll();
+}
+
+async function startSpamJob(){
   const text = document.getElementById('spamText').value.trim();
-  const arr = getTargetsArray();
+  const arr = getTargetsArray('spam');
   const speed = document.getElementById('spamSpeed').value || 500;
   const cnt = document.getElementById('spamCount').value || 0;
   const re = document.getElementById('spamRestEvery').value || 0;
@@ -207,8 +449,8 @@ function renderTasks(){
 
   document.getElementById('taskList').innerHTML = tasks.length ? tasks.map(t =>
     `<div class="item">
-      <b>#${t.id}</b> [spam] | وضعیت: <b>${t.running?'ران':'متوقف'}</b>${t.last_error ? ` | <span class="warn">${t.last_error}</span>` : ''}<br>
-      مقصد: ${(t.targets||[]).join('، ')} | موفق: ${t.ok||0} | ناموفق: ${t.fail||0}
+      <b>#${t.id}</b> [${t.mode||'spam'}] | وضعیت: <b>${t.running?'ران':'متوقف'}</b>${t.last_error ? ` | <span class="warn">${t.last_error}</span>` : ''}<br>
+      مقصد: ${(t.targets||[]).join('، ')}${t.reply_to_msg_id ? ` | پیام هدف: #${t.reply_to_msg_id}` : ''} | موفق: ${t.ok||0} | ناموفق: ${t.fail||0}
       <div class="row">
         <button class="btn bw" onclick="ctrlTask('${t.id}','toggle')">${t.running?'توقف':'ری‌استارت'}</button>
         <button class="btn br" onclick="ctrlTask('${t.id}','delete')">حذف</button>
@@ -239,21 +481,27 @@ async function verifyCode(){
   poll();
 }
 async function delAcc(i){ await api('/api/del_account', '?index='+i); poll(); }
-async function fetchGroups(openBox=false){
+async function fetchGroups(openBox=false, prefix=activePickerMode){
   if(!baseUrl) return;
+  activePickerMode = prefix;
   const d = await api('/api/groups');
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
-    renderGroupList();
-    if(openBox) document.getElementById('spamDstBox').style.display = 'block';
+    renderGroupList(prefix);
+    if(openBox){
+      document.getElementById(prefix === 'fwd' ? 'fwdDstBox' : 'spamDstBox').style.display = 'block';
+    }
   }
 }
 async function ctrlTask(id, act){ await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`); poll(); }
 function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 
 async function poll(){
-  renderTags();
+  renderTags('fwd');
+  renderTags('spam');
+  renderOfflineList();
+  renderEnemyList();
   if(!baseUrl){
     document.getElementById('sysInfo').innerText = 'آدرس سرور تنظیم نشده است';
     renderAccounts(); renderTasks();
@@ -273,15 +521,17 @@ async function poll(){
     if(Array.isArray(d.groups)){
       chats = d.groups;
       document.getElementById('sGrp').innerText = chats.length;
-      renderGroupList();
+      renderGroupList(activePickerMode);
     }
     if(Array.isArray(d.jobs)) tasks = d.jobs;
-    renderAccounts(); renderTasks();
+    if(Array.isArray(d.offline_trackers)) offlineList = d.offline_trackers;
+    if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
+    renderAccounts(); renderTasks(); renderOfflineList(); renderEnemyList();
   }catch(e){
     document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
   }
 }
-setInterval(poll, 3000);
+setInterval(poll, 2500);
 poll();
 </script>
 </body>
