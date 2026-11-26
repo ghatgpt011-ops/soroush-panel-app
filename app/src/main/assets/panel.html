@@ -189,6 +189,7 @@
 </div>
 
 <script>
+const CACHE_KEY = 'fonex_panel_cache_v1';
 const params = new URLSearchParams(location.search);
 let baseUrl = (params.get('server') || '').trim().replace(/\/+$/, '');
 try{
@@ -206,6 +207,49 @@ let activePickerMode = 'forward';
 let fwdDraft = null, fwdConfirmed = null;
 let identifiedEnemy = null;
 let failCount = 0;
+
+function applyStateData(d){
+  if(!d) return;
+  const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل | سرور در دسترس است' : 'سرور در دسترس است');
+  document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
+  if(d.auth_msg){
+    const el = document.getElementById('authMsg');
+    el.innerText = d.auth_msg;
+    el.className = 'msg' + (d.kicked_out ? ' warn' : '');
+  }
+  if(d.active_acc_key) activeAccKey = d.active_acc_key;
+  if(Array.isArray(d.accounts)) accounts = d.accounts;
+  if(Array.isArray(d.groups)){
+    chats = d.groups;
+    document.getElementById('sGrp').innerText = chats.length;
+    renderGroupList(activePickerMode);
+  }
+  if(Array.isArray(d.jobs)) tasks = d.jobs;
+  if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
+  renderAccounts();
+  renderTasks();
+  renderEnemyList();
+}
+
+function saveCache(d){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      ts: Date.now(),
+      data: d
+    }));
+  }catch(e){}
+}
+
+function loadCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    if(parsed && parsed.data){
+      applyStateData(parsed.data);
+    }
+  }catch(e){}
+}
 
 function switchTab(tabName){
   const panels = document.querySelectorAll('.sec-panel');
@@ -587,32 +631,24 @@ async function ctrlTask(id, act){
 }
 function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 
+async function notifyPanelOpen(){
+  if(!baseUrl) return;
+  try{
+    await api('/api/hello', `?acc_key=${encodeURIComponent(activeAccKey)}`, 2000);
+  }catch(e){}
+}
+
 async function poll(){
   if(!baseUrl){
     document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
     return;
   }
   try{
-    const d = await api('/api/state', '', 2500);
+    const d = await api('/api/state', `?acc_key=${encodeURIComponent(activeAccKey)}`, 2500);
     if(!d) return;
     failCount = 0;
-    const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل | سرور در دسترس است' : 'سرور در دسترس است');
-    document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
-    if(d.auth_msg){
-      const el = document.getElementById('authMsg');
-      el.innerText = d.auth_msg;
-      el.className = 'msg' + (d.kicked_out ? ' warn' : '');
-    }
-    if(d.active_acc_key) activeAccKey = d.active_acc_key;
-    if(Array.isArray(d.accounts)) accounts = d.accounts;
-    if(Array.isArray(d.groups)){
-      chats = d.groups;
-      document.getElementById('sGrp').innerText = chats.length;
-      renderGroupList(activePickerMode);
-    }
-    if(Array.isArray(d.jobs)) tasks = d.jobs;
-    if(Array.isArray(d.enemy_rules)) enemies = d.enemy_rules;
-    renderAccounts(); renderTasks(); renderEnemyList();
+    applyStateData(d);
+    saveCache(d);
   }catch(e){
     failCount += 1;
     if(failCount >= 2){
@@ -620,12 +656,16 @@ async function poll(){
     }
   }
 }
+
 renderTags('fwd');
 renderTags('spam');
 renderEnemyList();
 renderTasks();
-document.addEventListener('DOMContentLoaded', poll);
-window.addEventListener('focus', poll);
+loadCache();
+notifyPanelOpen();
+document.addEventListener('DOMContentLoaded', () => { loadCache(); notifyPanelOpen(); poll(); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); notifyPanelOpen(); poll(); } });
+window.addEventListener('focus', () => { notifyPanelOpen(); poll(); });
 setInterval(poll, 1000);
 poll();
 </script>
