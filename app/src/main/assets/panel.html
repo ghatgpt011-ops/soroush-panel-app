@@ -29,16 +29,17 @@
   .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .preview{background:#090e1c;border:1px solid #334155;border-radius:9px;padding:8px;margin-top:8px;font-size:11px}
   .preview.ok{border-color:#10b981;background:#071b16}
-  .item{background:#16203a;border:1px solid #273556;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;line-height:1.6}
+  .item{background:#16203a;border:1px solid #273556;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;line-height:1.65}
+  .speed-pill{display:inline-block;background:#0f172a;border:1px solid #38bdf8;color:#7dd3fc;border-radius:6px;padding:2px 7px;margin-top:4px;font-size:11px}
   .chip{background:#16203a;border:1px solid #273556;border-radius:8px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px;gap:6px}
   .chip.active-acc{border-color:#a855f7;background:#22163d}
   .tag{display:inline-flex;align-items:center;gap:5px;background:#2e1065;border:1px solid #7c3aed;color:#fae8ff;padding:3px 8px;border-radius:7px;margin:2px;font-size:11px}
-  .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:75px;overflow-y:auto;direction:ltr;text-align:left;white-space:pre-line}
+  .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:85px;overflow-y:auto;direction:ltr;text-align:left;white-space:pre-line}
   .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
   .warn{color:#fca5a5;font-weight:bold}
   .live-badge{font-size:11px;color:#34d399;margin-top:4px;min-height:16px}
-  #centerLoader{position:fixed;inset:0;background:rgba(7,10,20,0.74);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(2px)}
-  .spinner{width:46px;height:46px;border:4px solid rgba(192,132,252,0.22);border-top-color:#c084fc;border-radius:50%;animation:spin .8s linear infinite}
+  #centerLoader{position:fixed;inset:0;background:rgba(7,10,20,0.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(2px)}
+  .spinner{width:44px;height:44px;border:4px solid rgba(192,132,252,0.22);border-top-color:#c084fc;border-radius:50%;animation:spin .8s linear infinite}
   .loader-txt{margin-top:10px;font-size:12px;color:#f8fafc;font-weight:bold}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -59,13 +60,6 @@
   <button class="btn br" onclick="logoutApp()">خروج</button>
 </div>
 
-<div class="tabs">
-  <button class="tab active" id="tab-forward" onclick="switchTab('forward')">فوروارد</button>
-  <button class="tab" id="tab-reply" onclick="switchTab('reply')">ریپلای</button>
-  <button class="tab" id="tab-enemy" onclick="switchTab('enemy')">دشمن</button>
-  <button class="tab" id="tab-spam" onclick="switchTab('spam')">اسپم</button>
-</div>
-
 <div class="stats">
   <div class="st"><b id="sAcc">0</b><span>اکانت</span></div>
   <div class="st"><b id="sGrp">0</b><span>گروه</span></div>
@@ -73,6 +67,19 @@
   <div class="st"><b id="sOk">0</b><span>موفق</span></div>
   <div class="st"><b id="sRun">0</b><span>در حال اجرا</span></div>
   <div class="st"><b id="sFail">0</b><span>ناموفق</span></div>
+</div>
+
+<!-- تسک‌ها در اولویت اول نمایش -->
+<div class="box" id="tasksSection">
+  <h3>تسک‌های فعال و لاگ (حداکثر ۵ هم‌زمان)</h3>
+  <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" id="tab-forward" onclick="switchTab('forward')">فوروارد</button>
+  <button class="tab" id="tab-reply" onclick="switchTab('reply')">ریپلای</button>
+  <button class="tab" id="tab-enemy" onclick="switchTab('enemy')">دشمن</button>
+  <button class="tab" id="tab-spam" onclick="switchTab('spam')">اسپم</button>
 </div>
 
 <div class="box">
@@ -123,7 +130,7 @@
   <div id="fwdTags"></div>
 
   <div class="g2">
-    <div><label>سرعت فوروارد (ms):</label><input id="fwdSpeed" type="number" value="800" min="50"></div>
+    <div><label>سرعت فوروارد (ms):</label><input id="fwdSpeed" type="number" value="800" min="40"></div>
     <div><label>تعداد ارسال (0 = نامحدود):</label><input id="fwdCount" type="number" value="0" min="0"></div>
   </div>
   <button class="btn bg" style="width:100%;margin-top:10px" onclick="startForwardJob()">استارت فوروارد</button>
@@ -198,7 +205,7 @@
   <div id="spamTags"></div>
 
   <div class="g2">
-    <div><label>سرعت اسپم (ms):</label><input id="spamSpeed" type="number" value="500" min="50"></div>
+    <div><label>سرعت اسپم (ms):</label><input id="spamSpeed" type="number" value="500" min="40"></div>
     <div><label>تعداد اسپم (0 = نامحدود):</label><input id="spamCount" type="number" value="0" min="0"></div>
   </div>
   <div class="g2">
@@ -209,13 +216,8 @@
   <div class="msg" id="spamMsg"></div>
 </div>
 
-<div class="box">
-  <h3>تسک‌های فعال و لاگ (حداکثر ۵ هم‌زمان)</h3>
-  <div id="taskList"><div class="msg">تسکی ثبت نشده است.</div></div>
-</div>
-
 <script>
-const CACHE_KEY = 'fonex_panel_cache_v1';
+const CACHE_KEY = 'fonex_panel_cache_v2';
 const MAX_ACTIVE_JOBS = 5;
 const params = new URLSearchParams(location.search);
 let baseUrl = (params.get('server') || '').trim().replace(/\/+$/, '');
@@ -237,7 +239,14 @@ let failCount = 0;
 let lastSeenEventSeq = 0;
 let loaderTimer = null;
 
-function showCenterLoader(text='در حال بروزرسانی سریع اکانت‌ها و تسک‌ها...', autoHideMs=1800){
+function fmtSpeed(ms){
+  const n = parseInt(ms || 0, 10);
+  if(!n || n <= 0) return '-';
+  if(n >= 1000) return `${(n / 1000).toFixed(2).replace(/\.?0+$/, '')}s (${n}ms)`;
+  return `${n}ms`;
+}
+
+function showCenterLoader(text='در حال بروزرسانی سریع اکانت‌ها و تسک‌ها...', autoHideMs=1400){
   const el = document.getElementById('centerLoader');
   const txt = document.getElementById('loaderText');
   if(txt) txt.innerText = text;
@@ -256,10 +265,10 @@ function onSoroushSignal(noticeText, withSpinner=true){
     document.getElementById('soroushNotice').innerText = `اعلان سروش: ${noticeText}`;
   }
   if(withSpinner){
-    showCenterLoader(noticeText ? `اعلان سروش: ${noticeText}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1600);
+    showCenterLoader(noticeText ? `اعلان سروش: ${noticeText}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1400);
   }
-  renderAccounts();
   renderTasks();
+  renderAccounts();
   renderEnemyList();
   fetchGroups(false, activePickerMode);
   poll();
@@ -335,7 +344,7 @@ function getEnemyTexts(){
 
 function applyStateData(d){
   if(!d) return;
-  const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل | سرور در دسترس است' : 'سرور در دسترس است');
+  const statusLabel = d.kicked_out ? 'خارج شده از اکانت!' : (d.soroush_connected ? 'سروش وصل (قوی) | سرور فعال' : 'در حال اتصال قوی به سروش...');
   document.getElementById('sysInfo').innerText = `${statusLabel} | پینگ: ${d.ping||'-'} | CPU: ${d.cpu||'--'}% | RAM: ${d.ram||'--'}%`;
   if(d.event_notice){
     document.getElementById('soroushNotice').innerText = `اعلان سروش: ${d.event_notice}`;
@@ -357,15 +366,15 @@ function applyStateData(d){
 
   const newSeq = parseInt(d.event_seq || 0, 10);
   if(newSeq > 0 && lastSeenEventSeq > 0 && newSeq > lastSeenEventSeq){
-    showCenterLoader(d.event_notice ? `اعلان سروش: ${d.event_notice}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1400);
+    showCenterLoader(d.event_notice ? `اعلان سروش: ${d.event_notice}` : 'سروش وصل شد؛ در حال بروزرسانی پنل...', 1200);
     if(!chats.length && d.soroush_connected){
       fetchGroups(false, activePickerMode);
     }
   }
   if(newSeq > 0) lastSeenEventSeq = newSeq;
 
-  renderAccounts();
   renderTasks();
+  renderAccounts();
   renderEnemyList();
   hideCenterLoader();
 }
@@ -391,7 +400,7 @@ function loadCache(){
 }
 
 function burstRefresh(times=5, intervalMs=250, withLoader=false){
-  if(withLoader) showCenterLoader('در حال بروزرسانی سریع اکانت‌ها و تسک‌ها...', times * intervalMs + 500);
+  if(withLoader) showCenterLoader('در حال بروزرسانی سریع تسک‌ها و اکانت‌ها...', times * intervalMs + 400);
   let count = 0;
   const runOnce = async () => {
     count += 1;
@@ -510,7 +519,7 @@ async function identifyEnemy(){
   if(!link){ infoEl.innerText = 'لینک پیام را وارد کن.'; return; }
   identifiedEnemy = null;
   infoEl.innerText = 'در حال شناسایی کاربر در چت...';
-  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`);
+  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`, 12000);
   if(!d || !d.ok){
     infoEl.innerText = (d && d.msg) || 'کاربر شناسایی نشد.';
     return;
@@ -533,13 +542,13 @@ async function startEnemyRule(){
     return;
   }
   const q = `?chat_id=${encodeURIComponent(identifiedEnemy.chat_id)}&user_id=${encodeURIComponent(identifiedEnemy.user_id)}&user_name=${encodeURIComponent(identifiedEnemy.user_name)}&reply_texts=${encodeURIComponent(JSON.stringify(replyTexts))}&reply_text=${encodeURIComponent(replyTexts[0])}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
-  const d = await api('/api/add_enemy', q);
+  const d = await api('/api/add_enemy', q, 8000);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
   burstRefresh(3, 250);
 }
 
 async function ctrlEnemy(id, act){
-  const d = await api('/api/enemy_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  const d = await api('/api/enemy_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`, 6000);
   if(d && d.ok === false && d.msg) document.getElementById('enemyMsg').innerText = d.msg;
   burstRefresh(2, 250);
 }
@@ -549,7 +558,8 @@ function renderEnemyList(){
     const tList = Array.isArray(e.reply_texts) && e.reply_texts.length ? e.reply_texts : [e.reply_text || ''];
     return `<div class="item">
       <b>اکانت: ${e.acc_label || e.acc_key}</b> | دشمن: <b>${e.user_name}</b> (${e.user_id}) | چت: ${e.chat_id}<br>
-      وضعیت: <b>${e.status}</b> | ریپلای‌شده: ${e.replied_count || 0}${e.max_count ? ' / ' + e.max_count : ''}<br>
+      وضعیت: <b>${e.status}</b> | ریپلای‌شده: ${e.replied_count || 0}${e.max_count ? ' / ' + e.max_count : ''}
+      <div class="speed-pill" dir="ltr">سرعت: ${fmtSpeed(e.speed_ms || 350)} | آخرین اجرا: ${fmtSpeed(e.last_step_ms || 0)}</div><br>
       متن‌های ریپلای (${tList.length}): ${tList.join(' | ')}
       <div class="row">
         <button class="btn bw" onclick="ctrlEnemy('${e.id}','toggle')">${e.running ? 'توقف' : 'ادامه'}</button>
@@ -572,7 +582,7 @@ async function startReplyChain(){
   }
   if(!texts.length){ msgEl.innerText = 'متن ریپلای را وارد کن.'; return; }
   const q = `?mode=reply_chain&link=${encodeURIComponent(rawLink)}&targets=${encodeURIComponent(parsed.chatId)}&reply_to_msg_id=${parsed.msgId}&msg_id=${parsed.msgId}&texts=${encodeURIComponent(JSON.stringify(texts))}&payload=${encodeURIComponent(texts[0])}&speed_ms=${speed}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
-  const d = await api('/api/add_job', q);
+  const d = await api('/api/add_job', q, 10000);
   msgEl.innerText = (d && d.msg) || 'انجام شد';
   burstRefresh(3, 250);
 }
@@ -583,7 +593,7 @@ async function fetchFwdMsg(){
   if(!link){ msgEl.innerText = 'لینک پیام را وارد کن.'; return; }
   fwdConfirmed = null;
   msgEl.innerText = 'در حال پیدا کردن کانال و خواندن پیام...';
-  const d = await api('/api/fetch_msg', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`, 10000);
+  const d = await api('/api/fetch_msg', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`, 12000);
   if(!d || !d.ok){
     msgEl.innerText = (d && d.msg) || 'خطا در خواندن پیام';
     return;
@@ -627,7 +637,7 @@ async function startForwardJob(){
   const speed = document.getElementById('fwdSpeed').value || 800;
   const cnt = document.getElementById('fwdCount').value || 0;
   const q = `?mode=forward&source_chat=${encodeURIComponent(fwdConfirmed.chat_id)}&msg_id=${encodeURIComponent(fwdConfirmed.msg_id)}&link=${encodeURIComponent(fwdConfirmed.link)}&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&acc_key=${encodeURIComponent(activeAccKey)}`;
-  const d = await api('/api/add_job', q);
+  const d = await api('/api/add_job', q, 10000);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
   burstRefresh(3, 250);
 }
@@ -651,7 +661,7 @@ async function startSpamJob(){
   }
 
   const q = `?mode=spam&payload=${encodeURIComponent(text)}&targets=${encodeURIComponent(arr.join(','))}&speed_ms=${speed}&max_count=${cnt}&rest_every=${re}&rest_ms=${rm}&acc_key=${encodeURIComponent(activeAccKey)}`;
-  const d = await api('/api/add_job', q);
+  const d = await api('/api/add_job', q, 10000);
   msgEl.innerText = (d && d.msg) || 'پاسخی از سرور نیامد.';
   burstRefresh(3, 250);
 }
@@ -661,7 +671,7 @@ async function switchAccount(key){
   activeAccKey = key;
   identifiedEnemy = null;
   renderAccounts();
-  const res = await api('/api/switch_account', `?key=${encodeURIComponent(key)}`, 6000);
+  const res = await api('/api/switch_account', `?key=${encodeURIComponent(key)}`, 7000);
   if(res && Array.isArray(res.groups)){
     chats = res.groups;
     document.getElementById('sGrp').innerText = chats.length;
@@ -682,7 +692,7 @@ function renderAccounts(){
 
   document.getElementById('accList').innerHTML = accounts.length ? accounts.map((a,i) => {
     const isAct = a.key === activeAccKey;
-    const stText = a.kicked ? '(خارج‌شده)' : (a.connected ? '(متصل)' : '(فعال / در حال اتصال)');
+    const stText = a.kicked ? '(خارج‌شده)' : (a.connected ? '(متصل قوی)' : '(فعال / در حال اتصال)');
     return `<div class="chip ${isAct ? 'active-acc' : ''}">
       <span><b>${a.name||a.phone}</b> <small style="color:#94a3b8">${a.phone||''} ${stText}</small>${isAct ? ' <small style="color:#c084fc">[فعال]</small>' : ''}</span>
       <div class="row" style="margin:0">
@@ -703,22 +713,30 @@ function renderTasks(){
   document.getElementById('sRun3').innerText = `${run} / ${MAX_ACTIVE_JOBS}`;
   document.getElementById('sFail').innerText = fail;
 
-  const jobCards = tasks.map(t =>
-    `<div class="item">
+  const jobCards = tasks.map(t => {
+    const cfgSpd = fmtSpeed(t.speed_ms || 500);
+    const lastSpd = fmtSpeed(t.last_step_ms || 0);
+    const effSpd = fmtSpeed(t.effective_delay_ms || t.speed_ms || 500);
+    const restInfo = (parseInt(t.rest_every || 0, 10) > 0 && parseInt(t.rest_ms || 0, 10) > 0)
+      ? ` | استراحت هر ${t.rest_every} پیام: ${fmtSpeed(t.rest_ms)}`
+      : '';
+    return `<div class="item">
       <b>#${t.id}</b> [${t.mode||'spam'}] | اکانت: <b>${t.acc_label||t.acc_key||'-'}</b> | وضعیت: <b>${t.running?'ران':'متوقف'}</b>${t.last_error ? ` | <span class="warn">${t.last_error}</span>` : ''}<br>
-      مقصد: ${(t.targets||[]).join('، ')}${t.reply_to_msg_id ? ` | پیام هدف: #${t.reply_to_msg_id}` : ''} | موفق: ${t.ok||0} | ناموفق: ${t.fail||0}
+      مقصد: ${(t.targets||[]).join('، ')}${t.reply_to_msg_id ? ` | پیام هدف: #${t.reply_to_msg_id}` : ''} | موفق: ${t.ok||0} | ناموفق: ${t.fail||0}<br>
+      <span class="speed-pill" dir="ltr">سرعت تنظیم‌شده: ${cfgSpd} | زمان آخرین ارسال: ${lastSpd} | فاصله واقعی: ${effSpd}${restInfo}</span>
       <div class="row">
         <button class="btn bw" onclick="ctrlTask('${t.id}','toggle')">${t.running?'توقف':'ری‌استارت'}</button>
         <button class="btn br" onclick="ctrlTask('${t.id}','delete')">حذف</button>
       </div>
-      <div class="log">${(t.logs||[]).slice(-6).join('\n') || 'waiting...'}</div>
-    </div>`
-  );
+      <div class="log">${(t.logs||[]).slice(-8).join('\n') || 'waiting...'}</div>
+    </div>`;
+  });
 
   const enemyCards = enemies.map(e =>
     `<div class="item">
       <b>دشمن: ${e.user_name}</b> (${e.user_id}) | اکانت: <b>${e.acc_label||e.acc_key||'-'}</b> | چت: ${e.chat_id} | وضعیت: <b>${e.running?'ران':'متوقف'}</b><br>
-      ${e.status || 'آماده ریپلای آنی'} | ریپلای‌شده: ${e.replied_count||0}${e.max_count ? ' / ' + e.max_count : ''}
+      ${e.status || 'آماده ریپلای آنی'} | ریپلای‌شده: ${e.replied_count||0}${e.max_count ? ' / ' + e.max_count : ''}<br>
+      <span class="speed-pill" dir="ltr">سرعت: ${fmtSpeed(e.speed_ms || 350)} | زمان آخرین ریپلای: ${fmtSpeed(e.last_step_ms || 0)}</span>
       <div class="row">
         <button class="btn bw" onclick="ctrlEnemy('${e.id}','toggle')">${e.running?'توقف':'ری‌استارت'}</button>
         <button class="btn br" onclick="ctrlEnemy('${e.id}','delete')">حذف</button>
@@ -730,7 +748,7 @@ function renderTasks(){
   document.getElementById('taskList').innerHTML = allCards.length ? allCards.join('') : '<div class="msg">تسکی ثبت نشده است.</div>';
 }
 
-async function api(path, q='', timeoutMs=2500){
+async function api(path, q='', timeoutMs=4500){
   if(!baseUrl) return null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -747,33 +765,41 @@ async function sendPhone(){
   if(!p) return;
   onPhoneTyped();
   document.getElementById('codeBox').style.display = 'block';
-  document.getElementById('authMsg').innerText = 'در حال ارسال کد...';
+  document.getElementById('authMsg').innerText = 'در حال ارسال کد (با تلاش مجدد خودکار)...';
   if(!baseUrl) return;
-  const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 15000);
-  if(d){
-    if(d.active_acc_key) activeAccKey = d.active_acc_key;
-    if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+  try{
+    const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 26000);
+    if(d){
+      if(d.active_acc_key) activeAccKey = d.active_acc_key;
+      if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+    }
+  }catch(e){
+    document.getElementById('authMsg').innerText = 'در حال پیگیری ارسال کد از سرور...';
   }
-  burstRefresh(3, 250);
+  burstRefresh(4, 300);
 }
 async function verifyCode(){
   const c = document.getElementById('code').value.trim();
   if(!c || !baseUrl) return;
-  document.getElementById('authMsg').innerText = 'در حال تأیید کد و دریافت اعلان سروش...';
-  showCenterLoader('در حال اتصال به سروش و بروزرسانی پنل...', 2500);
-  const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 15000);
-  if(d){
-    if(d.active_acc_key) activeAccKey = d.active_acc_key;
-    if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
-    onSoroushSignal(d.event_notice || 'اکانت به سروش وصل شد', true);
+  document.getElementById('authMsg').innerText = 'در حال تأیید کد و اتصال قوی به سروش...';
+  showCenterLoader('در حال اتصال قوی به سروش و بروزرسانی تسک‌ها...', 2500);
+  try{
+    const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 22000);
+    if(d){
+      if(d.active_acc_key) activeAccKey = d.active_acc_key;
+      if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
+      onSoroushSignal(d.event_notice || 'اکانت به سروش وصل شد', true);
+    }
+  }catch(e){
+    document.getElementById('authMsg').innerText = 'در حال بررسی وضعیت اتصال...';
   }
   burstRefresh(6, 250, true);
 }
-async function delAcc(i){ await api('/api/del_account', '?index='+i); burstRefresh(3, 250, true); }
+async function delAcc(i){ await api('/api/del_account', '?index='+i, 6000); burstRefresh(3, 250, true); }
 async function fetchGroups(openBox=false, prefix=activePickerMode){
   if(!baseUrl) return;
   activePickerMode = prefix;
-  const d = await api('/api/groups', `?acc_key=${encodeURIComponent(activeAccKey)}`, 6000);
+  const d = await api('/api/groups', `?acc_key=${encodeURIComponent(activeAccKey)}`, 8000);
   if(Array.isArray(d)){
     chats = d;
     document.getElementById('sGrp').innerText = chats.length;
@@ -785,7 +811,7 @@ async function fetchGroups(openBox=false, prefix=activePickerMode){
   }
 }
 async function ctrlTask(id, act){
-  const d = await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+  const d = await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`, 6000);
   if(d && d.ok === false && d.msg) document.getElementById('spamMsg').innerText = d.msg;
   burstRefresh(2, 250);
 }
@@ -794,11 +820,11 @@ function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
 async function notifyPanelOpen(){
   if(!baseUrl) return;
   try{
-    const hello = await api('/api/hello', `?acc_key=${encodeURIComponent(activeAccKey)}`, 2500);
+    const hello = await api('/api/hello', `?acc_key=${encodeURIComponent(activeAccKey)}`, 4500);
     if(hello && hello.event_notice){
       document.getElementById('soroushNotice').innerText = `اعلان سروش: ${hello.event_notice}`;
     }
-    const pingRes = await api('/api/soroush_ping', `?acc_key=${encodeURIComponent(activeAccKey)}`, 6000);
+    const pingRes = await api('/api/soroush_ping', `?acc_key=${encodeURIComponent(activeAccKey)}`, 8000);
     if(pingRes && pingRes.soroush_connected){
       onSoroushSignal(pingRes.event_notice || 'سروش به پنل وصل شد', true);
     }
@@ -812,31 +838,32 @@ async function poll(){
     return;
   }
   try{
-    const d = await api('/api/state', `?acc_key=${encodeURIComponent(activeAccKey)}`, 2500);
+    const d = await api('/api/state', `?acc_key=${encodeURIComponent(activeAccKey)}`, 4500);
     if(!d) return;
     failCount = 0;
     applyStateData(d);
     saveCache(d);
   }catch(e){
     failCount += 1;
-    if(failCount >= 2){
-      document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
+    if(failCount >= 3){
+      document.getElementById('sysInfo').innerText = 'در حال تلاش مجدد برای اتصال به سرور...';
       hideCenterLoader();
     }
   }
 }
 
+// اولویت اول: نمایش فوری تسک‌ها، دشمن‌ها و اکانت‌ها از کش یا حالت فعلی
+renderTasks();
+renderEnemyList();
+renderAccounts();
 renderTags('fwd');
 renderTags('spam');
-renderAccounts();
-renderEnemyList();
-renderTasks();
 loadCache();
 notifyPanelOpen();
 burstRefresh(6, 250, true);
-document.addEventListener('DOMContentLoaded', () => { loadCache(); renderAccounts(); renderTasks(); notifyPanelOpen(); burstRefresh(5, 250, true); });
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); renderAccounts(); renderTasks(); notifyPanelOpen(); burstRefresh(5, 250, true); } });
-window.addEventListener('focus', () => { renderAccounts(); renderTasks(); notifyPanelOpen(); burstRefresh(4, 250, true); });
+document.addEventListener('DOMContentLoaded', () => { loadCache(); renderTasks(); renderAccounts(); notifyPanelOpen(); burstRefresh(5, 250, true); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); renderTasks(); renderAccounts(); notifyPanelOpen(); burstRefresh(5, 250, true); } });
+window.addEventListener('focus', () => { renderTasks(); renderAccounts(); notifyPanelOpen(); burstRefresh(4, 250, true); });
 setInterval(poll, 1000);
 </script>
 </body>
