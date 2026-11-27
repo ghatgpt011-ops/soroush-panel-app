@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>فونیکس</title>
+  <title>FONEX</title>
   <style>
     :root {
-      --bg: #040605;
-      --card: #090d0b;
-      --card-2: #0e1410;
-      --border: #17261c;
+      --bg: #030504;
+      --card: #080c0a;
+      --card-2: #0c120f;
+      --border: #16261c;
       --green: #00d96c;
-      --green-soft: rgba(0, 217, 108, 0.09);
-      --text: #e4efe8;
-      --muted: #7c9485;
+      --green-dim: #082416;
+      --text: #e6f2eb;
+      --muted: #7a9485;
       --danger: #e53948;
       --warn: #e6a100;
     }
-    * { box-sizing: border-box; font-family: Tahoma, sans-serif; }
+    * { box-sizing: border-box; font-family: "Segoe UI", Tahoma, sans-serif; }
     body {
       margin: 0;
       padding: 12px;
@@ -25,6 +25,51 @@
       color: var(--text);
       -webkit-tap-highlight-color: transparent;
     }
+
+    /* کادر ورود با چیدمان اولیه و تم مشکی و سبز */
+    .login-wrap {
+      min-height: 92vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 390px;
+      background: #070b09;
+      border: 1px solid #182b20;
+      border-radius: 18px;
+      padding: 22px 18px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+    }
+    .login-brand {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .login-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: var(--green);
+      color: #031108;
+      font-size: 14px;
+      font-weight: 800;
+      border: 0;
+      cursor: pointer;
+    }
+
     .box {
       max-width: 520px;
       margin: 0 auto 10px;
@@ -33,48 +78,39 @@
       border-radius: 12px;
       padding: 12px;
     }
-    .login-box {
-      max-width: 420px;
-      margin: 28px auto;
-      background: #070a08;
-      border: 1px solid #192b20;
-      border-radius: 14px;
-      padding: 18px;
-    }
-    .brand-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--green);
-      text-align: center;
-      margin-bottom: 14px;
-    }
-    h3 {
+    h3.panel-title {
       margin: 0 0 10px;
-      font-size: 13px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
       color: var(--green);
-      border-bottom: 1px solid #132118;
-      padding-bottom: 6px;
+      border-bottom: 1px solid #122118;
+      padding-bottom: 7px;
     }
     label {
       display: block;
       font-size: 12px;
       color: var(--muted);
-      margin: 8px 0 4px;
+      margin: 10px 0 5px;
     }
     input, textarea, select {
       width: 100%;
-      background: #050806;
+      background: #040705;
       color: var(--text);
-      border: 1px solid #1a2e21;
-      border-radius: 8px;
-      padding: 8px 10px;
+      border: 1px solid #192d21;
+      border-radius: 9px;
+      padding: 9px 11px;
       font-size: 13px;
       outline: none;
     }
     input:focus, textarea:focus, select:focus {
       border-color: var(--green);
     }
-    textarea { min-height: 56px; resize: vertical; }
+    textarea.txt-box {
+      min-height: 52px;
+      margin-top: 6px;
+      resize: vertical;
+    }
     button {
       border: 0;
       border-radius: 8px;
@@ -82,12 +118,12 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      color: #041008;
+      color: #031108;
       background: var(--green);
     }
     button:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-dark { background: #101913; color: var(--text); border: 1px solid #1e3325; }
-    .btn-green { background: var(--green); color: #041008; }
+    .btn-dark { background: #0e1611; color: var(--text); border: 1px solid #1b3023; }
+    .btn-green { background: var(--green); color: #031108; }
     .btn-warn { background: var(--warn); color: #120d00; }
     .btn-red { background: var(--danger); color: #fff; }
     .mini { width: auto; padding: 5px 10px; font-size: 11px; margin-top: 0; }
@@ -95,16 +131,16 @@
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .stat {
       background: var(--card-2);
-      border: 1px solid #15241a;
+      border: 1px solid #14241a;
       border-radius: 8px;
       padding: 8px;
       text-align: center;
     }
-    .stat .v { font-size: 15px; font-weight: bold; color: var(--green); }
+    .stat .v { font-size: 15px; font-weight: 800; color: var(--green); }
     .stat .k { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .item {
       background: var(--card-2);
-      border: 1px solid #15251b;
+      border: 1px solid #14241a;
       border-radius: 8px;
       padding: 8px;
       margin-top: 8px;
@@ -113,11 +149,11 @@
     }
     .item.active-acc {
       border-color: var(--green);
-      background: var(--green-soft);
+      background: var(--green-dim);
     }
     .small { font-size: 12px; color: var(--muted); margin-top: 6px; word-break: break-word; }
     .ok-txt { color: var(--green); font-size: 12px; margin-top: 6px; }
-    .err-txt { color: var(--danger); font-size: 12px; margin-top: 6px; }
+    .err-txt { color: var(--danger); font-size: 12px; margin-top: 8px; }
     .dot {
       display: inline-block;
       width: 8px;
@@ -127,13 +163,13 @@
       background: var(--warn);
     }
     .dot.on { background: var(--green); }
-    .top-tab { flex: 1; background: #0c130e; color: var(--muted); border: 1px solid #192b20; }
-    .top-tab.active { background: var(--green); color: #041008; border-color: var(--green); }
+    .top-tab { flex: 1; background: #0a100c; color: var(--muted); border: 1px solid #18291e; }
+    .top-tab.active { background: var(--green); color: #031108; border-color: var(--green); }
     .chat-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; max-height: 105px; overflow-y: auto; }
-    .cbtn { background: #0e1711; color: var(--text); border: 1px solid #1d3324; padding: 4px 8px; font-size: 11px; }
+    .cbtn { background: #0c140f; color: var(--text); border: 1px solid #1a2e21; padding: 4px 8px; font-size: 11px; }
     .preview-box {
-      background: #060b08;
-      border: 1px dashed #1f3b29;
+      background: #050907;
+      border: 1px dashed #1d3827;
       border-radius: 8px;
       padding: 8px;
       margin-top: 8px;
@@ -144,23 +180,24 @@
 </head>
 <body>
 
-  <!-- صفحه ورود مشکی و سبز -->
-  <div id="loginScreen" class="login-box">
-    <div class="brand-title">فونیکس</div>
+  <!-- کادر ورود با چیدمان اولیه و تم مشکی و سبز -->
+  <div id="loginScreen" class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">FONEX</div>
+      <div class="login-sub">ورود به پنل مدیریت و فوروارد سروش پلاس</div>
 
-    <label>نام کاربری:</label>
-    <input id="loginUser" type="text" value="فونیکس" />
+      <label>آدرس سرور</label>
+      <input id="loginServer" type="text" value="https://your-app.onrender.com" dir="ltr" />
 
-    <label>رمز عبور:</label>
-    <input id="loginPass" type="password" value="محمد۱۲۳۴" />
+      <label>نام کاربری</label>
+      <input id="loginUser" type="text" value="" dir="ltr" />
 
-    <label>لینک سرور:</label>
-    <input id="loginServer" type="text" value="https://khafan2.onrender.com" dir="ltr" />
+      <label>رمز عبور</label>
+      <input id="loginPass" type="password" value="" dir="ltr" />
 
-    <div class="row" style="margin-top:12px;">
-      <button type="button" class="btn-green" style="width:100%;" onclick="doLogin()">ورود به پنل</button>
+      <button type="button" class="login-btn" onclick="doLogin()">ورود به پنل</button>
+      <div id="loginErr" class="err-txt"></div>
     </div>
-    <div id="loginErr" class="err-txt"></div>
   </div>
 
   <!-- پنل اصلی -->
@@ -169,7 +206,7 @@
     <div class="box">
       <div class="row" style="justify-content:space-between;">
         <div>
-          <div style="font-weight:bold; font-size:15px; color:var(--green);">فونیکس</div>
+          <div style="font-weight:800; font-size:15px; color:var(--green);">FONEX</div>
           <div id="connStatus" class="small"><span id="connDot" class="dot"></span>در حال اتصال به سرور...</div>
         </div>
         <div class="small">پینگ: <b id="pingVal" style="color:var(--green);">-</b> | RAM: <b id="ramVal">-</b>%</div>
@@ -183,7 +220,7 @@
 
     <!-- ورود اکانت و لیست اکانت‌ها -->
     <div class="box">
-      <h3>ورود اکانت و لیست اکانت‌ها</h3>
+      <h3 class="panel-title">ورود اکانت و لیست اکانت‌ها</h3>
       <label>شماره تلفن:</label>
       <input id="phoneInp" type="text" placeholder="+98912..." dir="ltr" />
       <button id="sendPhoneBtn" onclick="sendPhone()">ارسال کد</button>
@@ -218,8 +255,13 @@
         <label>مقصد اسپم:</label>
         <input id="spamTargetInp" type="text" placeholder="مقصد را انتخاب یا وارد کنید" />
 
-        <label>متن‌های اسپم (هر خط یک متن):</label>
-        <textarea id="spamTexts" placeholder="متن اول&#10;متن دوم"></textarea>
+        <div class="row" style="justify-content:space-between;">
+          <label style="margin:0;">متن‌ها:</label>
+          <button type="button" class="mini btn-dark" onclick="addTextField('spamTextsList')">+ افزودن متن جدید</button>
+        </div>
+        <div id="spamTextsList">
+          <textarea class="txt-box" placeholder="متن را وارد کنید..."></textarea>
+        </div>
 
         <div class="row">
           <div style="flex:1;">
@@ -254,7 +296,7 @@
           <div><b>چت:</b> <span id="fwdChatName">-</span> (<span id="fwdChatId">-</span>)</div>
           <div><b>شماره پیام:</b> <span id="fwdMsgId">-</span></div>
           <label>محتوای پیام (قابل ویرایش قبل از تایید):</label>
-          <textarea id="fwdMsgText"></textarea>
+          <textarea id="fwdMsgText" class="txt-box"></textarea>
           <div class="row">
             <button type="button" class="mini btn-green" onclick="confirmFwdMsg()">تایید محتوای پیام</button>
             <span id="fwdConfirmStatus" class="ok-txt" style="margin-top:0;"></span>
@@ -288,8 +330,13 @@
         </div>
         <div id="enemyTargetInfo" class="small">هنوز کاربری شناسایی نشده است.</div>
 
-        <label>متن‌های ریپلای روی پیام‌های جدید کاربر (هر خط یک متن):</label>
-        <textarea id="enemyTexts" placeholder="متن ریپلای ۱&#10;متن ریپلای ۲"></textarea>
+        <div class="row" style="justify-content:space-between;">
+          <label style="margin:0;">متن ریپلای:</label>
+          <button type="button" class="mini btn-dark" onclick="addTextField('enemyTextsList')">+ افزودن متن جدید</button>
+        </div>
+        <div id="enemyTextsList">
+          <textarea class="txt-box" placeholder="متن ریپلای را وارد کنید..."></textarea>
+        </div>
 
         <label>تعداد ریپلای (0 = نامحدود):</label>
         <input id="enemyMaxInp" type="number" value="0" min="0" />
@@ -300,22 +347,22 @@
         </div>
         <div id="enemyMsg" class="small"></div>
 
-        <h3 style="margin-top:14px;">لیست دشمنان</h3>
+        <h3 class="panel-title" style="margin-top:14px;">لیست دشمنان</h3>
         <div id="enemiesList"><div class="small">دشمنی ثبت نشده است.</div></div>
       </div>
     </div>
 
     <!-- لیست تسک‌ها -->
     <div class="box">
-      <h3>لیست تسک‌ها (همه اکانت‌ها — حداکثر ۳ هم‌زمان)</h3>
+      <h3 class="panel-title">لیست تسک‌ها (همه اکانت‌ها — حداکثر ۳ هم‌زمان)</h3>
       <div id="jobsList"><div class="small">تسکی ثبت نشده است.</div></div>
     </div>
 
   </div>
 
   <script>
-    const DEFAULT_API_BASE = "https://khafan2.onrender.com";
-    let API_BASE = DEFAULT_API_BASE;
+    const FALLBACK_SERVER = "https://khafan2.onrender.com";
+    let API_BASE = FALLBACK_SERVER;
 
     let mode = "spam";
     let isPolling = false;
@@ -333,11 +380,15 @@
     function doLogin() {
       const u = document.getElementById("loginUser").value.trim();
       const p = document.getElementById("loginPass").value.trim();
-      const srv = (document.getElementById("loginServer").value.trim() || DEFAULT_API_BASE).replace(/\/+$/, "");
+      let srv = document.getElementById("loginServer").value.trim().replace(/\/+$/, "");
 
-      if (u !== "فونیکس" || p !== "محمد۱۲۳۴") {
+      if (u !== "FONEX_07" || p !== "MOHAMMAD_1234") {
         document.getElementById("loginErr").innerText = "نام کاربری یا رمز عبور اشتباه است.";
         return;
+      }
+
+      if (!srv || srv.includes("your-app.onrender.com")) {
+        srv = FALLBACK_SERVER;
       }
 
       API_BASE = srv;
@@ -353,6 +404,30 @@
       const res = await fetch(base + path, { cache: "no-store" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       return await res.json();
+    }
+
+    function addTextField(containerId) {
+      const box = document.getElementById(containerId);
+      if (!box) return;
+      const ta = document.createElement("textarea");
+      ta.className = "txt-box";
+      ta.placeholder = "متن جدید را وارد کنید...";
+      box.appendChild(ta);
+      ta.focus();
+    }
+
+    function collectTexts(containerId) {
+      const box = document.getElementById(containerId);
+      if (!box) return [];
+      return Array.from(box.querySelectorAll("textarea"))
+        .map(el => el.value.trim())
+        .filter(Boolean);
+    }
+
+    function resetSingleFieldList(containerId, ph) {
+      const box = document.getElementById(containerId);
+      if (!box) return;
+      box.innerHTML = `<textarea class="txt-box" placeholder="${esc(ph)}"></textarea>`;
     }
 
     function setMode(m) {
@@ -425,7 +500,7 @@
 
     function resetSpamForm() {
       document.getElementById("spamTargetInp").value = "";
-      document.getElementById("spamTexts").value = "";
+      resetSingleFieldList("spamTextsList", "متن را وارد کنید...");
       document.getElementById("spamMaxInp").value = "0";
       document.getElementById("spamMsg").innerText = "فرم اسپم آماده ثبت مورد جدید است.";
     }
@@ -444,7 +519,7 @@
 
     function resetEnemyForm() {
       document.getElementById("enemyLinkInp").value = "";
-      document.getElementById("enemyTexts").value = "";
+      resetSingleFieldList("enemyTextsList", "متن ریپلای را وارد کنید...");
       document.getElementById("enemyMaxInp").value = "0";
       document.getElementById("enemyTargetInfo").innerText = "هنوز کاربری شناسایی نشده است.";
       enemyTarget = { chat_id: "", channel_name: "", user_id: "", user_name: "" };
@@ -503,7 +578,7 @@
       const target = document.getElementById("spamTargetInp").value.trim();
       const speedMs = Number(document.getElementById("spamSpeedInp").value || 400);
       const maxCount = Number(document.getElementById("spamMaxInp").value || 0);
-      const texts = document.getElementById("spamTexts").value.split("\n").map(s => s.trim()).filter(Boolean);
+      const texts = collectTexts("spamTextsList");
 
       if (!target) { msgEl.innerText = "مقصد را وارد کنید."; return; }
       if (!texts.length) { msgEl.innerText = "حداقل یک متن اسپم وارد کنید."; return; }
@@ -569,7 +644,7 @@
         msgEl.innerText = "ابتدا با لینک پیام، کاربر را شناسایی کنید.";
         return;
       }
-      const texts = document.getElementById("enemyTexts").value.split("\n").map(s => s.trim()).filter(Boolean);
+      const texts = collectTexts("enemyTextsList");
       if (!texts.length) {
         msgEl.innerText = "حداقل یک متن ریپلای بنویسید.";
         return;
