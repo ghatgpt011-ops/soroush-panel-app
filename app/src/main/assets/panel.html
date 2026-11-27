@@ -24,6 +24,7 @@
       border: 0; border-radius: 10px; padding: 9px 13px; font-size: 13px;
       cursor: pointer; color: #fff; background: #5b46f6; font-weight: bold;
     }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
     button.sec { background: #232a3e; color: #dce3f7; }
     button.ok { background: #199c68; }
     button.warn { background: #c93b4b; }
@@ -33,6 +34,7 @@
     .muted { color: #96a0ba; font-size: 12px; }
     .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; background: #e0a100; }
     .dot.online { background: #1ec97e; }
+    .gbtn { padding: 5px 9px; font-size: 11px; background: #1d2438; border: 1px solid #2e3854; border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -47,37 +49,40 @@
   </div>
 
   <div class="grid-3 card" style="padding:10px;">
-    <div class="stat"><div id="stRunning" class="num">0</div><div class="lbl">در حال اجرا (حداکثر ۳)</div></div>
+    <div class="stat"><div id="stRunning" class="num">0</div><div class="lbl">در حال اجرا</div></div>
     <div class="stat"><div id="stDone" class="num">0</div><div class="lbl">موفق / انجام‌شده</div></div>
-    <div class="stat"><div id="stRecovered" class="num">0</div><div class="lbl">خطای بازیابی‌شده</div></div>
+    <div class="stat"><div id="stPing" class="num">-</div><div class="lbl">پینگ سروش</div></div>
   </div>
 
   <div class="card">
-    <h3>مدیریت اکانت‌ها (حداکثر ۲ اکانت)</h3>
+    <h3>مدیریت اکانت‌ها</h3>
     <div class="muted" style="margin-bottom:8px;">اکانت فعال: <b id="activeAccLabel">هیچ‌کدام</b></div>
     <div class="row">
-      <input id="phoneInput" type="text" placeholder="+98912..." style="flex:1; min-width:160px;" />
-      <button onclick="sendCode()">ارسال کد</button>
+      <input id="phoneInput" type="text" placeholder="+98912..." dir="ltr" style="flex:1; min-width:160px;" />
+      <button id="sendCodeBtn" onclick="sendCode()">ارسال کد</button>
     </div>
     <div id="codeBox" class="row" style="margin-top:8px; display:none;">
-      <input id="codeInput" type="text" placeholder="کد تایید" style="flex:1; min-width:140px;" />
-      <button class="ok" onclick="verifyCode()">تایید اکانت</button>
+      <input id="codeInput" type="text" placeholder="کد تایید" dir="ltr" style="flex:1; min-width:140px;" />
+      <button class="ok" onclick="verifyCode()">تایید کد</button>
     </div>
+    <div id="authMsg" class="muted" style="margin-top:6px;"></div>
     <div id="accList" style="margin-top:10px;"></div>
   </div>
 
   <div class="card">
-    <h3>ساخت تسک جدید (حداکثر ۳ تسک هم‌زمان)</h3>
+    <h3>ساخت تسک جدید (اسپم / فوروارد)</h3>
     <div class="row" style="margin-bottom:8px;">
       <button id="tabSpam" class="active" onclick="setMode('spam')">اسپم</button>
       <button id="tabForward" class="sec" onclick="setMode('forward')">فوروارد</button>
+      <button class="sec" onclick="loadGroups()">دریافت چت‌ها</button>
     </div>
+    <div id="groupsBox" class="row" style="margin-bottom:8px;"></div>
 
     <label>اکانت اجراکننده</label>
     <select id="taskAcc"></select>
 
-    <label>شناسه یا لینک چت مقصد</label>
-    <input id="targetChat" type="text" placeholder="مقصد اسپم یا فوروارد" />
+    <label>مقصد (چند مقصد با کاما یا خط جدید)</label>
+    <input id="targetChat" type="text" placeholder="لینک، @username یا شناسه چت..." />
 
     <div id="spamFields">
       <label>متن‌های اسپم (هر خط یک متن)</label>
@@ -88,18 +93,18 @@
       <label>چت مبدا و شناسه پیام</label>
       <div class="row">
         <input id="fwdSourceChat" type="text" placeholder="چت مبدا" style="flex:1; min-width:140px;" />
-        <input id="fwdMsgId" type="text" placeholder="شناسه پیام" style="flex:1; min-width:120px;" />
+        <input id="fwdMsgId" type="text" placeholder="شناسه پیام" dir="ltr" style="flex:1; min-width:120px;" />
       </div>
     </div>
 
     <div class="row" style="margin-top:8px;">
       <div style="flex:1; min-width:130px;">
         <label>تاخیر (ms)</label>
-        <input id="delayMs" type="number" value="800" min="100" />
+        <input id="delayMs" type="number" value="500" min="40" />
       </div>
       <div style="flex:1; min-width:130px;">
         <label>تعداد ارسال (0 = نامحدود)</label>
-        <input id="maxCount" type="number" value="10" min="0" />
+        <input id="maxCount" type="number" value="0" min="0" />
       </div>
     </div>
 
@@ -110,13 +115,14 @@
   </div>
 
   <div class="card">
-    <h3>تسک‌ها و حافظه بازیابی خطا</h3>
+    <h3>تسک‌های فعال و وضعیت</h3>
     <div id="tasksList" class="muted">در حال دریافت وضعیت...</div>
   </div>
 
   <script>
+    const API_BASE = "https://khafan2.onrender.com";
     let mode = 'spam';
-    let state = { accounts: [], active_account: null, tasks: [], stats: {} };
+    let state = { accounts: [], active_acc_key: '', jobs: [], groups: [] };
 
     function setMode(m) {
       mode = m;
@@ -126,73 +132,83 @@
       document.getElementById('forwardFields').style.display = m === 'forward' ? 'block' : 'none';
     }
 
-    async function api(path, method = 'GET', body = null) {
-      const opts = { method, headers: { 'Content-Type': 'application/json' } };
-      if (body) opts.body = JSON.stringify(body);
-      const res = await fetch(path, opts);
+    async function apiGet(path) {
+      const base = API_BASE.replace(/\/+$/, '');
+      const res = await fetch(base + path);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.json();
     }
 
+    function renderGroups(groups) {
+      const box = document.getElementById('groupsBox');
+      if (!Array.isArray(groups) || !groups.length) {
+        box.innerHTML = '';
+        return;
+      }
+      box.innerHTML = groups.slice(0, 20).map(g => {
+        const gid = String(g.id || '').replace(/'/g, "\\'");
+        const name = String(g.name || g.id || '').replace(/</g, '&lt;');
+        return `<button type="button" class="gbtn" onclick="document.getElementById('targetChat').value='${gid}'">${name}</button>`;
+      }).join('');
+    }
+
     function render() {
-      const accs = Array.isArray(state.accounts) ? state.accounts.slice(0, 2) : [];
-      const tasks = Array.isArray(state.tasks) ? state.tasks : [];
-      const runningCount = tasks.filter(t => t.status === 'running' || t.status === 'recovering').length;
+      const accs = Array.isArray(state.accounts) ? state.accounts : [];
+      const jobs = Array.isArray(state.jobs) ? state.jobs : [];
+      const runningCount = jobs.filter(j => j.running).length;
+      const doneCount = jobs.reduce((s, j) => s + (Number(j.ok) || 0), 0);
 
       document.getElementById('stRunning').innerText = runningCount;
-      document.getElementById('stDone').innerText = state.stats?.done ?? 0;
-      document.getElementById('stRecovered').innerText = state.stats?.recovered ?? 0;
+      document.getElementById('stDone').innerText = doneCount;
+      document.getElementById('stPing').innerText = state.ping || '-';
+      document.getElementById('sysStats').innerText =
+        `RAM: ${state.ram ?? '-'}% | CPU: ${state.cpu ?? '-'}%`;
+      document.getElementById('authMsg').innerText = state.auth_msg || '';
 
-      if (state.stats?.ram !== undefined || state.stats?.cpu !== undefined) {
-        document.getElementById('sysStats').innerText =
-          `RAM: ${state.stats.ram ?? '-'}% | CPU: ${state.stats.cpu ?? '-'}%`;
-      }
-
-      const active = accs.find(a => a.key === state.active_account) || accs[0] || null;
-      document.getElementById('activeAccLabel').innerText = active ? (active.phone || active.label || active.key) : 'هیچ‌کدام';
+      const active = accs.find(a => a.active || a.key === state.active_acc_key) || accs[0] || null;
+      document.getElementById('activeAccLabel').innerText = active ? (active.name || active.phone || active.key) : 'هیچ‌کدام';
 
       const accListEl = document.getElementById('accList');
       if (!accs.length) {
-        accListEl.innerHTML = '<div class="muted">اکانتی ثبت نشده است (سقف: ۲ اکانت).</div>';
+        accListEl.innerHTML = '<div class="muted">اکانتی ثبت نشده است.</div>';
       } else {
-        accListEl.innerHTML = accs.map(a => {
+        accListEl.innerHTML = accs.map((a, idx) => {
           const isAct = active && a.key === active.key;
           return `<div class="row" style="justify-content:space-between; margin-top:6px; background:#101420; padding:8px; border-radius:8px;">
-            <div><b>${a.phone || a.label || a.key}</b> <span class="pill">${isAct ? 'فعال' : 'آماده'}</span></div>
+            <div><b>${a.name || a.phone || a.key}</b> <span class="pill">${a.connected ? 'متصل' : (isAct ? 'فعال' : 'آماده')}</span></div>
             <div class="row">
               ${!isAct ? `<button class="sec" onclick="switchAcc('${a.key}')">سوئیچ</button>` : ''}
-              <button class="warn" onclick="removeAcc('${a.key}')">حذف</button>
+              <button class="warn" onclick="delAcc(${idx})">حذف</button>
             </div>
           </div>`;
         }).join('');
       }
 
       const sel = document.getElementById('taskAcc');
+      const prev = sel.value;
       sel.innerHTML = accs.length
-        ? accs.map(a => `<option value="${a.key}" ${active && a.key === active.key ? 'selected' : ''}>${a.phone || a.label || a.key}</option>`).join('')
+        ? accs.map(a => `<option value="${a.key}">${a.name || a.phone || a.key}</option>`).join('')
         : '<option value="">ابتدا یک اکانت ثبت کنید</option>';
+      if (accs.some(a => a.key === prev)) sel.value = prev;
+      else if (active) sel.value = active.key;
 
-      const createBtn = document.getElementById('createTaskBtn');
-      createBtn.disabled = runningCount >= 3;
-      createBtn.innerText = runningCount >= 3 ? 'حداکثر ۳ تسک هم‌زمان فعال است' : 'شروع تسک';
+      renderGroups(state.groups || []);
 
       const tasksEl = document.getElementById('tasksList');
-      if (!tasks.length) {
+      if (!jobs.length) {
         tasksEl.innerHTML = '<div class="muted">تسکی ثبت نشده است.</div>';
       } else {
-        tasksEl.innerHTML = tasks.map(t => `
+        tasksEl.innerHTML = jobs.map(j => `
           <div class="task-item">
             <div class="row" style="justify-content:space-between;">
-              <div><b>${(t.mode || 'spam').toUpperCase()}</b> <span class="pill">${t.status || 'idle'}</span></div>
+              <div><b>#${j.id} - ${(j.mode || 'spam').toUpperCase()}</b> <span class="pill">${j.running ? 'فعال' : 'متوقف'}</span></div>
               <div class="row">
-                ${(t.status === 'running' || t.status === 'recovering')
-                  ? `<button class="warn" onclick="stopTask('${t.id}')">توقف</button>`
-                  : `<button class="ok" onclick="resumeTask('${t.id}')">ادامه</button>`}
-                <button class="sec" onclick="deleteTask('${t.id}')">حذف</button>
+                <button class="${j.running ? 'warn' : 'ok'}" onclick="ctrlJob('${j.id}', 'toggle')">${j.running ? 'توقف' : 'ادامه'}</button>
+                <button class="sec" onclick="ctrlJob('${j.id}', 'delete')">حذف</button>
               </div>
             </div>
-            <div>اکانت: <b>${t.account_key || '-'}</b> | مقصد: <b>${t.target_chat || '-'}</b> | انجام‌شده: <b>${t.sent_count ?? 0}</b></div>
-            <div class="muted">آخرین دستور: ${t.last_action || '-'} | وضعیت بازیابی: ${t.recovery_info || 'پایدار'}</div>
+            <div>اکانت: <b>${j.acc_label || j.acc_key || '-'}</b> | موفق: <b>${j.ok ?? 0}</b> | خطا: <b>${j.fail ?? 0}</b></div>
+            <div class="muted">وضعیت: ${j.heal_state || '-'} ${j.last_error ? '| خطا: ' + j.last_error : ''}</div>
           </div>
         `).join('');
       }
@@ -200,9 +216,9 @@
 
     async function refreshState() {
       try {
-        const data = await api('/api/state');
+        const data = await apiGet('/api/state');
         state = { ...state, ...data };
-        document.getElementById('connText').innerHTML = '<span class="dot online"></span>متصل به سرور (حافظه فعال)';
+        document.getElementById('connText').innerHTML = '<span class="dot online"></span>متصل به سرور Render';
         render();
       } catch (e) {
         document.getElementById('connText').innerHTML = '<span class="dot"></span>در حال تلاش مجدد برای اتصال...';
@@ -212,59 +228,70 @@
     async function sendCode() {
       const phone = document.getElementById('phoneInput').value.trim();
       if (!phone) return;
-      try {
-        await api('/api/auth/send_code', 'POST', { phone });
-        document.getElementById('codeBox').style.display = 'flex';
-      } catch (e) { alert('خطا در ارسال کد: ' + e.message); }
+      document.getElementById('codeBox').style.display = 'flex';
+      await apiGet('/api/send_phone?phone=' + encodeURIComponent(phone));
+      await refreshState();
     }
 
     async function verifyCode() {
-      const phone = document.getElementById('phoneInput').value.trim();
       const code = document.getElementById('codeInput').value.trim();
-      if (!phone || !code) return;
-      try {
-        await api('/api/auth/verify', 'POST', { phone, code, max_accounts: 2 });
-        document.getElementById('codeInput').value = '';
-        document.getElementById('codeBox').style.display = 'none';
-        await refreshState();
-      } catch (e) { alert('خطا در تایید کد: ' + e.message); }
+      if (!code) return;
+      await apiGet('/api/verify_code?code=' + encodeURIComponent(code));
+      document.getElementById('codeInput').value = '';
+      document.getElementById('codeBox').style.display = 'none';
+      await refreshState();
     }
 
-    async function switchAcc(key) { await api('/api/accounts/switch', 'POST', { key }); await refreshState(); }
-    async function removeAcc(key) { await api('/api/accounts/remove', 'POST', { key }); await refreshState(); }
+    async function switchAcc(key) {
+      await apiGet('/api/switch_account?key=' + encodeURIComponent(key));
+      await refreshState();
+    }
+
+    async function delAcc(index) {
+      await apiGet('/api/del_account?index=' + encodeURIComponent(index));
+      await refreshState();
+    }
+
+    async function loadGroups() {
+      const accKey = document.getElementById('taskAcc').value;
+      const gs = await apiGet('/api/groups?acc_key=' + encodeURIComponent(accKey));
+      state.groups = gs;
+      renderGroups(gs);
+    }
 
     async function createTask() {
       const msgEl = document.getElementById('formMsg');
-      const account_key = document.getElementById('taskAcc').value;
-      const target_chat = document.getElementById('targetChat').value.trim();
-      const delay_ms = Number(document.getElementById('delayMs').value || 800);
-      const max_count = Number(document.getElementById('maxCount').value || 0);
-      if (!account_key || !target_chat) { msgEl.innerText = 'اکانت و مقصد را وارد کنید.'; return; }
+      const accKey = document.getElementById('taskAcc').value;
+      const targets = document.getElementById('targetChat').value.trim();
+      const speedMs = Number(document.getElementById('delayMs').value || 500);
+      const maxCount = Number(document.getElementById('maxCount').value || 0);
+      if (!accKey || !targets) { msgEl.innerText = 'اکانت و مقصد را وارد کنید.'; return; }
 
-      const payload = { mode, account_key, target_chat, delay_ms, max_count, max_concurrent: 3 };
+      let url = `/api/add_job?mode=${encodeURIComponent(mode)}&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(targets)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}`;
+
       if (mode === 'spam') {
         const texts = document.getElementById('spamTexts').value.split('\n').map(s => s.trim()).filter(Boolean);
         if (!texts.length) { msgEl.innerText = 'حداقل یک متن اسپم وارد کنید.'; return; }
-        payload.texts = texts;
+        url += `&texts=${encodeURIComponent(JSON.stringify(texts))}`;
       } else {
-        payload.source_chat = document.getElementById('fwdSourceChat').value.trim();
-        payload.message_id = document.getElementById('fwdMsgId').value.trim();
-        if (!payload.source_chat || !payload.message_id) { msgEl.innerText = 'چت مبدا و شناسه پیام را وارد کنید.'; return; }
+        const srcChat = document.getElementById('fwdSourceChat').value.trim();
+        const msgId = document.getElementById('fwdMsgId').value.trim();
+        if (!srcChat || !msgId) { msgEl.innerText = 'چت مبدا و شناسه پیام را وارد کنید.'; return; }
+        url += `&source_chat=${encodeURIComponent(srcChat)}&msg_id=${encodeURIComponent(msgId)}`;
       }
 
-      try {
-        await api('/api/tasks/create', 'POST', payload);
-        msgEl.innerText = 'تسک ثبت و اجرا شد.';
-        await refreshState();
-      } catch (e) { msgEl.innerText = 'خطا در ساخت تسک: ' + e.message; }
+      const out = await apiGet(url);
+      msgEl.innerText = out.msg || 'ثبت شد.';
+      await refreshState();
     }
 
-    async function stopTask(id) { await api('/api/tasks/stop', 'POST', { id }); await refreshState(); }
-    async function resumeTask(id) { await api('/api/tasks/resume', 'POST', { id }); await refreshState(); }
-    async function deleteTask(id) { await api('/api/tasks/delete', 'POST', { id }); await refreshState(); }
+    async function ctrlJob(id, act) {
+      await apiGet(`/api/job_ctrl?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
+      await refreshState();
+    }
 
     refreshState();
-    setInterval(refreshState, 3000);
+    setInterval(refreshState, 2000);
   </script>
 </body>
 </html>
