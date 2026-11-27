@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FONEX GREEN</title>
+  <title>فونیکس</title>
   <style>
     :root {
-      --bg: #070b08;
-      --card: #0d1510;
-      --card-2: #121d16;
-      --border: #1d3625;
-      --green: #00e676;
-      --green-soft: rgba(0, 230, 118, 0.12);
-      --text: #e8f5ec;
-      --muted: #8aa894;
-      --danger: #ff4d5a;
-      --warn: #ffb300;
+      --bg: #040605;
+      --card: #090d0b;
+      --card-2: #0e1410;
+      --border: #17261c;
+      --green: #00d96c;
+      --green-soft: rgba(0, 217, 108, 0.09);
+      --text: #e4efe8;
+      --muted: #7c9485;
+      --danger: #e53948;
+      --warn: #e6a100;
     }
     * { box-sizing: border-box; font-family: Tahoma, sans-serif; }
     body {
@@ -27,17 +27,32 @@
     }
     .box {
       max-width: 520px;
-      margin: 0 auto 12px;
+      margin: 0 auto 10px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
     }
+    .login-box {
+      max-width: 420px;
+      margin: 28px auto;
+      background: #070a08;
+      border: 1px solid #192b20;
+      border-radius: 14px;
+      padding: 18px;
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--green);
+      text-align: center;
+      margin-bottom: 14px;
+    }
     h3 {
       margin: 0 0 10px;
-      font-size: 14px;
+      font-size: 13px;
       color: var(--green);
-      border-bottom: 1px solid #182b1e;
+      border-bottom: 1px solid #132118;
       padding-bottom: 6px;
     }
     label {
@@ -48,9 +63,9 @@
     }
     input, textarea, select {
       width: 100%;
-      background: #080d0a;
+      background: #050806;
       color: var(--text);
-      border: 1px solid #213d2a;
+      border: 1px solid #1a2e21;
       border-radius: 8px;
       padding: 8px 10px;
       font-size: 13px;
@@ -59,7 +74,7 @@
     input:focus, textarea:focus, select:focus {
       border-color: var(--green);
     }
-    textarea { min-height: 58px; resize: vertical; }
+    textarea { min-height: 56px; resize: vertical; }
     button {
       border: 0;
       border-radius: 8px;
@@ -67,20 +82,20 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      color: #051108;
+      color: #041008;
       background: var(--green);
     }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-dark { background: #17271c; color: var(--text); border: 1px solid #26422f; }
-    .btn-green { background: var(--green); color: #051108; }
-    .btn-warn { background: var(--warn); color: #140e00; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-dark { background: #101913; color: var(--text); border: 1px solid #1e3325; }
+    .btn-green { background: var(--green); color: #041008; }
+    .btn-warn { background: var(--warn); color: #120d00; }
     .btn-red { background: var(--danger); color: #fff; }
     .mini { width: auto; padding: 5px 10px; font-size: 11px; margin-top: 0; }
     .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .stat {
       background: var(--card-2);
-      border: 1px solid #1a3021;
+      border: 1px solid #15241a;
       border-radius: 8px;
       padding: 8px;
       text-align: center;
@@ -89,7 +104,7 @@
     .stat .k { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .item {
       background: var(--card-2);
-      border: 1px solid #1b3222;
+      border: 1px solid #15251b;
       border-radius: 8px;
       padding: 8px;
       margin-top: 8px;
@@ -102,6 +117,7 @@
     }
     .small { font-size: 12px; color: var(--muted); margin-top: 6px; word-break: break-word; }
     .ok-txt { color: var(--green); font-size: 12px; margin-top: 6px; }
+    .err-txt { color: var(--danger); font-size: 12px; margin-top: 6px; }
     .dot {
       display: inline-block;
       width: 8px;
@@ -111,13 +127,13 @@
       background: var(--warn);
     }
     .dot.on { background: var(--green); }
-    .mode-tab { flex: 1; background: #142219; color: var(--muted); border: 1px solid #223d2b; }
-    .mode-tab.active { background: var(--green); color: #051108; border-color: var(--green); }
-    .chat-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; max-height: 110px; overflow-y: auto; }
-    .cbtn { background: #15241a; color: var(--text); border: 1px solid #274430; padding: 4px 8px; font-size: 11px; }
+    .top-tab { flex: 1; background: #0c130e; color: var(--muted); border: 1px solid #192b20; }
+    .top-tab.active { background: var(--green); color: #041008; border-color: var(--green); }
+    .chat-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; max-height: 105px; overflow-y: auto; }
+    .cbtn { background: #0e1711; color: var(--text); border: 1px solid #1d3324; padding: 4px 8px; font-size: 11px; }
     .preview-box {
-      background: #09120c;
-      border: 1px dashed #2b593a;
+      background: #060b08;
+      border: 1px dashed #1f3b29;
       border-radius: 8px;
       padding: 8px;
       margin-top: 8px;
@@ -128,131 +144,182 @@
 </head>
 <body>
 
-  <div class="box">
-    <div class="row" style="justify-content:space-between;">
-      <div>
-        <div style="font-weight:bold; font-size:15px; color:var(--green);">FONEX PANEL</div>
-        <div id="connStatus" class="small"><span id="connDot" class="dot"></span>در حال اتصال به سرور...</div>
-      </div>
-      <div class="small">پینگ: <b id="pingVal" style="color:var(--green);">-</b> | RAM: <b id="ramVal">-</b>%</div>
+  <!-- صفحه ورود مشکی و سبز -->
+  <div id="loginScreen" class="login-box">
+    <div class="brand-title">فونیکس</div>
+
+    <label>نام کاربری:</label>
+    <input id="loginUser" type="text" value="فونیکس" />
+
+    <label>رمز عبور:</label>
+    <input id="loginPass" type="password" value="محمد۱۲۳۴" />
+
+    <label>لینک سرور:</label>
+    <input id="loginServer" type="text" value="https://khafan2.onrender.com" dir="ltr" />
+
+    <div class="row" style="margin-top:12px;">
+      <button type="button" class="btn-green" style="width:100%;" onclick="doLogin()">ورود به پنل</button>
     </div>
-    <div class="grid-3" style="margin-top:8px;">
-      <div class="stat"><div id="runCnt" class="v">0</div><div class="k">تسک فعال</div></div>
-      <div class="stat"><div id="okCnt" class="v">0</div><div class="k">ارسال موفق</div></div>
-      <div class="stat"><div id="enemyCnt" class="v">0</div><div class="k">دشمن فعال</div></div>
-    </div>
+    <div id="loginErr" class="err-txt"></div>
   </div>
 
-  <div class="box">
-    <h3>ورود اکانت و لیست اکانت‌ها</h3>
-    <label>شماره تلفن / شناسه ورود:</label>
-    <input id="phoneInp" type="text" placeholder="+98912..." dir="ltr" />
-    <button id="sendPhoneBtn" onclick="sendPhone()">ارسال کد</button>
+  <!-- پنل اصلی -->
+  <div id="mainPanel" style="display:none;">
 
-    <div id="codeWrap" style="display:none; margin-top:8px;">
-      <label>کد / رمز تایید:</label>
-      <input id="codeInp" type="text" placeholder="کد را وارد کنید" dir="ltr" />
-      <button class="btn-green" onclick="verifyCode()">تایید کد</button>
-    </div>
-    <div id="authMsg" class="small">-</div>
-
-    <div class="small" style="margin-top:10px; color:var(--green);">لیست اکانت‌ها (سوئیچ فقط نمایشی است؛ تسک‌های اکانت قبلی ادامه می‌دهند):</div>
-    <div id="accList"><div class="small">اکانتی ثبت نشده است.</div></div>
-  </div>
-
-  <div class="box">
-    <h3>اسپم و فوروارد</h3>
-    <div class="row">
-      <button type="button" id="tabSpam" class="mode-tab active" onclick="setMode('spam')">اسپم</button>
-      <button type="button" id="tabForward" class="mode-tab" onclick="setMode('forward')">فوروارد</button>
-    </div>
-
-    <div class="row">
-      <button type="button" class="mini btn-dark" onclick="fetchChats('group')">دریافت گروه</button>
-      <button type="button" class="mini btn-dark" onclick="fetchChats('private')">دریافت شخصی</button>
-    </div>
-    <div id="chatsBox" class="chat-list"></div>
-
-    <label>مقصد (شناسه چت یا یوزرنیم):</label>
-    <input id="targetInp" type="text" placeholder="مقصد اسپم یا فوروارد را انتخاب یا وارد کنید" />
-
-    <div id="spamBox">
-      <label>متن‌های اسپم (هر خط یک متن):</label>
-      <textarea id="spamTexts" placeholder="متن اول&#10;متن دوم"></textarea>
-    </div>
-
-    <div id="forwardBox" style="display:none;">
-      <label>لینک پیام مبدا (از کل حساب سروش):</label>
-      <div class="row">
-        <input id="fwdLinkInp" type="text" placeholder="https://splus.ir/..." dir="ltr" style="flex:1;" />
-        <button type="button" class="mini btn-green" onclick="findFwdMsg()">یافتن پیام</button>
-      </div>
-
-      <div id="fwdPreview" class="preview-box">
-        <div><b>چت:</b> <span id="fwdChatName">-</span> (<span id="fwdChatId">-</span>)</div>
-        <div><b>شماره پیام:</b> <span id="fwdMsgId">-</span></div>
-        <label>محتوای پیام (قابل ویرایش قبل از تایید):</label>
-        <textarea id="fwdMsgText"></textarea>
-        <div class="row">
-          <button type="button" class="mini btn-green" onclick="confirmFwdMsg()">تایید محتوای پیام</button>
-          <span id="fwdConfirmStatus" class="ok-txt" style="margin-top:0;"></span>
+    <div class="box">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div style="font-weight:bold; font-size:15px; color:var(--green);">فونیکس</div>
+          <div id="connStatus" class="small"><span id="connDot" class="dot"></span>در حال اتصال به سرور...</div>
         </div>
+        <div class="small">پینگ: <b id="pingVal" style="color:var(--green);">-</b> | RAM: <b id="ramVal">-</b>%</div>
+      </div>
+      <div class="grid-3" style="margin-top:8px;">
+        <div class="stat"><div id="runCnt" class="v">0</div><div class="k">فعال (حداکثر ۳)</div></div>
+        <div class="stat"><div id="okCnt" class="v">0</div><div class="k">ارسال موفق</div></div>
+        <div class="stat"><div id="enemyCnt" class="v">0</div><div class="k">دشمن فعال</div></div>
       </div>
     </div>
 
-    <div class="row">
-      <div style="flex:1;">
-        <label>تاخیر (ms):</label>
-        <input id="speedInp" type="number" value="500" min="40" />
+    <!-- ورود اکانت و لیست اکانت‌ها -->
+    <div class="box">
+      <h3>ورود اکانت و لیست اکانت‌ها</h3>
+      <label>شماره تلفن:</label>
+      <input id="phoneInp" type="text" placeholder="+98912..." dir="ltr" />
+      <button id="sendPhoneBtn" onclick="sendPhone()">ارسال کد</button>
+
+      <div id="codeWrap" style="display:none; margin-top:8px;">
+        <label>کد تایید:</label>
+        <input id="codeInp" type="text" placeholder="کد را وارد کنید" dir="ltr" />
+        <button class="btn-green" onclick="verifyCode()">تایید کد</button>
       </div>
-      <div style="flex:1;">
-        <label>تعداد ارسال (0 = نامحدود):</label>
-        <input id="maxInp" type="number" value="0" min="0" />
-      </div>
+      <div id="authMsg" class="small">-</div>
+
+      <div class="small" style="margin-top:10px; color:var(--green);">لیست اکانت‌ها (سوئیچ نمایشی است؛ تسک‌های اکانت قبلی ادامه می‌دهند):</div>
+      <div id="accList"><div class="small">اکانتی ثبت نشده است.</div></div>
     </div>
 
-    <button class="btn-green" onclick="addJob()">شروع تسک</button>
-    <div id="jobMsg" class="small"></div>
+    <!-- سه تب کنار هم: اسپم / فوروارد / دشمن -->
+    <div class="box">
+      <div class="row" style="margin-top:0;">
+        <button type="button" id="tabSpam" class="top-tab active" onclick="setMode('spam')">اسپم</button>
+        <button type="button" id="tabForward" class="top-tab" onclick="setMode('forward')">فوروارد</button>
+        <button type="button" id="tabEnemy" class="top-tab" onclick="setMode('enemy')">دشمن</button>
+      </div>
 
-    <h3 style="margin-top:14px;">لیست تسک‌ها (همه اکانت‌ها)</h3>
-    <div id="jobsList"><div class="small">تسکی ثبت نشده است.</div></div>
-  </div>
+      <div class="row">
+        <button type="button" class="mini btn-dark" onclick="fetchChats('group')">دریافت گروه</button>
+        <button type="button" class="mini btn-dark" onclick="fetchChats('private')">دریافت شخصی</button>
+      </div>
+      <div id="chatsBox" class="chat-list"></div>
 
-  <div class="box">
-    <h3>دشمن (ریپلای سریع روی پیام‌های جدید همان کاربر در همان چت)</h3>
-    <label>لینک یک پیام از کاربر هدف:</label>
-    <div class="row">
-      <input id="enemyLinkInp" type="text" placeholder="لینک پیام فرد را وارد کنید..." dir="ltr" style="flex:1;" />
-      <button type="button" class="mini btn-green" onclick="identifyEnemy()">شناسایی کاربر</button>
-    </div>
-    <div id="enemyTargetInfo" class="small">هنوز کاربری شناسایی نشده است.</div>
+      <!-- بخش اسپم -->
+      <div id="spamSection">
+        <label>مقصد اسپم:</label>
+        <input id="spamTargetInp" type="text" placeholder="مقصد را انتخاب یا وارد کنید" />
 
-    <label>متن‌های ریپلای (هر خط یک متن):</label>
-    <textarea id="enemyTexts" placeholder="متن ریپلای ۱&#10;متن ریپلای ۲"></textarea>
+        <label>متن‌های اسپم (هر خط یک متن):</label>
+        <textarea id="spamTexts" placeholder="متن اول&#10;متن دوم"></textarea>
 
-    <div class="row">
-      <div style="flex:1;">
-        <label>حداکثر تعداد ریپلای (0 = نامحدود):</label>
+        <div class="row">
+          <div style="flex:1;">
+            <label>تاخیر (ms):</label>
+            <input id="spamSpeedInp" type="number" value="400" min="40" />
+          </div>
+          <div style="flex:1;">
+            <label>تعداد ارسال (0 = نامحدود):</label>
+            <input id="spamMaxInp" type="number" value="0" min="0" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button type="button" class="btn-green" style="flex:1;" onclick="addSpamJob()">شروع اسپم</button>
+          <button type="button" class="btn-dark" onclick="resetSpamForm()">افزودن اسپم جدید</button>
+        </div>
+        <div id="spamMsg" class="small"></div>
+      </div>
+
+      <!-- بخش فوروارد -->
+      <div id="forwardSection" style="display:none;">
+        <label>مقصد فوروارد:</label>
+        <input id="fwdTargetInp" type="text" placeholder="مقصد را انتخاب یا وارد کنید" />
+
+        <label>لینک پیام مبدا:</label>
+        <div class="row">
+          <input id="fwdLinkInp" type="text" placeholder="https://splus.ir/..." dir="ltr" style="flex:1;" />
+          <button type="button" class="mini btn-green" onclick="findFwdMsg()">یافتن پیام</button>
+        </div>
+
+        <div id="fwdPreview" class="preview-box">
+          <div><b>چت:</b> <span id="fwdChatName">-</span> (<span id="fwdChatId">-</span>)</div>
+          <div><b>شماره پیام:</b> <span id="fwdMsgId">-</span></div>
+          <label>محتوای پیام (قابل ویرایش قبل از تایید):</label>
+          <textarea id="fwdMsgText"></textarea>
+          <div class="row">
+            <button type="button" class="mini btn-green" onclick="confirmFwdMsg()">تایید محتوای پیام</button>
+            <span id="fwdConfirmStatus" class="ok-txt" style="margin-top:0;"></span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div style="flex:1;">
+            <label>تاخیر (ms):</label>
+            <input id="fwdSpeedInp" type="number" value="400" min="40" />
+          </div>
+          <div style="flex:1;">
+            <label>تعداد ارسال (0 = نامحدود):</label>
+            <input id="fwdMaxInp" type="number" value="0" min="0" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button type="button" class="btn-green" style="flex:1;" onclick="addForwardJob()">شروع فوروارد</button>
+          <button type="button" class="btn-dark" onclick="resetForwardForm()">افزودن فوروارد جدید</button>
+        </div>
+        <div id="fwdMsg" class="small"></div>
+      </div>
+
+      <!-- بخش دشمن -->
+      <div id="enemySection" style="display:none;">
+        <label>لینک پیام فرد هدف در چت:</label>
+        <div class="row">
+          <input id="enemyLinkInp" type="text" placeholder="لینک پیام فرد را وارد کنید..." dir="ltr" style="flex:1;" />
+          <button type="button" class="mini btn-green" onclick="identifyEnemy()">شناسایی کاربر</button>
+        </div>
+        <div id="enemyTargetInfo" class="small">هنوز کاربری شناسایی نشده است.</div>
+
+        <label>متن‌های ریپلای روی پیام‌های جدید کاربر (هر خط یک متن):</label>
+        <textarea id="enemyTexts" placeholder="متن ریپلای ۱&#10;متن ریپلای ۲"></textarea>
+
+        <label>تعداد ریپلای (0 = نامحدود):</label>
         <input id="enemyMaxInp" type="number" value="0" min="0" />
-      </div>
-      <div style="flex:1;">
-        <label>سرعت بررسی (ms):</label>
-        <input id="enemySpeedInp" type="number" value="40" min="20" />
+
+        <div class="row" style="margin-top:10px;">
+          <button type="button" class="btn-green" style="flex:1;" onclick="addEnemy()">فعال‌سازی دشمن</button>
+          <button type="button" class="btn-dark" onclick="resetEnemyForm()">افزودن دشمن جدید</button>
+        </div>
+        <div id="enemyMsg" class="small"></div>
+
+        <h3 style="margin-top:14px;">لیست دشمنان</h3>
+        <div id="enemiesList"><div class="small">دشمنی ثبت نشده است.</div></div>
       </div>
     </div>
 
-    <button class="btn-green" onclick="addEnemy()">فعال‌سازی دشمن</button>
-    <div id="enemyMsg" class="small"></div>
+    <!-- لیست تسک‌ها -->
+    <div class="box">
+      <h3>لیست تسک‌ها (همه اکانت‌ها — حداکثر ۳ هم‌زمان)</h3>
+      <div id="jobsList"><div class="small">تسکی ثبت نشده است.</div></div>
+    </div>
 
-    <h3 style="margin-top:14px;">لیست دشمن‌ها</h3>
-    <div id="enemiesList"><div class="small">دشمنی ثبت نشده است.</div></div>
   </div>
 
   <script>
-    const API_BASE = "https://khafan2.onrender.com";
+    const DEFAULT_API_BASE = "https://khafan2.onrender.com";
+    let API_BASE = DEFAULT_API_BASE;
 
     let mode = "spam";
     let isPolling = false;
+    let pollTimer = null;
     let lastState = { accounts: [], active_acc_key: "", jobs: [], enemy_rules: [] };
 
     let fwdConfirmed = false;
@@ -261,6 +328,24 @@
 
     function esc(s) {
       return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function doLogin() {
+      const u = document.getElementById("loginUser").value.trim();
+      const p = document.getElementById("loginPass").value.trim();
+      const srv = (document.getElementById("loginServer").value.trim() || DEFAULT_API_BASE).replace(/\/+$/, "");
+
+      if (u !== "فونیکس" || p !== "محمد۱۲۳۴") {
+        document.getElementById("loginErr").innerText = "نام کاربری یا رمز عبور اشتباه است.";
+        return;
+      }
+
+      API_BASE = srv;
+      document.getElementById("loginErr").innerText = "";
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("mainPanel").style.display = "block";
+      pollState();
+      if (!pollTimer) pollTimer = setInterval(pollState, 2200);
     }
 
     async function api(path) {
@@ -272,10 +357,21 @@
 
     function setMode(m) {
       mode = m;
-      document.getElementById("tabSpam").className = "mode-tab" + (m === "spam" ? " active" : "");
-      document.getElementById("tabForward").className = "mode-tab" + (m === "forward" ? " active" : "");
-      document.getElementById("spamBox").style.display = m === "spam" ? "block" : "none";
-      document.getElementById("forwardBox").style.display = m === "forward" ? "block" : "none";
+      document.getElementById("tabSpam").className = "top-tab" + (m === "spam" ? " active" : "");
+      document.getElementById("tabForward").className = "top-tab" + (m === "forward" ? " active" : "");
+      document.getElementById("tabEnemy").className = "top-tab" + (m === "enemy" ? " active" : "");
+
+      document.getElementById("spamSection").style.display = m === "spam" ? "block" : "none";
+      document.getElementById("forwardSection").style.display = m === "forward" ? "block" : "none";
+      document.getElementById("enemySection").style.display = m === "enemy" ? "block" : "none";
+    }
+
+    function fillTargetInput(val) {
+      if (mode === "forward") {
+        document.getElementById("fwdTargetInp").value = val;
+      } else {
+        document.getElementById("spamTargetInp").value = val;
+      }
     }
 
     async function sendPhone() {
@@ -320,11 +416,39 @@
         box.innerHTML = arr.slice(0, 35).map(ch => {
           const idVal = String(ch.id || "").replace(/'/g, "\\'");
           const lbl = `${kind === "group" ? "[گروه]" : "[پی‌وی]"} ${ch.name || ch.id}`;
-          return `<button type="button" class="cbtn" onclick="document.getElementById('targetInp').value='${idVal}'">${esc(lbl)}</button>`;
+          return `<button type="button" class="cbtn" onclick="fillTargetInput('${idVal}')">${esc(lbl)}</button>`;
         }).join("");
       } catch (e) {
         box.innerHTML = '<span class="small">خطا در دریافت لیست</span>';
       }
+    }
+
+    function resetSpamForm() {
+      document.getElementById("spamTargetInp").value = "";
+      document.getElementById("spamTexts").value = "";
+      document.getElementById("spamMaxInp").value = "0";
+      document.getElementById("spamMsg").innerText = "فرم اسپم آماده ثبت مورد جدید است.";
+    }
+
+    function resetForwardForm() {
+      document.getElementById("fwdTargetInp").value = "";
+      document.getElementById("fwdLinkInp").value = "";
+      document.getElementById("fwdMsgText").value = "";
+      document.getElementById("fwdMaxInp").value = "0";
+      document.getElementById("fwdPreview").style.display = "none";
+      document.getElementById("fwdConfirmStatus").innerText = "";
+      fwdConfirmed = false;
+      fwdMeta = { chat_id: "", channel_name: "", msg_id: 0, text: "", link: "" };
+      document.getElementById("fwdMsg").innerText = "فرم فوروارد آماده ثبت مورد جدید است.";
+    }
+
+    function resetEnemyForm() {
+      document.getElementById("enemyLinkInp").value = "";
+      document.getElementById("enemyTexts").value = "";
+      document.getElementById("enemyMaxInp").value = "0";
+      document.getElementById("enemyTargetInfo").innerText = "هنوز کاربری شناسایی نشده است.";
+      enemyTarget = { chat_id: "", channel_name: "", user_id: "", user_name: "" };
+      document.getElementById("enemyMsg").innerText = "فرم دشمن آماده ثبت مورد جدید است.";
     }
 
     async function findFwdMsg() {
@@ -373,42 +497,38 @@
       document.getElementById("fwdConfirmStatus").innerText = "تایید شد ✓";
     }
 
-    async function addJob() {
-      const msgEl = document.getElementById("jobMsg");
+    async function addSpamJob() {
+      const msgEl = document.getElementById("spamMsg");
       const accKey = lastState.active_acc_key || "";
-      const target = document.getElementById("targetInp").value.trim();
-      const speedMs = Number(document.getElementById("speedInp").value || 500);
-      const maxCount = Number(document.getElementById("maxInp").value || 0);
+      const target = document.getElementById("spamTargetInp").value.trim();
+      const speedMs = Number(document.getElementById("spamSpeedInp").value || 400);
+      const maxCount = Number(document.getElementById("spamMaxInp").value || 0);
+      const texts = document.getElementById("spamTexts").value.split("\n").map(s => s.trim()).filter(Boolean);
 
-      if (!target) {
-        msgEl.innerText = "مقصد را وارد کنید.";
-        return;
-      }
+      if (!target) { msgEl.innerText = "مقصد را وارد کنید."; return; }
+      if (!texts.length) { msgEl.innerText = "حداقل یک متن اسپم وارد کنید."; return; }
 
-      let url = `/api/add_job?mode=${encodeURIComponent(mode)}&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(target)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}`;
+      const url = `/api/add_job?mode=spam&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(target)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}&texts=${encodeURIComponent(JSON.stringify(texts))}`;
+      const out = await api(url);
+      msgEl.innerText = out.msg || "انجام شد.";
+      await pollState();
+    }
 
-      if (mode === "spam") {
-        const texts = document.getElementById("spamTexts").value.split("\n").map(s => s.trim()).filter(Boolean);
-        if (!texts.length) {
-          msgEl.innerText = "حداقل یک متن اسپم وارد کنید.";
-          return;
-        }
-        url += `&texts=${encodeURIComponent(JSON.stringify(texts))}`;
-      } else {
-        const linkVal = document.getElementById("fwdLinkInp").value.trim();
-        const curTxt = document.getElementById("fwdMsgText").value.trim();
-        if (!linkVal) {
-          msgEl.innerText = "ابتدا لینک پیام را وارد کنید.";
-          return;
-        }
-        if (!fwdConfirmed) {
-          msgEl.innerText = "ابتدا پیام را پیدا و «تایید محتوای پیام» را بزنید.";
-          return;
-        }
-        const finalPayload = curTxt || fwdMeta.text || "";
-        url += `&link=${encodeURIComponent(linkVal)}&source_chat=${encodeURIComponent(fwdMeta.chat_id)}&msg_id=${encodeURIComponent(fwdMeta.msg_id)}&payload=${encodeURIComponent(finalPayload)}`;
-      }
+    async function addForwardJob() {
+      const msgEl = document.getElementById("fwdMsg");
+      const accKey = lastState.active_acc_key || "";
+      const target = document.getElementById("fwdTargetInp").value.trim();
+      const speedMs = Number(document.getElementById("fwdSpeedInp").value || 400);
+      const maxCount = Number(document.getElementById("fwdMaxInp").value || 0);
+      const linkVal = document.getElementById("fwdLinkInp").value.trim();
+      const curTxt = document.getElementById("fwdMsgText").value.trim();
 
+      if (!target) { msgEl.innerText = "مقصد را وارد کنید."; return; }
+      if (!linkVal) { msgEl.innerText = "لینک پیام را وارد کنید."; return; }
+      if (!fwdConfirmed) { msgEl.innerText = "ابتدا پیام را پیدا و «تایید محتوای پیام» را بزنید."; return; }
+
+      const finalPayload = curTxt || fwdMeta.text || "";
+      const url = `/api/add_job?mode=forward&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(target)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}&link=${encodeURIComponent(linkVal)}&source_chat=${encodeURIComponent(fwdMeta.chat_id)}&msg_id=${encodeURIComponent(fwdMeta.msg_id)}&payload=${encodeURIComponent(finalPayload)}`;
       const out = await api(url);
       msgEl.innerText = out.msg || "انجام شد.";
       await pollState();
@@ -455,10 +575,9 @@
         return;
       }
       const maxC = Number(document.getElementById("enemyMaxInp").value || 0);
-      const spdMs = Number(document.getElementById("enemySpeedInp").value || 40);
       const accKey = lastState.active_acc_key || "";
 
-      const url = `/api/add_enemy?acc_key=${encodeURIComponent(accKey)}&chat_id=${encodeURIComponent(enemyTarget.chat_id)}&user_id=${encodeURIComponent(enemyTarget.user_id)}&user_name=${encodeURIComponent(enemyTarget.user_name)}&reply_texts=${encodeURIComponent(JSON.stringify(texts))}&max_count=${encodeURIComponent(maxC)}&speed_ms=${encodeURIComponent(spdMs)}`;
+      const url = `/api/add_enemy?acc_key=${encodeURIComponent(accKey)}&chat_id=${encodeURIComponent(enemyTarget.chat_id)}&user_id=${encodeURIComponent(enemyTarget.user_id)}&user_name=${encodeURIComponent(enemyTarget.user_name)}&reply_texts=${encodeURIComponent(JSON.stringify(texts))}&max_count=${encodeURIComponent(maxC)}`;
       const out = await api(url);
       msgEl.innerText = out.msg || "ثبت شد.";
       await pollState();
@@ -474,12 +593,15 @@
       const jobs = Array.isArray(lastState.jobs) ? lastState.jobs : [];
       const enemies = Array.isArray(lastState.enemy_rules) ? lastState.enemy_rules : [];
 
+      const activeJobsCnt = jobs.filter(j => j.running).length;
+      const activeEnemiesCnt = enemies.filter(e => e.running).length;
+
       document.getElementById("pingVal").innerText = lastState.ping || "-";
       document.getElementById("ramVal").innerText = lastState.ram ?? "-";
       document.getElementById("authMsg").innerText = lastState.auth_msg || "";
-      document.getElementById("runCnt").innerText = jobs.filter(j => j.running).length;
+      document.getElementById("runCnt").innerText = activeJobsCnt + activeEnemiesCnt;
       document.getElementById("okCnt").innerText = jobs.reduce((s, j) => s + (Number(j.ok) || 0), 0);
-      document.getElementById("enemyCnt").innerText = enemies.filter(e => e.running).length;
+      document.getElementById("enemyCnt").innerText = activeEnemiesCnt;
 
       const accEl = document.getElementById("accList");
       if (!accs.length) {
@@ -503,43 +625,62 @@
         }).join("");
       }
 
-      const jobsEl = document.getElementById("jobsList");
-      if (!jobs.length) {
-        jobsEl.innerHTML = '<div class="small">تسکی ثبت نشده است.</div>';
-      } else {
-        jobsEl.innerHTML = jobs.map(j => {
-          const mTxt = j.mode === "forward" ? "فوروارد" : "اسپم";
-          const lim = j.max_count > 0 ? `${j.ok || 0} / ${j.max_count}` : `${j.ok || 0} / ∞`;
-          return `<div class="item">
-            <div class="row" style="justify-content:space-between;">
-              <div><b>#${esc(j.id)} [${mTxt}]</b> — اکانت: <b style="color:var(--green);">${esc(j.acc_label || j.acc_key)}</b></div>
-              <div class="row">
-                <button type="button" class="mini ${j.running ? "btn-warn" : "btn-green"}" onclick="ctrlJob('${esc(j.id)}','toggle')">${j.running ? "توقف" : "ادامه"}</button>
-                <button type="button" class="mini btn-red" onclick="ctrlJob('${esc(j.id)}','delete')">حذف</button>
-              </div>
-            </div>
-            <div>مقصد: <b>${esc((j.targets || []).join(", "))}</b> | ارسال: <b>${lim}</b> | خطا: <b>${j.fail || 0}</b></div>
-            <div class="small">وضعیت: ${esc(j.heal_state || "-")} ${j.last_error ? "| خطا: " + esc(j.last_error) : ""}</div>
-          </div>`;
-        }).join("");
-      }
-
       const enEl = document.getElementById("enemiesList");
       if (!enemies.length) {
         enEl.innerHTML = '<div class="small">دشمنی ثبت نشده است.</div>';
       } else {
-        enEl.innerHTML = enemies.map(er => {
+        enEl.innerHTML = enemies.map((er, i) => {
           const lim = er.max_count > 0 ? `${er.replied_count || 0} / ${er.max_count}` : `${er.replied_count || 0} / ∞`;
           return `<div class="item">
+            <div><b style="color:var(--green);">دشمن ${i + 1}: ${esc(er.user_name || er.user_id)}</b> — چت: <b>${esc(er.chat_id)}</b></div>
+            <div>اکانت: <b>${esc(er.acc_label || er.acc_key)}</b> | ریپلای: <b>${lim}</b> | وضعیت: <b>${er.running ? "فعال" : "متوقف"}</b></div>
+            <div class="small">${esc(er.status || "")}</div>
+          </div>`;
+        }).join("");
+      }
+
+      const jobsEl = document.getElementById("jobsList");
+      const combined = [
+        ...jobs.map(j => ({
+          kind: "job",
+          id: j.id,
+          title: `#${j.id} [${j.mode === "forward" ? "فوروارد" : "اسپم"}]`,
+          acc: j.acc_label || j.acc_key,
+          running: !!j.running,
+          detail: `مقصد: ${(j.targets || []).join(", ")} | موفق: ${j.ok || 0} | خطا: ${j.fail || 0}`,
+          sub: j.last_error ? `خطا: ${j.last_error}` : (j.heal_state || "")
+        })),
+        ...enemies.map((er, i) => ({
+          kind: "enemy",
+          id: er.id,
+          title: `دشمن ${i + 1}: ${er.user_name || er.user_id}`,
+          acc: er.acc_label || er.acc_key,
+          running: !!er.running,
+          detail: `چت: ${er.chat_id} | ریپلای: ${er.replied_count || 0}`,
+          sub: er.status || ""
+        }))
+      ];
+
+      if (!combined.length) {
+        jobsEl.innerHTML = '<div class="small">تسکی ثبت نشده است.</div>';
+      } else {
+        jobsEl.innerHTML = combined.map(item => {
+          const toggleFn = item.kind === "enemy"
+            ? `ctrlEnemy('${esc(item.id)}','toggle')`
+            : `ctrlJob('${esc(item.id)}','toggle')`;
+          const delFn = item.kind === "enemy"
+            ? `ctrlEnemy('${esc(item.id)}','delete')`
+            : `ctrlJob('${esc(item.id)}','delete')`;
+          return `<div class="item">
             <div class="row" style="justify-content:space-between;">
-              <div><b style="color:var(--green);">${esc(er.user_name || er.user_id)}</b> در چت: <b>${esc(er.chat_id)}</b></div>
+              <div><b>${esc(item.title)}</b> — اکانت: <b style="color:var(--green);">${esc(item.acc)}</b></div>
               <div class="row">
-                <button type="button" class="mini ${er.running ? "btn-warn" : "btn-green"}" onclick="ctrlEnemy('${esc(er.id)}','toggle')">${er.running ? "توقف" : "ادامه"}</button>
-                <button type="button" class="mini btn-red" onclick="ctrlEnemy('${esc(er.id)}','delete')">حذف</button>
+                <button type="button" class="mini ${item.running ? "btn-warn" : "btn-green"}" onclick="${toggleFn}">${item.running ? "توقف" : "ادامه"}</button>
+                <button type="button" class="mini btn-red" onclick="${delFn}">حذف</button>
               </div>
             </div>
-            <div>اکانت: <b>${esc(er.acc_label || er.acc_key)}</b> | ریپلای: <b>${lim}</b> | سرعت: <b>${er.last_step_ms || er.speed_ms || 40}ms</b></div>
-            <div class="small">${esc(er.status || "")}</div>
+            <div>${esc(item.detail)}</div>
+            <div class="small">${esc(item.sub)}</div>
           </div>`;
         }).join("");
       }
@@ -552,7 +693,7 @@
         const data = await api("/api/state");
         lastState = { ...lastState, ...data };
         document.getElementById("connDot").className = "dot on";
-        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل به سرور (مشکی و سبز فعال)';
+        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل به سرور';
         renderUI();
       } catch (e) {
         document.getElementById("connDot").className = "dot";
@@ -561,9 +702,6 @@
         isPolling = false;
       }
     }
-
-    pollState();
-    setInterval(pollState, 2200);
   </script>
 </body>
 </html>
