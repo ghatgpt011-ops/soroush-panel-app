@@ -147,7 +147,7 @@
       <div class="grid-3" style="margin-top:8px;">
         <div class="stat"><div id="runCnt" class="v">0</div><div class="k">فعال (حداکثر ۳)</div></div>
         <div class="stat"><div id="okCnt" class="v">0</div><div class="k">ارسال موفق</div></div>
-        <div class="stat"><div id="enemyCnt" class="v">0</div><div class="k">دشمن فعال</div></div>
+        <div class="stat"><div id="replyCnt" class="v">0</div><div class="k">ریپلای فعال</div></div>
       </div>
     </div>
 
@@ -169,12 +169,12 @@
       <div id="accList"><div class="small">اکانتی ثبت نشده است.</div></div>
     </div>
 
-    <!-- سه تب کنار هم: اسپم / فوروارد / دشمن -->
+    <!-- سه تب کنار هم: اسپم / فوروارد / ریپلای -->
     <div class="box">
       <div class="row" style="margin-top:0;">
         <button type="button" id="tabSpam" class="top-tab active" onclick="setMode('spam')">اسپم</button>
         <button type="button" id="tabForward" class="top-tab" onclick="setMode('forward')">فوروارد</button>
-        <button type="button" id="tabEnemy" class="top-tab" onclick="setMode('enemy')">دشمن</button>
+        <button type="button" id="tabReply" class="top-tab" onclick="setMode('reply')">ریپلای</button>
       </div>
 
       <div class="row">
@@ -222,11 +222,11 @@
         <label>لینک پیام مبدا:</label>
         <div class="row">
           <input id="fwdLinkInp" type="text" placeholder="https://splus.ir/..." dir="ltr" style="flex:1;" />
-          <button type="button" class="mini btn-green" onclick="findFwdMsg()">یافتن پیام</button>
+          <button type="button" class="mini btn-green" onclick="findFwdMsg()">پیدا کردن پیام</button>
         </div>
 
         <div id="fwdPreview" class="preview-box">
-          <div><b>چت:</b> <span id="fwdChatName">-</span> (<span id="fwdChatId">-</span>)</div>
+          <div><b>نام چت:</b> <span id="fwdChatName">-</span> (<span id="fwdChatId">-</span>)</div>
           <div><b>شماره پیام:</b> <span id="fwdMsgId">-</span></div>
           <label>محتوای پیام (قابل ویرایش قبل از تایید):</label>
           <textarea id="fwdMsgText" class="txt-box"></textarea>
@@ -254,34 +254,49 @@
         <div id="fwdMsg" class="small"></div>
       </div>
 
-      <!-- بخش دشمن -->
-      <div id="enemySection" style="display:none;">
-        <label>لینک پیام فرد هدف در چت:</label>
+      <!-- بخش ریپلای -->
+      <div id="replySection" style="display:none;">
+        <label>لینک پیام:</label>
         <div class="row">
-          <input id="enemyLinkInp" type="text" placeholder="لینک پیام فرد را وارد کنید..." dir="ltr" style="flex:1;" />
-          <button type="button" class="mini btn-green" onclick="identifyEnemy()">شناسایی کاربر</button>
+          <input id="replyLinkInp" type="text" placeholder="https://splus.ir/..." dir="ltr" style="flex:1;" />
+          <button type="button" class="mini btn-green" onclick="findReplyMsg()">پیدا کردن پیام</button>
         </div>
-        <div id="enemyTargetInfo" class="small">هنوز کاربری شناسایی نشده است.</div>
+
+        <div id="replyPreview" class="preview-box">
+          <div><b>نام چت:</b> <span id="replyChatName">-</span> (<span id="replyChatId">-</span>)</div>
+          <div><b>شماره پیام:</b> <span id="replyMsgId">-</span></div>
+          <label>محتوای پیام لینک:</label>
+          <textarea id="replySourceText" class="txt-box" placeholder="محتوای پیام..."></textarea>
+          <div class="row">
+            <button type="button" class="mini btn-green" onclick="confirmReplySource()">تایید محتوای پیام</button>
+            <span id="replySourceStatus" class="ok-txt" style="margin-top:0;"></span>
+          </div>
+        </div>
 
         <div class="row" style="justify-content:space-between;">
           <label style="margin:0;">متن ریپلای:</label>
-          <button type="button" class="mini btn-dark" onclick="addTextField('enemyTextsList')">+ افزودن متن جدید</button>
+          <button type="button" class="mini btn-dark" onclick="addTextField('replyTextsList')">+ افزودن متن جدید</button>
         </div>
-        <div id="enemyTextsList">
+        <div id="replyTextsList">
           <textarea class="txt-box" placeholder="متن ریپلای را وارد کنید..."></textarea>
         </div>
 
-        <label>تعداد ریپلای (0 = نامحدود):</label>
-        <input id="enemyMaxInp" type="number" value="0" min="0" />
+        <div class="row">
+          <div style="flex:1;">
+            <label>سرعت / تاخیر (ms):</label>
+            <input id="replySpeedInp" type="number" value="400" min="40" />
+          </div>
+          <div style="flex:1;">
+            <label>تعداد ارسال (0 = نامحدود):</label>
+            <input id="replyMaxInp" type="number" value="0" min="0" />
+          </div>
+        </div>
 
         <div class="row" style="margin-top:10px;">
-          <button type="button" class="btn-green" style="flex:1;" onclick="addEnemy()">فعال‌سازی دشمن</button>
-          <button type="button" class="btn-dark" onclick="resetEnemyForm()">افزودن دشمن جدید</button>
+          <button type="button" class="btn-green" style="flex:1;" onclick="addReplyJob()">شروع ریپلای</button>
+          <button type="button" class="btn-dark" onclick="resetReplyForm()">افزودن ریپلای</button>
         </div>
-        <div id="enemyMsg" class="small"></div>
-
-        <h3 class="panel-title" style="margin-top:14px;">لیست دشمنان</h3>
-        <div id="enemiesList"><div class="small">دشمنی ثبت نشده است.</div></div>
+        <div id="replyMsg" class="small"></div>
       </div>
     </div>
 
@@ -312,11 +327,13 @@
 
     let mode = "spam";
     let isPolling = false;
-    let lastState = { accounts: [], active_acc_key: "", jobs: [], enemy_rules: [] };
+    let lastState = { accounts: [], active_acc_key: "", jobs: [] };
 
     let fwdConfirmed = false;
     let fwdMeta = { chat_id: "", channel_name: "", msg_id: 0, text: "", link: "" };
-    let enemyTarget = { chat_id: "", channel_name: "", user_id: "", user_name: "" };
+
+    let replyConfirmed = false;
+    let replyMeta = { chat_id: "", channel_name: "", msg_id: 0, text: "", link: "" };
 
     function esc(s) {
       return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -357,18 +374,22 @@
       mode = m;
       document.getElementById("tabSpam").className = "top-tab" + (m === "spam" ? " active" : "");
       document.getElementById("tabForward").className = "top-tab" + (m === "forward" ? " active" : "");
-      document.getElementById("tabEnemy").className = "top-tab" + (m === "enemy" ? " active" : "");
+      document.getElementById("tabReply").className = "top-tab" + (m === "reply" ? " active" : "");
 
       document.getElementById("spamSection").style.display = m === "spam" ? "block" : "none";
       document.getElementById("forwardSection").style.display = m === "forward" ? "block" : "none";
-      document.getElementById("enemySection").style.display = m === "enemy" ? "block" : "none";
+      document.getElementById("replySection").style.display = m === "reply" ? "block" : "none";
     }
 
     function fillTargetInput(val) {
       if (mode === "forward") {
         document.getElementById("fwdTargetInp").value = val;
-      } else {
+      } else if (mode === "spam") {
         document.getElementById("spamTargetInp").value = val;
+      } else if (mode === "reply") {
+        replyMeta.chat_id = val;
+        document.getElementById("replyChatId").innerText = val;
+        document.getElementById("replyPreview").style.display = "block";
       }
     }
 
@@ -440,13 +461,20 @@
       document.getElementById("fwdMsg").innerText = "فرم فوروارد آماده ثبت مورد جدید است.";
     }
 
-    function resetEnemyForm() {
-      document.getElementById("enemyLinkInp").value = "";
-      resetSingleFieldList("enemyTextsList", "متن ریپلای را وارد کنید...");
-      document.getElementById("enemyMaxInp").value = "0";
-      document.getElementById("enemyTargetInfo").innerText = "هنوز کاربری شناسایی نشده است.";
-      enemyTarget = { chat_id: "", channel_name: "", user_id: "", user_name: "" };
-      document.getElementById("enemyMsg").innerText = "فرم دشمن آماده ثبت مورد جدید است.";
+    function resetReplyForm() {
+      document.getElementById("replyLinkInp").value = "";
+      document.getElementById("replySourceText").value = "";
+      document.getElementById("replyChatName").innerText = "-";
+      document.getElementById("replyChatId").innerText = "-";
+      document.getElementById("replyMsgId").innerText = "-";
+      document.getElementById("replyPreview").style.display = "none";
+      document.getElementById("replySourceStatus").innerText = "";
+      resetSingleFieldList("replyTextsList", "متن ریپلای را وارد کنید...");
+      document.getElementById("replySpeedInp").value = "400";
+      document.getElementById("replyMaxInp").value = "0";
+      replyConfirmed = false;
+      replyMeta = { chat_id: "", channel_name: "", msg_id: 0, text: "", link: "" };
+      document.getElementById("replyMsg").innerText = "لیست ریپلای خالی شد؛ لینک پیام جدید را بزنید.";
     }
 
     async function findFwdMsg() {
@@ -495,6 +523,55 @@
       document.getElementById("fwdConfirmStatus").innerText = "تایید شد ✓";
     }
 
+    async function findReplyMsg() {
+      const link = document.getElementById("replyLinkInp").value.trim();
+      if (!link) return;
+      replyConfirmed = false;
+      document.getElementById("replySourceStatus").innerText = "";
+      document.getElementById("replyPreview").style.display = "block";
+      document.getElementById("replyChatName").innerText = "در حال جستجو...";
+      document.getElementById("replyChatId").innerText = "-";
+      document.getElementById("replyMsgId").innerText = "-";
+      document.getElementById("replySourceText").value = "";
+
+      try {
+        const accKey = lastState.active_acc_key || "";
+        const data = await api(`/api/fetch_msg?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(accKey)}`);
+        if (!data.ok) {
+          document.getElementById("replyChatName").innerText = data.msg || "یافت نشد";
+          return;
+        }
+        replyMeta = {
+          chat_id: data.chat_id || "",
+          channel_name: data.channel_name || data.chat_id || "",
+          msg_id: data.msg_id || 0,
+          text: data.text || "",
+          link: data.link || link
+        };
+        document.getElementById("replyChatName").innerText = replyMeta.channel_name;
+        document.getElementById("replyChatId").innerText = replyMeta.chat_id;
+        document.getElementById("replyMsgId").innerText = replyMeta.msg_id;
+        document.getElementById("replySourceText").value = replyMeta.text;
+        document.getElementById("replySourceStatus").innerText = data.source_label || "";
+      } catch (e) {
+        document.getElementById("replyChatName").innerText = "خطا در خواندن پیام";
+      }
+    }
+
+    function confirmReplySource() {
+      const txt = document.getElementById("replySourceText").value.trim();
+      replyMeta.text = txt;
+      replyConfirmed = true;
+      document.getElementById("replySourceStatus").innerText = "تایید شد ✓";
+      const customTexts = collectTexts("replyTextsList");
+      if (!customTexts.length && txt) {
+        const firstBox = document.querySelector("#replyTextsList textarea");
+        if (firstBox && !firstBox.value.trim()) {
+          firstBox.value = txt;
+        }
+      }
+    }
+
     async function addSpamJob() {
       const msgEl = document.getElementById("spamMsg");
       const accKey = lastState.active_acc_key || "";
@@ -532,74 +609,52 @@
       await pollState();
     }
 
+    async function addReplyJob() {
+      const msgEl = document.getElementById("replyMsg");
+      const accKey = lastState.active_acc_key || "";
+      const linkVal = document.getElementById("replyLinkInp").value.trim();
+      const speedMs = Number(document.getElementById("replySpeedInp").value || 400);
+      const maxCount = Number(document.getElementById("replyMaxInp").value || 0);
+      const sourceTxt = document.getElementById("replySourceText").value.trim();
+
+      if (!linkVal) { msgEl.innerText = "ابتدا لینک پیام را وارد کنید."; return; }
+      if (!replyConfirmed) { msgEl.innerText = "ابتدا «پیدا کردن پیام» و «تایید محتوای پیام» را بزنید."; return; }
+
+      let texts = collectTexts("replyTextsList");
+      if (!texts.length && (sourceTxt || replyMeta.text)) {
+        texts = [sourceTxt || replyMeta.text];
+      }
+      if (!texts.length) {
+        msgEl.innerText = "متن ریپلای را وارد کنید.";
+        return;
+      }
+
+      const targetChat = replyMeta.chat_id || "";
+      const msgId = replyMeta.msg_id || 0;
+      const url = `/api/add_job?mode=reply&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(targetChat)}&source_chat=${encodeURIComponent(targetChat)}&msg_id=${encodeURIComponent(msgId)}&link=${encodeURIComponent(linkVal)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}&texts=${encodeURIComponent(JSON.stringify(texts))}`;
+      const out = await api(url);
+      msgEl.innerText = out.msg || "انجام شد.";
+      await pollState();
+    }
+
     async function ctrlJob(id, act) {
       await api(`/api/job_ctrl?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
-      await pollState();
-    }
-
-    async function identifyEnemy() {
-      const link = document.getElementById("enemyLinkInp").value.trim();
-      const infoEl = document.getElementById("enemyTargetInfo");
-      if (!link) return;
-      infoEl.innerText = "در حال شناسایی کاربر از لینک...";
-      try {
-        const accKey = lastState.active_acc_key || "";
-        const res = await api(`/api/identify_user?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(accKey)}`);
-        if (!res.ok) {
-          infoEl.innerText = res.msg || "کاربر شناسایی نشد.";
-          return;
-        }
-        enemyTarget = {
-          chat_id: res.chat_id,
-          channel_name: res.channel_name || res.chat_id,
-          user_id: res.user_id,
-          user_name: res.user_name
-        };
-        infoEl.innerHTML = `<span style="color:var(--green);">کاربر: <b>${esc(enemyTarget.user_name)}</b> | فقط در چت: <b>${esc(enemyTarget.channel_name)}</b> (${esc(enemyTarget.chat_id)})</span>`;
-      } catch (e) {
-        infoEl.innerText = "خطا در شناسایی کاربر.";
-      }
-    }
-
-    async function addEnemy() {
-      const msgEl = document.getElementById("enemyMsg");
-      if (!enemyTarget.user_id || !enemyTarget.chat_id) {
-        msgEl.innerText = "ابتدا با لینک پیام، کاربر را شناسایی کنید.";
-        return;
-      }
-      const texts = collectTexts("enemyTextsList");
-      if (!texts.length) {
-        msgEl.innerText = "حداقل یک متن ریپلای بنویسید.";
-        return;
-      }
-      const maxC = Number(document.getElementById("enemyMaxInp").value || 0);
-      const accKey = lastState.active_acc_key || "";
-
-      const url = `/api/add_enemy?acc_key=${encodeURIComponent(accKey)}&chat_id=${encodeURIComponent(enemyTarget.chat_id)}&user_id=${encodeURIComponent(enemyTarget.user_id)}&user_name=${encodeURIComponent(enemyTarget.user_name)}&reply_texts=${encodeURIComponent(JSON.stringify(texts))}&max_count=${encodeURIComponent(maxC)}`;
-      const out = await api(url);
-      msgEl.innerText = out.msg || "ثبت شد.";
-      await pollState();
-    }
-
-    async function ctrlEnemy(id, act) {
-      await api(`/api/enemy_ctrl?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`);
       await pollState();
     }
 
     function renderUI() {
       const accs = Array.isArray(lastState.accounts) ? lastState.accounts : [];
       const jobs = Array.isArray(lastState.jobs) ? lastState.jobs : [];
-      const enemies = Array.isArray(lastState.enemy_rules) ? lastState.enemy_rules : [];
 
       const activeJobsCnt = jobs.filter(j => j.running).length;
-      const activeEnemiesCnt = enemies.filter(e => e.running).length;
+      const activeReplyCnt = jobs.filter(j => j.running && j.mode === "reply").length;
 
       document.getElementById("pingVal").innerText = lastState.ping || "-";
       document.getElementById("ramVal").innerText = lastState.ram ?? "-";
       document.getElementById("authMsg").innerText = lastState.auth_msg || "";
-      document.getElementById("runCnt").innerText = activeJobsCnt + activeEnemiesCnt;
+      document.getElementById("runCnt").innerText = activeJobsCnt;
       document.getElementById("okCnt").innerText = jobs.reduce((s, j) => s + (Number(j.ok) || 0), 0);
-      document.getElementById("enemyCnt").innerText = activeEnemiesCnt;
+      document.getElementById("replyCnt").innerText = activeReplyCnt;
 
       const accEl = document.getElementById("accList");
       if (!accs.length) {
@@ -623,62 +678,23 @@
         }).join("");
       }
 
-      const enEl = document.getElementById("enemiesList");
-      if (!enemies.length) {
-        enEl.innerHTML = '<div class="small">دشمنی ثبت نشده است.</div>';
-      } else {
-        enEl.innerHTML = enemies.map((er, i) => {
-          const lim = er.max_count > 0 ? `${er.replied_count || 0} / ${er.max_count}` : `${er.replied_count || 0} / ∞`;
-          return `<div class="item">
-            <div><b style="color:var(--green);">دشمن ${i + 1}: ${esc(er.user_name || er.user_id)}</b> — چت: <b>${esc(er.chat_id)}</b></div>
-            <div>اکانت: <b>${esc(er.acc_label || er.acc_key)}</b> | ریپلای: <b>${lim}</b> | وضعیت: <b>${er.running ? "فعال" : "متوقف"}</b></div>
-            <div class="small">${esc(er.status || "")}</div>
-          </div>`;
-        }).join("");
-      }
-
       const jobsEl = document.getElementById("jobsList");
-      const combined = [
-        ...jobs.map(j => ({
-          kind: "job",
-          id: j.id,
-          title: `#${j.id} [${j.mode === "forward" ? "فوروارد" : "اسپم"}]`,
-          acc: j.acc_label || j.acc_key,
-          running: !!j.running,
-          detail: `مقصد: ${(j.targets || []).join(", ")} | موفق: ${j.ok || 0} | خطا: ${j.fail || 0}`,
-          sub: j.last_error ? `خطا: ${j.last_error}` : (j.heal_state || "")
-        })),
-        ...enemies.map((er, i) => ({
-          kind: "enemy",
-          id: er.id,
-          title: `دشمن ${i + 1}: ${er.user_name || er.user_id}`,
-          acc: er.acc_label || er.acc_key,
-          running: !!er.running,
-          detail: `چت: ${er.chat_id} | ریپلای: ${er.replied_count || 0}`,
-          sub: er.status || ""
-        }))
-      ];
-
-      if (!combined.length) {
+      if (!jobs.length) {
         jobsEl.innerHTML = '<div class="small">تسکی ثبت نشده است.</div>';
       } else {
-        jobsEl.innerHTML = combined.map(item => {
-          const toggleFn = item.kind === "enemy"
-            ? `ctrlEnemy('${esc(item.id)}','toggle')`
-            : `ctrlJob('${esc(item.id)}','toggle')`;
-          const delFn = item.kind === "enemy"
-            ? `ctrlEnemy('${esc(item.id)}','delete')`
-            : `ctrlJob('${esc(item.id)}','delete')`;
+        jobsEl.innerHTML = jobs.map(j => {
+          const modeLabel = j.mode === "forward" ? "فوروارد" : (j.mode === "reply" ? "ریپلای" : "اسپم");
+          const msgTag = j.mode === "reply" && j.msg_id ? ` | پیام #${j.msg_id}` : "";
           return `<div class="item">
             <div class="row" style="justify-content:space-between;">
-              <div><b>${esc(item.title)}</b> — اکانت: <b style="color:var(--green);">${esc(item.acc)}</b></div>
+              <div><b>#${esc(j.id)} [${modeLabel}]</b> — اکانت: <b style="color:var(--green);">${esc(j.acc_label || j.acc_key)}</b></div>
               <div class="row">
-                <button type="button" class="mini ${item.running ? "btn-warn" : "btn-green"}" onclick="${toggleFn}">${item.running ? "توقف" : "ادامه"}</button>
-                <button type="button" class="mini btn-red" onclick="${delFn}">حذف</button>
+                <button type="button" class="mini ${j.running ? "btn-warn" : "btn-green"}" onclick="ctrlJob('${esc(j.id)}','toggle')">${j.running ? "توقف" : "ادامه"}</button>
+                <button type="button" class="mini btn-red" onclick="ctrlJob('${esc(j.id)}','delete')">حذف</button>
               </div>
             </div>
-            <div>${esc(item.detail)}</div>
-            <div class="small">${esc(item.sub)}</div>
+            <div>مقصد: ${esc((j.targets || []).join(", "))}${esc(msgTag)} | موفق: ${j.ok || 0} | خطا: ${j.fail || 0}</div>
+            <div class="small">${esc(j.last_error ? `خطا: ${j.last_error}` : (j.heal_state || ""))}</div>
           </div>`;
         }).join("");
       }
