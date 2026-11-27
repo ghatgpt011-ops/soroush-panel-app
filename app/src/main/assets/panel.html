@@ -1,309 +1,270 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FONEX PANEL</title>
-<style>
-  *{box-sizing:border-box;font-family:Tahoma,sans-serif}
-  body{margin:0;padding:10px;color:#f8fafc;background:#070a14}
-  .top{display:flex;justify-content:space-between;align-items:center;background:#101628;border:1px solid #273556;border-radius:12px;padding:10px 12px;margin-bottom:10px}
-  .brand{font-weight:bold;font-size:17px;color:#c084fc}
-  .sys{font-size:11px;color:#94a3b8;margin-top:2px}
-  .btn{border:0;border-radius:8px;padding:8px 11px;color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
-  .bp{background:#7c3aed} .bc{background:#2563eb} .bg{background:#10b981}
-  .bw{background:#f59e0b;color:#090d16} .br{background:#ef4444} .bd{background:#1e293b;border:1px solid #334155}
-  .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
-  .tab{background:#101628;border:1px solid #273556;color:#cbd5e1;border-radius:9px;padding:9px 4px;font-size:11px;font-weight:bold;cursor:pointer;text-align:center}
-  .tab.active{background:#7c3aed;border-color:#a855f7;color:#fff}
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-  .st{background:#101628;border:1px solid #273556;border-radius:10px;padding:8px;text-align:center}
-  .st b{display:block;font-size:15px;color:#e9d5ff}.st span{font-size:11px;color:#94a3b8}
-  .box{background:#101628;border:1px solid #273556;border-radius:12px;padding:12px;margin-bottom:10px}
-  h3{margin:0 0 8px;font-size:14px;color:#f1f5f9;border-bottom:1px solid #273556;padding-bottom:6px}
-  label{display:block;font-size:11px;color:#cbd5e1;margin:8px 0 3px}
-  input,textarea{width:100%;padding:8px 10px;border-radius:8px;border:1px solid #273556;background:#090e1c;color:#fff;font-size:12px}
-  textarea{min-height:60px;resize:vertical}
-  .extra-txt{margin-top:6px}
-  .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-  .preview{background:#090e1c;border:1px solid #334155;border-radius:9px;padding:8px;margin-top:8px;font-size:11px}
-  .preview.ok{border-color:#10b981;background:#071b16}
-  .item{background:#16203a;border:1px solid #273556;border-radius:9px;padding:8px;margin-top:6px;font-size:11px;line-height:1.65}
-  .speed-pill{display:inline-block;background:#0f172a;border:1px solid #38bdf8;color:#7dd3fc;border-radius:6px;padding:2px 7px;margin-top:4px;font-size:11px}
-  .chip{background:#16203a;border:1px solid #273556;border-radius:8px;padding:7px 9px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:5px;gap:6px}
-  .chip.active-acc{border-color:#a855f7;background:#22163d}
-  .tag{display:inline-flex;align-items:center;gap:5px;background:#2e1065;border:1px solid #7c3aed;color:#fae8ff;padding:3px 8px;border-radius:7px;margin:2px;font-size:11px}
-  .log{background:#050811;border:1px solid #1e293b;border-radius:6px;padding:6px;margin-top:6px;font-size:11px;color:#67e8f9;max-height:85px;overflow-y:auto;direction:ltr;text-align:left;white-space:pre-line}
-  .msg{font-size:11px;color:#cbd5e1;margin-top:6px;word-break:break-word}
-  .warn{color:#fca5a5;font-weight:bold}
-  .live-badge{font-size:11px;color:#34d399;margin-top:4px;min-height:16px}
-  #centerLoader{position:fixed;inset:0;background:rgba(7,10,20,0.72);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(2px)}
-  .spinner{width:44px;height:44px;border:4px solid rgba(192,132,252,0.22);border-top-color:#c084fc;border-radius:50%;animation:spin .8s linear infinite}
-  .loader-txt{margin-top:10px;font-size:12px;color:#f8fafc;font-weight:bold}
-  @keyframes spin{to{transform:rotate(360deg)}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FONEX PANEL</title>
+  <style>
+    * { box-sizing: border-box; font-family: Tahoma, sans-serif; }
+    body { margin: 0; padding: 14px; background: #0c0e16; color: #eef1f8; }
+    .card { background: #151926; border: 1px solid #242b40; border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat { background: #101420; border: 1px solid #20273b; border-radius: 10px; padding: 10px; text-align: center; }
+    .stat .num { font-size: 18px; font-weight: bold; }
+    .stat .lbl { font-size: 12px; color: #9aa4bf; margin-top: 4px; }
+    h3 { margin: 0 0 10px; font-size: 15px; }
+    label { display: block; font-size: 12px; color: #b5bfd9; margin: 8px 0 4px; }
+    input, select, textarea {
+      width: 100%; background: #0d1018; color: #fff; border: 1px solid #2a334d;
+      border-radius: 10px; padding: 9px 11px; font-size: 13px;
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    button {
+      border: 0; border-radius: 10px; padding: 9px 13px; font-size: 13px;
+      cursor: pointer; color: #fff; background: #5b46f6; font-weight: bold;
+    }
+    button.sec { background: #232a3e; color: #dce3f7; }
+    button.ok { background: #199c68; }
+    button.warn { background: #c93b4b; }
+    button.active { outline: 2px solid #9586ff; background: #6d58ff; }
+    .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; background: #20283d; color: #cbd5f0; }
+    .task-item { background: #101420; border: 1px solid #222a3f; border-radius: 10px; padding: 10px; margin-top: 8px; font-size: 12px; line-height: 1.7; }
+    .muted { color: #96a0ba; font-size: 12px; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; background: #e0a100; }
+    .dot.online { background: #1ec97e; }
+  </style>
 </head>
 <body>
-
-<div id="centerLoader">
-  <div class="spinner"></div>
-  <div class="loader-txt" id="loaderText">در حال بروزرسانی سریع اکانت‌ها و تسک‌ها...</div>
-</div>
-
-<div class="top">
-  <div>
-    <div class="brand">FONEX PANEL</div>
-    <div class="sys" id="sysInfo">در حال اتصال به سرور...</div>
-    <div class="live-badge" id="soroushNotice"></div>
-  </div>
-  
-  
-    
-  </div>
-
-  <div class="g2">
-    <div><label>سرعت ریپلای (ms):</label><input id="repSpeed" type="number" value="500" min="40"></div>
-    <div><label>تعداد ریپلای (0 = نامحدود):</label><input id="repCount" type="number" value="1" min="0"></div>
-  </div>
-  
-  <div class="msg" id="repMsg"></div>
-</div>
-
-<div class="box sec-panel" id="sec-enemy" style="display:none;">
-  <h3>دشمن (تشخیص کاربر از لینک پیام در همان چت + ریپلای آنی)</h3>
-  <label>لینک پیام شخص در چت:</label>
-  <div class="row">
-    <input id="enemyLink" type="text" placeholder="https://splus.ir/c/25810580/8" dir="ltr" style="flex:1">
-    
-    
-  <div class="msg" id="enemyMsg"></div>
-  <div id="enemyList"></div>
-</div>
-
-<div class="box sec-panel" id="sec-spam" style="display:none;">
-  <h3>اسپم (حداکثر ۳ مقصد)</h3>
-  <label>متن اسپم:</label>
-  <textarea id="spamText" placeholder="متن اسپم را بنویسید..."></textarea>
-
-  <label>مقصدهای اسپم (حداکثر ۳ مقصد):</label>
-  <div class="row">
-    </div>`
-  ).join('') : '<div class="msg">چتی یافت نشد.</div>';
-}
-
-function onPickGroup(id, prefix){
-  const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox' };
-  document.getElementById(mapBox[prefix]).style.display = 'none';
-  addTag(cleanPeerInput(id), prefix);
-}
-
-function renderTags(prefix){
-  const arr = getTargetsArray(prefix);
-  const el = document.getElementById(prefix === 'fwd' ? 'fwdTags' : 'spamTags');
-  if(!arr.length){ el.innerHTML = '<div class="msg">مقصدی انتخاب نشده است.</div>'; return; }
-  el.innerHTML = arr.map((t,i) => `<span class="tag">${t} <b style="cursor:pointer" onclick="removeTag(${i},'${prefix}')">×</b></span>`).join('')
-    + (arr.length > 3 ? '<div class="msg warn">حداکثر ۳ مقصد مجاز است.</div>' : '');
-}
-
-function removeTag(i, prefix){
-  const inp = document.getElementById(prefix === 'fwd' ? 'fwdTargets' : 'spamTargets');
-  const arr = getTargetsArray(prefix);
-  arr.splice(i, 1);
-  inp.value = arr.join(', ');
-  renderTags(prefix);
-}
-
-function addTag(val, prefix){
-  const inp = document.getElementById(prefix === 'fwd' ? 'fwdTargets' : 'spamTargets');
-  const msgEl = document.getElementById(prefix === 'fwd' ? 'fwdMsg' : 'spamMsg');
-  const arr = getTargetsArray(prefix);
-  if(!val || arr.includes(val)) return;
-  if(arr.length >= 3){
-    msgEl.innerText = 'حداکثر ۳ مقصد هم‌زمان مجاز است.';
-    return;
-  }
-  arr.push(val);
-  inp.value = arr.join(', ');
-  renderTags(prefix);
-}
-
-async function identifyEnemy(){
-  const link = document.getElementById('enemyLink').value.trim();
-  const infoEl = document.getElementById('enemyFoundInfo');
-  if(!link){ infoEl.innerText = 'لینک پیام را وارد کن.'; return; }
-  identifiedEnemy = null;
-  infoEl.innerText = 'در حال شناسایی کاربر در چت...';
-  const d = await api('/api/identify_user', `?link=${encodeURIComponent(link)}&acc_key=${encodeURIComponent(activeAccKey)}`, 12000);
-  if(!d || !d.ok){
-    infoEl.innerText = (d && d.msg) || 'کاربر شناسایی نشد.';
-    return;
-  }
-  identifiedEnemy = d;
-  const chTitle = d.channel_name ? `${d.channel_name} (${d.chat_id})` : d.chat_id;
-  infoEl.innerText = `کاربر شناسایی‌شده در چت ${chTitle}: ${d.user_name} (${d.user_id})`;
-}
-
-async function startEnemyRule(){
-  const msgEl = document.getElementById('enemyMsg');
-  const replyTexts = getEnemyTexts();
-  const count = document.getElementById('enemyCount').value || 0;
-  if(!identifiedEnemy){
-    msgEl.innerText = 'ابتدا لینک پیام را بده و «شناسایی کاربر در چت» را بزن.';
-    return;
-  }
-  if(!replyTexts.length){
-    msgEl.innerText = 'حداقل یک متن ریپلای دشمن را وارد کن.';
-    return;
-  }
-  const q = `?chat_id=${encodeURIComponent(identifiedEnemy.chat_id)}&user_id=${encodeURIComponent(identifiedEnemy.user_id)}&user_name=${encodeURIComponent(identifiedEnemy.user_name)}&reply_texts=${encodeURIComponent(JSON.stringify(replyTexts))}&reply_text=${encodeURIComponent(replyTexts[0])}&max_count=${count}&acc_key=${encodeURIComponent(activeAccKey)}`;
-  const d = await api('/api/add_enemy', q, 8000);
-  msgEl.innerText = (d && d.msg) || 'انجام شد';
-  burstRefresh(3, 250);
-}
-
-async function ctrlEnemy(id, act){
-  const d = await api('/api/enemy_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`, 6000);
-  if(d && d.ok === false && d.msg) document.getElementById('enemyMsg').innerText = d.msg;
-  burstRefresh(2, 250);
-}
-
-function renderEnemyList(){
-  document.getElementById('enemyList').innerHTML = enemies.length ? enemies.map(e => {
-    const tList = Array.isArray(e.reply_texts) && e.reply_texts.length ? e.reply_texts : [e.reply_text || ''];
-    return `<div class="item">
-      <b>اکانت: ${e.acc_label || e.acc_key}</b> | دشمن: <b>${e.user_name}</b> (${e.user_id}) | چت: ${e.chat_id}<br>
-      وضعیت: <b>${e.status}</b> | ریپلای‌شده: ${e.replied_count || 0}${e.max_count ? ' / ' + e.max_count : ''}
-      <div class="speed-pill" dir="ltr">سرعت: ${fmtSpeed(e.speed_ms || 350)} | آخرین اجرا: ${fmtSpeed(e.last_step_ms || 0)}</div><br>
-      متن‌های ریپلای (${tList.length}): ${tList.join(' | ')}
-      <div class="row">
-        ` : ''}
-        
-        <button class="btn br" onclick="ctrlEnemy('${e.id}','delete')">حذف</button>
+  <div class="card">
+    <div class="row" style="justify-content: space-between;">
+      <div>
+        <div style="font-weight:bold; font-size:16px;">FONEX PANEL</div>
+        <div id="connText" class="muted"><span class="dot"></span>در حال اتصال به سرور...</div>
       </div>
-    </div>`
-  );
+      <div id="sysStats" class="muted">RAM: - | CPU: -</div>
+    </div>
+  </div>
 
-  const allCards = [...jobCards, ...enemyCards];
-  document.getElementById('taskList').innerHTML = allCards.length ? allCards.join('') : '<div class="msg">تسکی ثبت نشده است.</div>';
-}
+  <div class="grid-3 card" style="padding:10px;">
+    <div class="stat"><div id="stRunning" class="num">0</div><div class="lbl">در حال اجرا (حداکثر ۳)</div></div>
+    <div class="stat"><div id="stDone" class="num">0</div><div class="lbl">موفق / انجام‌شده</div></div>
+    <div class="stat"><div id="stRecovered" class="num">0</div><div class="lbl">خطای بازیابی‌شده</div></div>
+  </div>
 
-async function api(path, q='', timeoutMs=4500){
-  if(!baseUrl) return null;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-  try{
-    const bust = q ? `${q}${q.includes('?') ? '&' : '?'}_t=${Date.now()}` : `${path.includes('?') ? '&' : '?'}_t=${Date.now()}`;
-    const r = await fetch(baseUrl + path + bust, { signal: ctrl.signal, cache: 'no-store' });
-    return await r.json();
-  }finally{
-    clearTimeout(timer);
-  }
-}
-async function sendPhone(){
-  const p = document.getElementById('phone').value.trim();
-  if(!p) return;
-  onPhoneTyped();
-  document.getElementById('codeBox').style.display = 'block';
-  document.getElementById('authMsg').innerText = 'در حال ارسال کد (با تلاش مجدد خودکار)...';
-  if(!baseUrl) return;
-  try{
-    const d = await api('/api/send_phone', '?phone='+encodeURIComponent(p), 26000);
-    if(d){
-      if(d.active_acc_key) activeAccKey = d.active_acc_key;
-      if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
-    }
-  }catch(e){
-    document.getElementById('authMsg').innerText = 'در حال پیگیری ارسال کد از سرور...';
-  }
-  burstRefresh(4, 300);
-}
-async function verifyCode(){
-  const c = document.getElementById('code').value.trim();
-  if(!c || !baseUrl) return;
-  document.getElementById('authMsg').innerText = 'در حال تأیید کد و اتصال قوی به سروش...';
-  showCenterLoader('در حال اتصال قوی به سروش و بروزرسانی تسک‌ها...', 2500);
-  try{
-    const d = await api('/api/verify_code', '?code='+encodeURIComponent(c), 22000);
-    if(d){
-      if(d.active_acc_key) activeAccKey = d.active_acc_key;
-      if(d.auth_msg) document.getElementById('authMsg').innerText = d.auth_msg;
-      onSoroushSignal(d.event_notice || 'اکانت به سروش وصل شد', true);
-    }
-  }catch(e){
-    document.getElementById('authMsg').innerText = 'در حال بررسی وضعیت اتصال...';
-  }
-  burstRefresh(6, 250, true);
-}
-async function delAcc(i){ await api('/api/del_account', '?index='+i, 6000); burstRefresh(3, 250, true); }
-async function fetchGroups(openBox=false, prefix=activePickerMode){
-  if(!baseUrl) return;
-  activePickerMode = prefix;
-  const d = await api('/api/groups', `?acc_key=${encodeURIComponent(activeAccKey)}`, 8000);
-  if(Array.isArray(d)){
-    chats = d;
-    document.getElementById('sGrp').innerText = chats.length;
-    renderGroupList(prefix);
-    if(openBox){
-      const mapBox = { fwd: 'fwdDstBox', spam: 'spamDstBox' };
-      document.getElementById(mapBox[prefix]).style.display = 'block';
-    }
-  }
-}
-async function ctrlTask(id, act){
-  const d = await api('/api/job_ctrl', `?id=${encodeURIComponent(id)}&act=${encodeURIComponent(act)}`, 6000);
-  if(d && d.ok === false && d.msg) document.getElementById('spamMsg').innerText = d.msg;
-  burstRefresh(2, 250);
-}
-function logoutApp(){ if(window.AndroidBridge) window.AndroidBridge.logout(); }
+  <div class="card">
+    <h3>مدیریت اکانت‌ها (حداکثر ۲ اکانت)</h3>
+    <div class="muted" style="margin-bottom:8px;">اکانت فعال: <b id="activeAccLabel">هیچ‌کدام</b></div>
+    <div class="row">
+      <input id="phoneInput" type="text" placeholder="+98912..." style="flex:1; min-width:160px;" />
+      <button onclick="sendCode()">ارسال کد</button>
+    </div>
+    <div id="codeBox" class="row" style="margin-top:8px; display:none;">
+      <input id="codeInput" type="text" placeholder="کد تایید" style="flex:1; min-width:140px;" />
+      <button class="ok" onclick="verifyCode()">تایید اکانت</button>
+    </div>
+    <div id="accList" style="margin-top:10px;"></div>
+  </div>
 
-async function notifyPanelOpen(){
-  if(!baseUrl) return;
-  try{
-    const hello = await api('/api/hello', `?acc_key=${encodeURIComponent(activeAccKey)}`, 4500);
-    if(hello && hello.event_notice){
-      document.getElementById('soroushNotice').innerText = `اعلان سروش: ${hello.event_notice}`;
-    }
-    const pingRes = await api('/api/soroush_ping', `?acc_key=${encodeURIComponent(activeAccKey)}`, 8000);
-    if(pingRes && pingRes.soroush_connected){
-      onSoroushSignal(pingRes.event_notice || 'سروش به پنل وصل شد', true);
-    }
-  }catch(e){}
-}
+  <div class="card">
+    <h3>ساخت تسک جدید (حداکثر ۳ تسک هم‌زمان)</h3>
+    <div class="row" style="margin-bottom:8px;">
+      <button id="tabSpam" class="active" onclick="setMode('spam')">اسپم</button>
+      <button id="tabForward" class="sec" onclick="setMode('forward')">فوروارد</button>
+    </div>
 
-async function poll(){
-  if(!baseUrl){
-    document.getElementById('sysInfo').innerText = 'سرور در دسترس نیست';
-    hideCenterLoader();
-    return;
-  }
-  try{
-    const d = await api('/api/state', `?acc_key=${encodeURIComponent(activeAccKey)}`, 4500);
-    if(!d) return;
-    failCount = 0;
-    applyStateData(d);
-    saveCache(d);
-  }catch(e){
-    failCount += 1;
-    if(failCount >= 3){
-      document.getElementById('sysInfo').innerText = 'در حال تلاش مجدد برای اتصال به سرور...';
-      hideCenterLoader();
-    }
-  }
-}
+    <label>اکانت اجراکننده</label>
+    <select id="taskAcc"></select>
 
-renderTasks();
-renderEnemyList();
-renderAccounts();
-renderTags('fwd');
-renderTags('spam');
-loadCache();
-notifyPanelOpen();
-burstRefresh(6, 250, true);
-document.addEventListener('DOMContentLoaded', () => { loadCache(); renderTasks(); renderAccounts(); notifyPanelOpen(); burstRefresh(5, 250, true); });
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadCache(); renderTasks(); renderAccounts(); notifyPanelOpen(); burstRefresh(5, 250, true); } });
-window.addEventListener('focus', () => { renderTasks(); renderAccounts(); notifyPanelOpen(); burstRefresh(4, 250, true); });
-setInterval(poll, 1000);
-</script>
+    <label>شناسه یا لینک چت مقصد</label>
+    <input id="targetChat" type="text" placeholder="مقصد اسپم یا فوروارد" />
+
+    <div id="spamFields">
+      <label>متن‌های اسپم (هر خط یک متن)</label>
+      <textarea id="spamTexts" placeholder="متن اول&#10;متن دوم"></textarea>
+    </div>
+
+    <div id="forwardFields" style="display:none;">
+      <label>چت مبدا و شناسه پیام</label>
+      <div class="row">
+        <input id="fwdSourceChat" type="text" placeholder="چت مبدا" style="flex:1; min-width:140px;" />
+        <input id="fwdMsgId" type="text" placeholder="شناسه پیام" style="flex:1; min-width:120px;" />
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px;">
+      <div style="flex:1; min-width:130px;">
+        <label>تاخیر (ms)</label>
+        <input id="delayMs" type="number" value="800" min="100" />
+      </div>
+      <div style="flex:1; min-width:130px;">
+        <label>تعداد ارسال (0 = نامحدود)</label>
+        <input id="maxCount" type="number" value="10" min="0" />
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button id="createTaskBtn" class="ok" style="width:100%;" onclick="createTask()">شروع تسک</button>
+    </div>
+    <div id="formMsg" class="muted" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h3>تسک‌ها و حافظه بازیابی خطا</h3>
+    <div id="tasksList" class="muted">در حال دریافت وضعیت...</div>
+  </div>
+
+  <script>
+    let mode = 'spam';
+    let state = { accounts: [], active_account: null, tasks: [], stats: {} };
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById('tabSpam').className = m === 'spam' ? 'active' : 'sec';
+      document.getElementById('tabForward').className = m === 'forward' ? 'active' : 'sec';
+      document.getElementById('spamFields').style.display = m === 'spam' ? 'block' : 'none';
+      document.getElementById('forwardFields').style.display = m === 'forward' ? 'block' : 'none';
+    }
+
+    async function api(path, method = 'GET', body = null) {
+      const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(path, opts);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    }
+
+    function render() {
+      const accs = Array.isArray(state.accounts) ? state.accounts.slice(0, 2) : [];
+      const tasks = Array.isArray(state.tasks) ? state.tasks : [];
+      const runningCount = tasks.filter(t => t.status === 'running' || t.status === 'recovering').length;
+
+      document.getElementById('stRunning').innerText = runningCount;
+      document.getElementById('stDone').innerText = state.stats?.done ?? 0;
+      document.getElementById('stRecovered').innerText = state.stats?.recovered ?? 0;
+
+      if (state.stats?.ram !== undefined || state.stats?.cpu !== undefined) {
+        document.getElementById('sysStats').innerText =
+          `RAM: ${state.stats.ram ?? '-'}% | CPU: ${state.stats.cpu ?? '-'}%`;
+      }
+
+      const active = accs.find(a => a.key === state.active_account) || accs[0] || null;
+      document.getElementById('activeAccLabel').innerText = active ? (active.phone || active.label || active.key) : 'هیچ‌کدام';
+
+      const accListEl = document.getElementById('accList');
+      if (!accs.length) {
+        accListEl.innerHTML = '<div class="muted">اکانتی ثبت نشده است (سقف: ۲ اکانت).</div>';
+      } else {
+        accListEl.innerHTML = accs.map(a => {
+          const isAct = active && a.key === active.key;
+          return `<div class="row" style="justify-content:space-between; margin-top:6px; background:#101420; padding:8px; border-radius:8px;">
+            <div><b>${a.phone || a.label || a.key}</b> <span class="pill">${isAct ? 'فعال' : 'آماده'}</span></div>
+            <div class="row">
+              ${!isAct ? `<button class="sec" onclick="switchAcc('${a.key}')">سوئیچ</button>` : ''}
+              <button class="warn" onclick="removeAcc('${a.key}')">حذف</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      const sel = document.getElementById('taskAcc');
+      sel.innerHTML = accs.length
+        ? accs.map(a => `<option value="${a.key}" ${active && a.key === active.key ? 'selected' : ''}>${a.phone || a.label || a.key}</option>`).join('')
+        : '<option value="">ابتدا یک اکانت ثبت کنید</option>';
+
+      const createBtn = document.getElementById('createTaskBtn');
+      createBtn.disabled = runningCount >= 3;
+      createBtn.innerText = runningCount >= 3 ? 'حداکثر ۳ تسک هم‌زمان فعال است' : 'شروع تسک';
+
+      const tasksEl = document.getElementById('tasksList');
+      if (!tasks.length) {
+        tasksEl.innerHTML = '<div class="muted">تسکی ثبت نشده است.</div>';
+      } else {
+        tasksEl.innerHTML = tasks.map(t => `
+          <div class="task-item">
+            <div class="row" style="justify-content:space-between;">
+              <div><b>${(t.mode || 'spam').toUpperCase()}</b> <span class="pill">${t.status || 'idle'}</span></div>
+              <div class="row">
+                ${(t.status === 'running' || t.status === 'recovering')
+                  ? `<button class="warn" onclick="stopTask('${t.id}')">توقف</button>`
+                  : `<button class="ok" onclick="resumeTask('${t.id}')">ادامه</button>`}
+                <button class="sec" onclick="deleteTask('${t.id}')">حذف</button>
+              </div>
+            </div>
+            <div>اکانت: <b>${t.account_key || '-'}</b> | مقصد: <b>${t.target_chat || '-'}</b> | انجام‌شده: <b>${t.sent_count ?? 0}</b></div>
+            <div class="muted">آخرین دستور: ${t.last_action || '-'} | وضعیت بازیابی: ${t.recovery_info || 'پایدار'}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function refreshState() {
+      try {
+        const data = await api('/api/state');
+        state = { ...state, ...data };
+        document.getElementById('connText').innerHTML = '<span class="dot online"></span>متصل به سرور (حافظه فعال)';
+        render();
+      } catch (e) {
+        document.getElementById('connText').innerHTML = '<span class="dot"></span>در حال تلاش مجدد برای اتصال...';
+      }
+    }
+
+    async function sendCode() {
+      const phone = document.getElementById('phoneInput').value.trim();
+      if (!phone) return;
+      try {
+        await api('/api/auth/send_code', 'POST', { phone });
+        document.getElementById('codeBox').style.display = 'flex';
+      } catch (e) { alert('خطا در ارسال کد: ' + e.message); }
+    }
+
+    async function verifyCode() {
+      const phone = document.getElementById('phoneInput').value.trim();
+      const code = document.getElementById('codeInput').value.trim();
+      if (!phone || !code) return;
+      try {
+        await api('/api/auth/verify', 'POST', { phone, code, max_accounts: 2 });
+        document.getElementById('codeInput').value = '';
+        document.getElementById('codeBox').style.display = 'none';
+        await refreshState();
+      } catch (e) { alert('خطا در تایید کد: ' + e.message); }
+    }
+
+    async function switchAcc(key) { await api('/api/accounts/switch', 'POST', { key }); await refreshState(); }
+    async function removeAcc(key) { await api('/api/accounts/remove', 'POST', { key }); await refreshState(); }
+
+    async function createTask() {
+      const msgEl = document.getElementById('formMsg');
+      const account_key = document.getElementById('taskAcc').value;
+      const target_chat = document.getElementById('targetChat').value.trim();
+      const delay_ms = Number(document.getElementById('delayMs').value || 800);
+      const max_count = Number(document.getElementById('maxCount').value || 0);
+      if (!account_key || !target_chat) { msgEl.innerText = 'اکانت و مقصد را وارد کنید.'; return; }
+
+      const payload = { mode, account_key, target_chat, delay_ms, max_count, max_concurrent: 3 };
+      if (mode === 'spam') {
+        const texts = document.getElementById('spamTexts').value.split('\n').map(s => s.trim()).filter(Boolean);
+        if (!texts.length) { msgEl.innerText = 'حداقل یک متن اسپم وارد کنید.'; return; }
+        payload.texts = texts;
+      } else {
+        payload.source_chat = document.getElementById('fwdSourceChat').value.trim();
+        payload.message_id = document.getElementById('fwdMsgId').value.trim();
+        if (!payload.source_chat || !payload.message_id) { msgEl.innerText = 'چت مبدا و شناسه پیام را وارد کنید.'; return; }
+      }
+
+      try {
+        await api('/api/tasks/create', 'POST', payload);
+        msgEl.innerText = 'تسک ثبت و اجرا شد.';
+        await refreshState();
+      } catch (e) { msgEl.innerText = 'خطا در ساخت تسک: ' + e.message; }
+    }
+
+    async function stopTask(id) { await api('/api/tasks/stop', 'POST', { id }); await refreshState(); }
+    async function resumeTask(id) { await api('/api/tasks/resume', 'POST', { id }); await refreshState(); }
+    async function deleteTask(id) { await api('/api/tasks/delete', 'POST', { id }); await refreshState(); }
+
+    refreshState();
+    setInterval(refreshState, 3000);
+  </script>
 </body>
 </html>
