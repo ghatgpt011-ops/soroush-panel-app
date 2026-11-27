@@ -25,51 +25,6 @@
       color: var(--text);
       -webkit-tap-highlight-color: transparent;
     }
-
-    /* کادر ورود با چیدمان اولیه و تم مشکی و سبز */
-    .login-wrap {
-      min-height: 92vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-    }
-    .login-card {
-      width: 100%;
-      max-width: 390px;
-      background: #070b09;
-      border: 1px solid #182b20;
-      border-radius: 18px;
-      padding: 22px 18px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
-    }
-    .login-brand {
-      text-align: center;
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      color: var(--green);
-      margin-bottom: 6px;
-    }
-    .login-sub {
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 18px;
-    }
-    .login-btn {
-      width: 100%;
-      margin-top: 16px;
-      padding: 11px 14px;
-      border-radius: 10px;
-      background: var(--green);
-      color: #031108;
-      font-size: 14px;
-      font-weight: 800;
-      border: 0;
-      cursor: pointer;
-    }
-
     .box {
       max-width: 520px;
       margin: 0 auto 10px;
@@ -153,7 +108,6 @@
     }
     .small { font-size: 12px; color: var(--muted); margin-top: 6px; word-break: break-word; }
     .ok-txt { color: var(--green); font-size: 12px; margin-top: 6px; }
-    .err-txt { color: var(--danger); font-size: 12px; margin-top: 8px; }
     .dot {
       display: inline-block;
       width: 8px;
@@ -180,28 +134,7 @@
 </head>
 <body>
 
-  <!-- کادر ورود با چیدمان اولیه و تم مشکی و سبز -->
-  <div id="loginScreen" class="login-wrap">
-    <div class="login-card">
-      <div class="login-brand">FONEX</div>
-      <div class="login-sub">ورود به پنل مدیریت و فوروارد سروش پلاس</div>
-
-      <label>آدرس سرور</label>
-      <input id="loginServer" type="text" value="https://your-app.onrender.com" dir="ltr" />
-
-      <label>نام کاربری</label>
-      <input id="loginUser" type="text" value="" dir="ltr" />
-
-      <label>رمز عبور</label>
-      <input id="loginPass" type="password" value="" dir="ltr" />
-
-      <button type="button" class="login-btn" onclick="doLogin()">ورود به پنل</button>
-      <div id="loginErr" class="err-txt"></div>
-    </div>
-  </div>
-
-  <!-- پنل اصلی -->
-  <div id="mainPanel" style="display:none;">
+  <div id="mainPanel">
 
     <div class="box">
       <div class="row" style="justify-content:space-between;">
@@ -362,11 +295,23 @@
 
   <script>
     const FALLBACK_SERVER = "https://khafan2.onrender.com";
-    let API_BASE = FALLBACK_SERVER;
+
+    function resolveServerUrl() {
+      try {
+        const saved = (localStorage.getItem("fonex_server_url") || "").trim();
+        if (saved && saved.startsWith("http")) return saved.replace(/\/+$/, "");
+      } catch (e) {}
+      try {
+        const q = new URLSearchParams(window.location.search).get("server");
+        if (q && q.startsWith("http")) return q.replace(/\/+$/, "");
+      } catch (e) {}
+      return FALLBACK_SERVER;
+    }
+
+    let API_BASE = resolveServerUrl();
 
     let mode = "spam";
     let isPolling = false;
-    let pollTimer = null;
     let lastState = { accounts: [], active_acc_key: "", jobs: [], enemy_rules: [] };
 
     let fwdConfirmed = false;
@@ -375,28 +320,6 @@
 
     function esc(s) {
       return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    }
-
-    function doLogin() {
-      const u = document.getElementById("loginUser").value.trim();
-      const p = document.getElementById("loginPass").value.trim();
-      let srv = document.getElementById("loginServer").value.trim().replace(/\/+$/, "");
-
-      if (u !== "FONEX_07" || p !== "MOHAMMAD_1234") {
-        document.getElementById("loginErr").innerText = "نام کاربری یا رمز عبور اشتباه است.";
-        return;
-      }
-
-      if (!srv || srv.includes("your-app.onrender.com")) {
-        srv = FALLBACK_SERVER;
-      }
-
-      API_BASE = srv;
-      document.getElementById("loginErr").innerText = "";
-      document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("mainPanel").style.display = "block";
-      pollState();
-      if (!pollTimer) pollTimer = setInterval(pollState, 2200);
     }
 
     async function api(path) {
@@ -777,6 +700,9 @@
         isPolling = false;
       }
     }
+
+    pollState();
+    setInterval(pollState, 2200);
   </script>
 </body>
 </html>
