@@ -144,7 +144,13 @@
         </div>
         <div class="small">پینگ: <b id="pingVal" style="color:var(--green);">-</b> | RAM: <b id="ramVal">-</b>%</div>
       </div>
-      <div class="small" style="color:var(--muted);">سرور اجراکننده: <span dir="ltr" style="color:var(--green);">https://khafan2.onrender.com</span></div>
+
+      <label style="margin-top:8px;">آدرس سرور اجراکننده (قابل تغییر):</label>
+      <div class="row" style="margin-top:0;">
+        <input id="serverUrlInp" type="text" dir="ltr" style="flex:1;" />
+        <button type="button" class="mini btn-green" onclick="saveServerUrl()">اتصال</button>
+      </div>
+
       <div class="grid-3" style="margin-top:8px;">
         <div class="stat"><div id="runCnt" class="v">0</div><div class="k">فعال روی سرور</div></div>
         <div class="stat"><div id="okCnt" class="v">0</div><div class="k">ارسال موفق</div></div>
@@ -310,8 +316,27 @@
   </div>
 
   <script>
-    const SERVER_URL = "https://khafan2.onrender.com";
-    const API_BASE = SERVER_URL;
+    const DEFAULT_SERVER_URL = "https://khafan2.onrender.com";
+
+    function loadInitialServerUrl() {
+      try {
+        const saved = (localStorage.getItem("fonex_server_url") || "").trim();
+        if (saved && saved.startsWith("http")) return saved.replace(/\/+$/, "");
+      } catch (e) {}
+      return DEFAULT_SERVER_URL;
+    }
+
+    let API_BASE = loadInitialServerUrl();
+    const srvInp = document.getElementById("serverUrlInp");
+    if (srvInp) srvInp.value = API_BASE;
+
+    function saveServerUrl() {
+      const raw = (document.getElementById("serverUrlInp").value || "").trim().replace(/\/+$/, "");
+      if (!raw || !raw.startsWith("http")) return;
+      API_BASE = raw;
+      try { localStorage.setItem("fonex_server_url", raw); } catch (e) {}
+      pollState();
+    }
 
     let mode = "spam";
     let isPolling = false;
@@ -695,7 +720,7 @@
         const data = await api("/api/state");
         lastState = { ...lastState, ...data };
         document.getElementById("connDot").className = "dot on";
-        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل به سرور khafan2';
+        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل به سرور';
         renderUI();
       } catch (e) {
         document.getElementById("connDot").className = "dot";
