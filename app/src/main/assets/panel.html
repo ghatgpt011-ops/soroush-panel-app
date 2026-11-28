@@ -144,16 +144,17 @@
         </div>
         <div class="small">پینگ: <b id="pingVal" style="color:var(--green);">-</b> | RAM: <b id="ramVal">-</b>%</div>
       </div>
+      <div class="small" style="color:var(--muted);">سرور اجراکننده: <span dir="ltr" style="color:var(--green);">https://khafan2.onrender.com</span></div>
       <div class="grid-3" style="margin-top:8px;">
-        <div class="stat"><div id="runCnt" class="v">0</div><div class="k">فعال پایدار</div></div>
+        <div class="stat"><div id="runCnt" class="v">0</div><div class="k">فعال روی سرور</div></div>
         <div class="stat"><div id="okCnt" class="v">0</div><div class="k">ارسال موفق</div></div>
         <div class="stat"><div id="replyCnt" class="v">0</div><div class="k">ریپلای فعال</div></div>
       </div>
     </div>
 
-    <!-- ورود اکانت و لیست اکانت‌ها -->
+    <!-- اتصال اکانت سروش به سرور -->
     <div class="box">
-      <h3 class="panel-title">ورود اکانت و لیست اکانت‌ها</h3>
+      <h3 class="panel-title">اتصال اکانت سروش به سرور</h3>
       <label>شماره تلفن:</label>
       <input id="phoneInp" type="text" placeholder="+98912..." dir="ltr" />
       <button id="sendPhoneBtn" onclick="sendPhone()">ارسال کد</button>
@@ -165,7 +166,7 @@
       </div>
       <div id="authMsg" class="small">-</div>
 
-      <div class="small" style="margin-top:10px; color:var(--green);">لیست اکانت‌ها (سوئیچ نمایشی است؛ تسک‌های اکانت قبلی ادامه می‌دهند):</div>
+      <div class="small" style="margin-top:10px; color:var(--green);">لیست اکانت‌های ثبت‌شده روی سرور (با حذف اپ، تسک‌ها روی سرور ادامه می‌دهند):</div>
       <div id="accList"><div class="small">اکانتی ثبت نشده است.</div></div>
     </div>
 
@@ -300,30 +301,17 @@
       </div>
     </div>
 
-    <!-- لیست تسک‌ها -->
+    <!-- لیست تسک‌های ثبت‌شده روی سرور -->
     <div class="box">
-      <h3 class="panel-title">لیست تسک‌ها (همه اکانت‌ها — پایدار ۲۴/۷)</h3>
+      <h3 class="panel-title">لیست تسک‌های ثبت‌شده روی سرور</h3>
       <div id="jobsList"><div class="small">تسکی ثبت نشده است.</div></div>
     </div>
 
   </div>
 
   <script>
-    const FALLBACK_SERVER = "https://khafan2.onrender.com";
-
-    function resolveServerUrl() {
-      try {
-        const saved = (localStorage.getItem("fonex_server_url") || "").trim();
-        if (saved && saved.startsWith("http")) return saved.replace(/\/+$/, "");
-      } catch (e) {}
-      try {
-        const q = new URLSearchParams(window.location.search).get("server");
-        if (q && q.startsWith("http")) return q.replace(/\/+$/, "");
-      } catch (e) {}
-      return FALLBACK_SERVER;
-    }
-
-    let API_BASE = resolveServerUrl();
+    const SERVER_URL = "https://khafan2.onrender.com";
+    const API_BASE = SERVER_URL;
 
     let mode = "spam";
     let isPolling = false;
@@ -340,8 +328,7 @@
     }
 
     async function api(path) {
-      const base = API_BASE.replace(/\/+$/, "");
-      const res = await fetch(base + path, { cache: "no-store" });
+      const res = await fetch(API_BASE + path, { cache: "no-store" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       return await res.json();
     }
@@ -397,7 +384,7 @@
       const p = document.getElementById("phoneInp").value.trim();
       if (!p) return;
       document.getElementById("codeWrap").style.display = "block";
-      document.getElementById("authMsg").innerText = "در حال ارسال کد...";
+      document.getElementById("authMsg").innerText = "در حال ارسال کد از سرور...";
       await api("/api/send_phone?phone=" + encodeURIComponent(p));
       await pollState();
     }
@@ -405,7 +392,7 @@
     async function verifyCode() {
       const c = document.getElementById("codeInp").value.trim();
       if (!c) return;
-      document.getElementById("authMsg").innerText = "در حال تایید...";
+      document.getElementById("authMsg").innerText = "در حال تایید روی سرور...";
       await api("/api/verify_code?code=" + encodeURIComponent(c));
       document.getElementById("codeInp").value = "";
       document.getElementById("codeWrap").style.display = "none";
@@ -424,7 +411,7 @@
 
     async function fetchChats(kind) {
       const box = document.getElementById("chatsBox");
-      box.innerHTML = '<span class="small">در حال دریافت...</span>';
+      box.innerHTML = '<span class="small">در حال دریافت از سرور...</span>';
       try {
         const accKey = lastState.active_acc_key || "";
         const arr = await api(`/api/groups?acc_key=${encodeURIComponent(accKey)}&kind=${encodeURIComponent(kind)}`);
@@ -446,7 +433,7 @@
       document.getElementById("spamTargetInp").value = "";
       resetSingleFieldList("spamTextsList", "متن را وارد کنید...");
       document.getElementById("spamMaxInp").value = "0";
-      document.getElementById("spamMsg").innerText = "فرم اسپم آماده ثبت مورد جدید است.";
+      document.getElementById("spamMsg").innerText = "فرم اسپم آماده ثبت روی سرور است.";
     }
 
     function resetForwardForm() {
@@ -458,7 +445,7 @@
       document.getElementById("fwdConfirmStatus").innerText = "";
       fwdConfirmed = false;
       fwdMeta = { chat_id: "", channel_name: "", msg_id: 0, text: "", link: "" };
-      document.getElementById("fwdMsg").innerText = "فرم فوروارد آماده ثبت مورد جدید است.";
+      document.getElementById("fwdMsg").innerText = "فرم فوروارد آماده ثبت روی سرور است.";
     }
 
     function resetReplyForm() {
@@ -585,7 +572,7 @@
 
       const url = `/api/add_job?mode=spam&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(target)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}&texts=${encodeURIComponent(JSON.stringify(texts))}`;
       const out = await api(url);
-      msgEl.innerText = out.msg || "انجام شد.";
+      msgEl.innerText = out.msg || "روی سرور ثبت شد.";
       await pollState();
     }
 
@@ -605,7 +592,7 @@
       const finalPayload = curTxt || fwdMeta.text || "";
       const url = `/api/add_job?mode=forward&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(target)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}&link=${encodeURIComponent(linkVal)}&source_chat=${encodeURIComponent(fwdMeta.chat_id)}&msg_id=${encodeURIComponent(fwdMeta.msg_id)}&payload=${encodeURIComponent(finalPayload)}`;
       const out = await api(url);
-      msgEl.innerText = out.msg || "انجام شد.";
+      msgEl.innerText = out.msg || "روی سرور ثبت شد.";
       await pollState();
     }
 
@@ -633,7 +620,7 @@
       const msgId = replyMeta.msg_id || 0;
       const url = `/api/add_job?mode=reply&acc_key=${encodeURIComponent(accKey)}&targets=${encodeURIComponent(targetChat)}&source_chat=${encodeURIComponent(targetChat)}&msg_id=${encodeURIComponent(msgId)}&link=${encodeURIComponent(linkVal)}&speed_ms=${encodeURIComponent(speedMs)}&max_count=${encodeURIComponent(maxCount)}&texts=${encodeURIComponent(JSON.stringify(texts))}`;
       const out = await api(url);
-      msgEl.innerText = out.msg || "انجام شد.";
+      msgEl.innerText = out.msg || "روی سرور ثبت شد.";
       await pollState();
     }
 
@@ -667,7 +654,7 @@
               <div>
                 <b style="color:${isAct ? "var(--green)" : "var(--text)"};">${esc(a.name || a.phone || a.key)}</b>
                 <span class="small">(${esc(a.phone || "")})</span>
-                <span class="small" style="color:${a.connected ? "var(--green)" : "var(--warn)"};">• ${a.connected ? "متصل" : "در حال اتصال"}</span>
+                <span class="small" style="color:${a.connected ? "var(--green)" : "var(--warn)"};">• ${a.connected ? "متصل روی سرور" : "در حال اتصال"}</span>
               </div>
               <div class="row">
                 ${!isAct ? `<button type="button" class="mini btn-green" onclick="switchAcc('${esc(a.key)}')">سوئیچ نمایشی</button>` : `<span class="ok-txt" style="margin-top:0;">در حال نمایش</span>`}
@@ -695,7 +682,7 @@
               </div>
             </div>
             <div>مقصد: ${esc((j.targets || []).join(", "))}${esc(msgTag)}${esc(spdTag)} | موفق: ${j.ok || 0} | خطا: ${j.fail || 0}</div>
-            <div class="small">${esc(j.last_error ? `تلاش مجدد: ${j.last_error}` : (j.heal_state || "پایدار"))}</div>
+            <div class="small">${esc(j.last_error ? `تلاش مجدد: ${j.last_error}` : (j.heal_state || "فعال روی سرور"))}</div>
           </div>`;
         }).join("");
       }
@@ -708,11 +695,11 @@
         const data = await api("/api/state");
         lastState = { ...lastState, ...data };
         document.getElementById("connDot").className = "dot on";
-        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل و پایدار';
+        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل به سرور khafan2';
         renderUI();
       } catch (e) {
         document.getElementById("connDot").className = "dot";
-        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot"></span>در حال اتصال مجدد بی‌وقفه...';
+        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot"></span>در حال تلاش مجدد برای اتصال به سرور...';
       } finally {
         isPolling = false;
       }
