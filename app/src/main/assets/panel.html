@@ -145,7 +145,7 @@
         <div class="small">پینگ: <b id="pingVal" style="color:var(--green);">-</b> | RAM: <b id="ramVal">-</b>%</div>
       </div>
       <div class="grid-3" style="margin-top:8px;">
-        <div class="stat"><div id="runCnt" class="v">0</div><div class="k">فعال (حداکثر ۳)</div></div>
+        <div class="stat"><div id="runCnt" class="v">0</div><div class="k">فعال پایدار</div></div>
         <div class="stat"><div id="okCnt" class="v">0</div><div class="k">ارسال موفق</div></div>
         <div class="stat"><div id="replyCnt" class="v">0</div><div class="k">ریپلای فعال</div></div>
       </div>
@@ -198,8 +198,8 @@
 
         <div class="row">
           <div style="flex:1;">
-            <label>تاخیر (ms):</label>
-            <input id="spamSpeedInp" type="number" value="400" min="40" />
+            <label>سرعت / تاخیر پایدار (ms):</label>
+            <input id="spamSpeedInp" type="number" value="1000" min="40" />
           </div>
           <div style="flex:1;">
             <label>تعداد ارسال (0 = نامحدود):</label>
@@ -238,8 +238,8 @@
 
         <div class="row">
           <div style="flex:1;">
-            <label>تاخیر (ms):</label>
-            <input id="fwdSpeedInp" type="number" value="400" min="40" />
+            <label>سرعت / تاخیر پایدار (ms):</label>
+            <input id="fwdSpeedInp" type="number" value="1000" min="40" />
           </div>
           <div style="flex:1;">
             <label>تعداد ارسال (0 = نامحدود):</label>
@@ -283,8 +283,8 @@
 
         <div class="row">
           <div style="flex:1;">
-            <label>سرعت / تاخیر (ms):</label>
-            <input id="replySpeedInp" type="number" value="400" min="40" />
+            <label>سرعت / تاخیر پایدار (ms):</label>
+            <input id="replySpeedInp" type="number" value="1000" min="40" />
           </div>
           <div style="flex:1;">
             <label>تعداد ارسال (0 = نامحدود):</label>
@@ -302,7 +302,7 @@
 
     <!-- لیست تسک‌ها -->
     <div class="box">
-      <h3 class="panel-title">لیست تسک‌ها (همه اکانت‌ها — حداکثر ۳ هم‌زمان)</h3>
+      <h3 class="panel-title">لیست تسک‌ها (همه اکانت‌ها — پایدار ۲۴/۷)</h3>
       <div id="jobsList"><div class="small">تسکی ثبت نشده است.</div></div>
     </div>
 
@@ -470,7 +470,7 @@
       document.getElementById("replyPreview").style.display = "none";
       document.getElementById("replySourceStatus").innerText = "";
       resetSingleFieldList("replyTextsList", "متن ریپلای را وارد کنید...");
-      document.getElementById("replySpeedInp").value = "400";
+      document.getElementById("replySpeedInp").value = "1000";
       document.getElementById("replyMaxInp").value = "0";
       replyConfirmed = false;
       replyMeta = { chat_id: "", channel_name: "", msg_id: 0, text: "", link: "" };
@@ -576,7 +576,7 @@
       const msgEl = document.getElementById("spamMsg");
       const accKey = lastState.active_acc_key || "";
       const target = document.getElementById("spamTargetInp").value.trim();
-      const speedMs = Number(document.getElementById("spamSpeedInp").value || 400);
+      const speedMs = Number(document.getElementById("spamSpeedInp").value || 1000);
       const maxCount = Number(document.getElementById("spamMaxInp").value || 0);
       const texts = collectTexts("spamTextsList");
 
@@ -593,7 +593,7 @@
       const msgEl = document.getElementById("fwdMsg");
       const accKey = lastState.active_acc_key || "";
       const target = document.getElementById("fwdTargetInp").value.trim();
-      const speedMs = Number(document.getElementById("fwdSpeedInp").value || 400);
+      const speedMs = Number(document.getElementById("fwdSpeedInp").value || 1000);
       const maxCount = Number(document.getElementById("fwdMaxInp").value || 0);
       const linkVal = document.getElementById("fwdLinkInp").value.trim();
       const curTxt = document.getElementById("fwdMsgText").value.trim();
@@ -613,7 +613,7 @@
       const msgEl = document.getElementById("replyMsg");
       const accKey = lastState.active_acc_key || "";
       const linkVal = document.getElementById("replyLinkInp").value.trim();
-      const speedMs = Number(document.getElementById("replySpeedInp").value || 400);
+      const speedMs = Number(document.getElementById("replySpeedInp").value || 1000);
       const maxCount = Number(document.getElementById("replyMaxInp").value || 0);
       const sourceTxt = document.getElementById("replySourceText").value.trim();
 
@@ -685,6 +685,7 @@
         jobsEl.innerHTML = jobs.map(j => {
           const modeLabel = j.mode === "forward" ? "فوروارد" : (j.mode === "reply" ? "ریپلای" : "اسپم");
           const msgTag = j.mode === "reply" && j.msg_id ? ` | پیام #${j.msg_id}` : "";
+          const spdTag = j.speed_ms ? ` | سرعت ثابت: ${j.speed_ms}ms` : "";
           return `<div class="item">
             <div class="row" style="justify-content:space-between;">
               <div><b>#${esc(j.id)} [${modeLabel}]</b> — اکانت: <b style="color:var(--green);">${esc(j.acc_label || j.acc_key)}</b></div>
@@ -693,8 +694,8 @@
                 <button type="button" class="mini btn-red" onclick="ctrlJob('${esc(j.id)}','delete')">حذف</button>
               </div>
             </div>
-            <div>مقصد: ${esc((j.targets || []).join(", "))}${esc(msgTag)} | موفق: ${j.ok || 0} | خطا: ${j.fail || 0}</div>
-            <div class="small">${esc(j.last_error ? `خطا: ${j.last_error}` : (j.heal_state || ""))}</div>
+            <div>مقصد: ${esc((j.targets || []).join(", "))}${esc(msgTag)}${esc(spdTag)} | موفق: ${j.ok || 0} | خطا: ${j.fail || 0}</div>
+            <div class="small">${esc(j.last_error ? `تلاش مجدد: ${j.last_error}` : (j.heal_state || "پایدار"))}</div>
           </div>`;
         }).join("");
       }
@@ -707,11 +708,11 @@
         const data = await api("/api/state");
         lastState = { ...lastState, ...data };
         document.getElementById("connDot").className = "dot on";
-        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل به سرور';
+        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot on"></span>متصل و پایدار';
         renderUI();
       } catch (e) {
         document.getElementById("connDot").className = "dot";
-        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot"></span>در حال تلاش مجدد برای اتصال...';
+        document.getElementById("connStatus").innerHTML = '<span id="connDot" class="dot"></span>در حال اتصال مجدد بی‌وقفه...';
       } finally {
         isPolling = false;
       }
